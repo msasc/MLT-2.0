@@ -32,7 +32,11 @@ public class TestTaskExecutor {
 		Print(String id) { this.id = id; }
 		public void execute() throws Throwable {
 			for (int i = 0; i < 100; i++) {
-				Thread.sleep(2);
+//				Thread.sleep(10);
+				if (shouldCancel()) {
+					System.out.println(id + ": CANCELLED");
+					break;
+				}
 				System.out.println(id + ": " + Strings.leftPad(i, 4, "0"));
 			}
 		}
@@ -41,15 +45,36 @@ public class TestTaskExecutor {
 	public static void main(String[] args) {
 		List<Task> tasks = new ArrayList<>();
 		for (int i = 0; i < 10000; i++) {
-			tasks.add(new Print("P" + Strings.leftPad(i, 4, "0")));
+			tasks.add(new Print("P" + Strings.leftPad(i, 5, "0")));
 		}
-		TaskExecutor executor = new TaskExecutor(50);
+		TaskExecutor executor = new TaskExecutor(200);
 		LocalDateTime start = LocalDateTime.now();
 		executor.submit(tasks);
 		executor.waitForTermination(tasks);
-		System.out.println(start);
-		System.out.println(LocalDateTime.now());
-		System.out.println("Shuting down...");
+		System.out.println("Terminated 1: " + executor.getCurrentWorkers());
+		try { Thread.sleep(2000); } catch (InterruptedException ignore) {};
+		tasks.clear();
+		for (int i = 10000; i < 20000; i++) {
+			tasks.add(new Print("P" + Strings.leftPad(i, 5, "0")));
+		}
+		executor.submit(tasks);
+		try { Thread.sleep(2000); } catch (InterruptedException ignore) {};
 		executor.shutdown();
+		System.out.println("Workers after shutdown: " + executor.getCurrentWorkers());
+		executor.waitForTermination(tasks);
+		System.out.println("Terminated 2: " + executor.getCurrentWorkers());
+//		try { Thread.sleep(2000); } catch (InterruptedException ignore) {};
+//		System.out.println("No more pending tasks");
+//		System.out.println(start);
+//		System.out.println(LocalDateTime.now());
+//		System.out.println(LocalDateTime.now());
+//		System.out.println("Shutting down...");
+//		executor.shutdown();
+//		System.out.println(executor.getCurrentWorkers());
+//		for (Task task : tasks) {
+//			task.reinitialize();
+//		}
+//		executor.submit(tasks);
+//		executor.waitForTermination();
 	}
 }

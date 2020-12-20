@@ -60,20 +60,16 @@ public abstract class Task implements Runnable, Callable<Void> {
 	private void executeTask() {
 		/* Reinitialize, set state to RUNNING and register start time. */
 		reinitialize();
-		setState(State.RUNNING);
+		state = State.RUNNING;
 		timeStart = LocalDateTime.now();
 		/* Perform computation and register any exception. */
-		try {
-			execute();
-		} catch (Throwable exc) {
-			exception = exc;
-		}
+		try { execute(); } catch (Throwable exc) { exception = exc; }
 		/* Set the final proper state. */
 		if (exception != null) {
-			setState(State.FAILED);
+			state = State.FAILED;
 		} else {
-			if (getState() != State.CANCELLED) {
-				setState(State.SUCCEEDED);
+			if (state != State.CANCELLED) {
+				state = State.SUCCEEDED;
 			}
 		}
 		/* Register the end of the execution. */
@@ -100,38 +96,33 @@ public abstract class Task implements Runnable, Callable<Void> {
 	 * Indicate that the task has been already cancelled. Extenders should call this method when
 	 * acquainted of a request of cancel, and immediately exit the main loop.
 	 */
-	protected void setCancelled() {
-		setState(State.CANCELLED);
-	}
+	protected void setCancelled() {	state = State.CANCELLED; }
 
 	/**
-	 * @return The state of the task.
+	 * @return A boolean that indicates whether the task is ready and waiting to be executed.
 	 */
-	private State getState() {
-		synchronized (state) {
-			return state;
-		}
-	}
+	public boolean isReady() { return state == State.READY; }
 	/**
-	 * @param state The new state.
+	 * @return A boolean that indicates whether the tas is running.
 	 */
-	private void setState(State state) {
-		synchronized (this.state) {
-			this.state = state;
-		}
-	}
-
-	public boolean isReady() { return getState() == State.READY; }
-	public boolean isRunning() { return getState() == State.RUNNING; }
-	public boolean hasSucceded() { return getState() == State.SUCCEEDED; }
-	public boolean wasCancelled() { return getState() == State.CANCELLED; }
-	public boolean hasFailed() { return getState() == State.FAILED; }
+	public boolean isRunning() { return state == State.RUNNING; }
+	/**
+	 * @return A boolean that indicates whether the task has terminated successfully.
+	 */
+	public boolean hasSucceded() { return state == State.SUCCEEDED; }
+	/**
+	 * @return A boolean that indicates whether tha task has been cancelled.
+	 */
+	public boolean wasCancelled() { return state == State.CANCELLED; }
+	/**
+	 * @return A boolean that indicates whether the task has failed and thrown an exception.
+	 */
+	public boolean hasFailed() { return state == State.FAILED; }
 
 	/**
 	 * @return A boolean indicating that the task has terminated.
 	 */
 	public boolean hasTerminated() {
-		State state = getState();
 		return (state == State.SUCCEEDED || state == State.CANCELLED || state == State.FAILED);
 	}
 
@@ -150,11 +141,11 @@ public abstract class Task implements Runnable, Callable<Void> {
 	/**
 	 * Reinitialize internal member to leave the task ready to execute.
 	 */
-	private void reinitialize() {
+	public void reinitialize() {
 		synchronized (this) {
+			state = State.READY;
 			cancelRequested = false;
 			exception = null;
-			state = State.READY;
 			timeEnd = null;
 			timeStart = null;
 		}

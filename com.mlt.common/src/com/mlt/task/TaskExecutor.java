@@ -22,7 +22,7 @@ import com.mlt.collections.Queue;
 import java.util.Collection;
 
 /**
- * An executor service that executes each submitted task using one of several pooled threads. kash
+ * An executor service that executes each submitted task using one of several pooled threads.
  *
  * @author Miquel Sas
  */
@@ -39,38 +39,33 @@ public class TaskExecutor {
 		public void run() {
 			while (true) {
 				/* Check shutdown before sleeping. */
-				synchronized (shutdown) { if (shutdown) break; }
+				if (shutdown) break;
 				/* Effectively enter the sleeping state. */
 				try { while (true) { Thread.sleep(60000); } } catch (InterruptedException go) {}
-				/* Check shutdown after sleeping. */
-				synchronized (shutdown) { if (shutdown) break; }
-				/* Dispatch pending tasks until all done or exit required. */
-				while (true) {
-					/* Every task assignment must be done while shutdown is not set. */
-					synchronized (shutdown) {
-						if (shutdown) break;
-						synchronized (pendingTasks) {
-							if (pendingTasks.isEmpty()) break;
-							Worker worker = null;
-							synchronized (iddleWorkers) {
-								if (!iddleWorkers.isEmpty()) {
-									worker = iddleWorkers.removeFirst();
+				/* Dispatch pending tasks until all done or shutdown required. */
+				while (!shutdown) {
+					Thread.yield();
+					synchronized (pendingTasks) {
+						if (pendingTasks.isEmpty()) break;
+						Worker worker = null;
+						synchronized (iddleWorkers) {
+							if (!iddleWorkers.isEmpty()) {
+								worker = iddleWorkers.removeFirst();
+							}
+						}
+						if (worker == null) {
+							synchronized (workers) {
+								if (workers.size() < parallelism) {
+									worker = new Worker();
+									worker.setName(root + "-Worker-" + workers.size());
+									worker.start();
+									workers.addLast(worker);
 								}
 							}
-							if (worker == null) {
-								synchronized (workers) {
-									if (workers.size() < parallelism) {
-										worker = new Worker();
-										worker.setName(root + "-Worker-" + workers.size());
-										worker.start();
-										workers.addLast(worker);
-									}
-								}
-							}
-							if (worker != null) {
-								worker.task = pendingTasks.removeFirst();
-								worker.interrupt();
-							}
+						}
+						if (worker != null) {
+							worker.task = pendingTasks.removeFirst();
+							worker.interrupt();
 						}
 					}
 				}
@@ -116,12 +111,10 @@ public class TaskExecutor {
 		 * @return A boolean indicating whether this worker should terminate.
 		 */
 		private boolean shouldTerminate() {
-			synchronized (shutdown) {
-				if (shutdown && task == null) return true;
-				if (shutdown && task.isReady()) return true;
-				if (shutdown && task.hasTerminated()) return true;
-				return false;
-			}
+			if (shutdown && task == null) return true;
+			if (shutdown && task.hasTerminated()) return true;
+			if (shutdown && task.shouldCancel()) return true;
+			return false;
 		}
 	}
 
@@ -194,12 +187,13 @@ public class TaskExecutor {
 	public void submit(Collection<? extends Task> tasks) {
 		/* Add to the queue of pending tasks. */
 		synchronized (pendingTasks) { pendingTasks.addAll(tasks); }
-		/* Wake up the dispatcher. */
+		/* Ensure that the dispatcher has been awakened if it was sleeping. */
 		dispatcher.interrupt();
 	}
 
 	public void waitForTermination(Collection<? extends Task> tasks) {
 		while (true) {
+			Thread.yield();
 			boolean allTerminated = true;
 			for (Task task : tasks) {
 				if (!task.hasTerminated()) {
@@ -208,7 +202,6 @@ public class TaskExecutor {
 				}
 			}
 			if (allTerminated) break;
-			try { Thread.sleep(5); } catch (InterruptedException ignore) {}
 		}
 	}
 
@@ -216,19 +209,21 @@ public class TaskExecutor {
 	 * Request an orderly shutdown.
 	 */
 	public void shutdown() {
-		/* Set the shutdown flag so every thread can check it from now on. */
-		synchronized (shutdown) { shutdown = true; }
-		/* Request running tasks to cancel its work. */
-		synchronized (workers) {
-			for (Worker worker : workers) {
-				Task task = worker.task;
-				if (task != null) task.requestCancel();
+		shutdown = true;
+		while (true) {
+			dispatcher.interrupt();
+			synchronized (workers) {
+				if (workers.isEmpty()) break;
+				for (Worker worker : workers) {
+					Task task = worker.task;
+					if (task != null) task.requestCancel();
+					worker.interrupt();
+				}
 			}
 		}
-		/* Wake up any sleeping thread to force exit. */
-		dispatcher.interrupt();
-		synchronized (workers) { for (Worker worker : workers) { worker.interrupt(); } }
+		pendingTasks.forEach(task -> task.setCancelled());
+		pendingTasks.clear();
 	}
 
-
+	public int getCurrentWorkers() { return workers.size(); }
 }
