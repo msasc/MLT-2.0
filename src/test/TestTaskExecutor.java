@@ -32,7 +32,7 @@ public class TestTaskExecutor {
 		Print(String id) { this.id = id; }
 		public void execute() throws Throwable {
 			for (int i = 0; i < 100; i++) {
-//				Thread.sleep(10);
+				Thread.sleep(10);
 				if (shouldCancel()) {
 					System.out.println(id + ": CANCELLED");
 					break;

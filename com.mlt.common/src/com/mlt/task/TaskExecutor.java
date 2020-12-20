@@ -211,6 +211,7 @@ public class TaskExecutor {
 	public void shutdown() {
 		shutdown = true;
 		while (true) {
+			Thread.yield();
 			dispatcher.interrupt();
 			synchronized (workers) {
 				if (workers.isEmpty()) break;
