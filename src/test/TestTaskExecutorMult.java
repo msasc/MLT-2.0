@@ -21,18 +21,15 @@ import com.mlt.lang.Strings;
 import com.mlt.task.Task;
 import com.mlt.task.TaskExecutor;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ForkJoinPool;
 
-public class TestTaskExecutor {
+public class TestTaskExecutorMult {
 
 	static class Print extends Task {
 		String id;
-		int loops;
+		int loops = 10000;
+		boolean exception = false;
 		Print(String id, int loops) {
 			this.id = id;
 			this.loops = loops;
@@ -44,6 +41,9 @@ public class TestTaskExecutor {
 					System.out.println(id + ": CANCELLED");
 					break;
 				}
+				if (exception && i > loops / 2) {
+					throw new Exception(id + ": EXCEPTION");
+				}
 //				if (i % 10000 == 0) {
 //					System.out.println(id + ": " + Strings.leftPad(i, 6, "0"));
 //				}
@@ -52,45 +52,62 @@ public class TestTaskExecutor {
 		}
 	}
 
-	public static void main(String[] args) {
-		int parallelism = 20;
-		int loops = 40000;
-		int start = 1;
-		int end = 10000;
-		LocalDateTime startTimeTE, endTimeTE, startTimeFJ, endTimeFJ;
-
-		TaskExecutor executor = new TaskExecutor(parallelism);
-		startTimeTE = LocalDateTime.now();
-		executor.submitAndWaitForTermination(getTasks("TE", start, end, loops));
-		executor.shutdown();
-		endTimeTE = LocalDateTime.now();
-
-		ForkJoinPool pool = new ForkJoinPool(parallelism);
-		startTimeFJ = LocalDateTime.now();
-		pool.invokeAll(getTasks("FJ", start, end, loops));
-		endTimeFJ = LocalDateTime.now();
-		pool.shutdown();
-
-		System.out.println("-----------------------------");
-		System.out.println(startTimeTE);
-		System.out.println(endTimeTE);
-		System.out.println(startTimeFJ);
-		System.out.println(endTimeFJ);
-		System.out.println("-----------------------------");
-		long timeTE = startTimeTE.until(endTimeTE, ChronoUnit.MILLIS);
-		long timeFJ = startTimeFJ.until(endTimeFJ, ChronoUnit.MILLIS);
-		System.out.println(timeTE);
-		System.out.println(timeFJ);
-		System.out.println(timeFJ-timeTE);
-
-
+	static class Exec extends Thread {
+		int exec;
+		TaskExecutor executor;
+		List<Task> tasks;
+		boolean terminated = false;
+		public void run() {
+			executor.submitAndWaitForTermination(tasks);
+			terminated = true;
+		}
 	}
 
-	private static List<Task> getTasks(String prefix, int start, int end, int loops) {
+	public static void main(String[] args) {
+		int parallelism = 10;
+		int loops = 10000;
+		int start = 1;
+		int end = 10000;
+		int num_execs = 3;
+		TaskExecutor executor = new TaskExecutor(parallelism);
+
+		List<Exec> execs = new ArrayList<>();
+		for (int i = 0; i < num_execs; i++) {
+			Exec exec = new Exec();
+			exec.executor = executor;
+			exec.exec = i;
+			exec.tasks = getTasks(start, end, loops);
+			execs.add(exec);
+		}
+		for (Exec exec : execs) {
+			exec.start();
+			try { Thread.sleep(200); } catch (InterruptedException ignore) {}
+		}
+		while (true) {
+			try { Thread.sleep(5); } catch (InterruptedException ignore) {}
+			boolean allDone = true;
+			for (Exec exec : execs) {
+				if (!exec.terminated) {
+					allDone = false;
+					break;
+				}
+			}
+			if (allDone) break;
+		}
+		executor.shutdown();
+		for (Exec exec : execs) {
+
+		}
+	}
+
+
+	private static List<Task> getTasks(int start, int end, int loops) {
 		List<Task> tasks = new ArrayList<>();
 		for (int i = start; i <= end; i++) {
-			String id = prefix + Strings.leftPad(i, 6, "0");
-			tasks.add(new Print(id, loops));
+			String id = "P" + Strings.leftPad(i, 5, "0");
+			Print p = new Print(id, loops);
+			if (i % 500 == 0) p.exception = true;
+			tasks.add(p);
 		}
 		return tasks;
 	}

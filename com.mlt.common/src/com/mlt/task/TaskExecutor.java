@@ -19,6 +19,8 @@ package com.mlt.task;
 
 import com.mlt.collections.Queue;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 
 /**
@@ -27,6 +29,20 @@ import java.util.Collection;
  * @author Miquel Sas
  */
 public class TaskExecutor {
+
+	/**
+	 * Group of tasks set used to keep track of all tasks of the same group and eventually cancel
+	 * all tasks when an exception is thrown within the group.
+	 */
+	static class Group {
+		private Queue<Task> tasks = new Queue<>();
+		private boolean cancelOnException;
+		private Group(Collection<? extends Task> tasks, boolean cancelOnException) {
+			this.tasks.addAll(tasks);
+			this.cancelOnException = cancelOnException;
+		}
+	}
+
 	/**
 	 * Dispatcher thread.
 	 */
@@ -98,6 +114,11 @@ public class TaskExecutor {
 				/* Run the eventual task. */
 				if (task != null) {
 					task.run();
+					if (task.hasFailed() && task.group.cancelOnException) {
+						for (Task t : task.group.tasks) {
+							if (!t.hasTerminated()) t.requestCancel();
+						}
+					}
 					task = null;
 				}
 				/* Check exit after running the task. */
@@ -173,29 +194,34 @@ public class TaskExecutor {
 	}
 
 	/**
-	 * @param tasks One or more tasks submitted for execution.
-	 */
-	public void submit(Task... tasks) {
-		if (tasks == null) throw new NullPointerException();
-		Queue queue = new Queue();
-		for (Task task : tasks) queue.addLast(task);
-		submit(queue);
-	}
-	/**
-	 * @param tasks Collection of tasks submitted for execution.
+	 * @param tasks Collection of tasks submitted for execution. Break on exception.
 	 */
 	public void submit(Collection<? extends Task> tasks) {
+		submit(tasks, true);
+	}
+	/**
+	 * @param tasks             Collection of tasks submitted for execution.
+	 * @param cancelOnException A boolean that indicates whether an exception on a task of the
+	 *                          collection should request cancellation of the tasks not yet
+	 *                          terminated.
+	 */
+	public void submit(Collection<? extends Task> tasks, boolean cancelOnException) {
+		/* Register the group of tasks. */
+		Group group = new Group(tasks, cancelOnException);
+		for (Task task : group.tasks) task.group = group;
 		/* Add to the queue of pending tasks. */
 		synchronized (pendingTasks) { pendingTasks.addAll(tasks); }
 		/* Ensure that the dispatcher has been awakened if it was sleeping. */
 		dispatcher.interrupt();
 	}
-
+	/**
+	 * @param tasks The collection of tasks to wait for their termination or cancellation.
+	 */
 	public void waitForTermination(Collection<? extends Task> tasks) {
 		while (true) {
-			Thread.yield();
 			boolean allTerminated = true;
 			for (Task task : tasks) {
+				Thread.yield();
 				if (!task.hasTerminated()) {
 					allTerminated = false;
 					break;
@@ -203,6 +229,14 @@ public class TaskExecutor {
 			}
 			if (allTerminated) break;
 		}
+	}
+	/**
+	 * @param tasks The collection of tasks to submit for execution, waiting for completion,
+	 *              cancelling if any exception is thrown.
+	 */
+	public void submitAndWaitForTermination(Collection<? extends Task> tasks) {
+		submit(tasks);
+		waitForTermination(tasks);
 	}
 
 	/**
@@ -225,6 +259,8 @@ public class TaskExecutor {
 		pendingTasks.forEach(task -> task.setCancelled());
 		pendingTasks.clear();
 	}
-
-	public int getCurrentWorkers() { return workers.size(); }
+	/**
+	 * @return The number of worker threads available at a given moment.
+	 */
+	public int numberOfWorkers() { return workers.size(); }
 }

@@ -49,6 +49,12 @@ public abstract class Task implements Runnable, Callable<Void> {
 	private Throwable exception;
 
 	/**
+	 * Group of tasks set when executed by the task executor to keep track of all tasks of the same
+	 * group and eventually cancel all tasks when an exception is thrown within the group.
+	 */
+	TaskExecutor.Group group;
+
+	/**
 	 * Execute the task.
 	 *
 	 * @throws Throwable If any exception occurs during execution.
@@ -58,13 +64,13 @@ public abstract class Task implements Runnable, Callable<Void> {
 	 * Launch the execution tracing state, time and exception.
 	 */
 	private void executeTask() {
-		/* Reinitialize, set state to RUNNING and register start time. */
-		reinitialize();
-		state = State.RUNNING;
-		timeStart = LocalDateTime.now();
-		/* Perform computation and register any exception. */
-		try { execute(); } catch (Throwable exc) { exception = exc; }
-		/* Set the final proper state. */
+		if (cancelRequested) {
+			setCancelled();
+		} else {
+			state = State.RUNNING;
+			timeStart = LocalDateTime.now();
+			try { execute(); } catch (Throwable exc) { exception = exc; }
+		}
 		if (exception != null) {
 			state = State.FAILED;
 		} else {
@@ -72,7 +78,6 @@ public abstract class Task implements Runnable, Callable<Void> {
 				state = State.SUCCEEDED;
 			}
 		}
-		/* Register the end of the execution. */
 		timeEnd = LocalDateTime.now();
 	}
 
@@ -96,7 +101,7 @@ public abstract class Task implements Runnable, Callable<Void> {
 	 * Indicate that the task has been already cancelled. Extenders should call this method when
 	 * acquainted of a request of cancel, and immediately exit the main loop.
 	 */
-	protected void setCancelled() {	state = State.CANCELLED; }
+	protected void setCancelled() { state = State.CANCELLED; }
 
 	/**
 	 * @return A boolean that indicates whether the task is ready and waiting to be executed.
@@ -127,6 +132,11 @@ public abstract class Task implements Runnable, Callable<Void> {
 	}
 
 	/**
+	 * @return The state.
+	 */
+	public State getState() { return state; }
+
+	/**
 	 * @return The time when execution started.
 	 */
 	public LocalDateTime getTimeStart() {
@@ -142,13 +152,11 @@ public abstract class Task implements Runnable, Callable<Void> {
 	 * Reinitialize internal member to leave the task ready to execute.
 	 */
 	public void reinitialize() {
-		synchronized (this) {
-			state = State.READY;
-			cancelRequested = false;
-			exception = null;
-			timeEnd = null;
-			timeStart = null;
-		}
+		state = State.READY;
+		cancelRequested = false;
+		exception = null;
+		timeEnd = null;
+		timeStart = null;
 	}
 
 	/**
