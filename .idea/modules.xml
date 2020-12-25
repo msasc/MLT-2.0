@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/com.mlt.common/com.mlt.common.iml" filepath="$PROJECT_DIR$/com.mlt.common/com.mlt.common.iml" />
       <module fileurl="file://$PROJECT_DIR$/com.mlt.db/com.mlt.db.iml" filepath="$PROJECT_DIR$/com.mlt.db/com.mlt.db.iml" />
+      <module fileurl="file://$PROJECT_DIR$/com.mlt.desktop/com.mlt.desktop.iml" filepath="$PROJECT_DIR$/com.mlt.desktop/com.mlt.desktop.iml" />
       <module fileurl="file://$PROJECT_DIR$/com.mlt.ml/com.mlt.ml.iml" filepath="$PROJECT_DIR$/com.mlt.ml/com.mlt.ml.iml" />
       <module fileurl="file://$PROJECT_DIR$/mlt-2.0.iml" filepath="$PROJECT_DIR$/mlt-2.0.iml" />
     </modules>
