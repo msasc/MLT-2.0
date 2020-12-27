@@ -14,7 +14,7 @@
 
 package com.mlt.desktop.graphic;
 
-import java.awt.*;
+import java.awt.RenderingHints;
 import java.util.Collection;
 import java.util.Collections;
 

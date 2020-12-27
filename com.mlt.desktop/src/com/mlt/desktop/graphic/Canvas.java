@@ -19,8 +19,14 @@ package com.mlt.desktop.graphic;
 
 import com.mlt.lang.Numbers;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
@@ -28,6 +34,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+;
 
 /**
  * A canvas implemented by a JPanel, with managed double buffering to be able to save and restore

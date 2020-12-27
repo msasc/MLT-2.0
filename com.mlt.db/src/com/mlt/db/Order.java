@@ -29,84 +29,45 @@ public class Order {
 	 */
 	public static class Segment implements Comparable<Object> {
 
-		/**
-		 * The field.
-		 */
+		/** The field. */
 		private Field field;
-		/**
-		 * The ascending flag.
-		 */
-		private boolean asc = true;
+		/** The ascending flag. */
+		private boolean ascending = true;
 
 		/**
-		 * Default constructor.
-		 */
-		public Segment() {
-			super();
-		}
-
-		/**
-		 * Copy.
-		 *
-		 * @param segment The segment.
-		 */
-		public Segment(Segment segment) {
-			this.field = segment.field;
-			this.asc = segment.asc;
-		}
-
-		/**
-		 * Constructor assigning field and asc.
-		 *
 		 * @param field The field
-		 * @param asc   The ascending flag
+		 * @param ascending   The ascending flag
 		 */
-		public Segment(Field field, boolean asc) {
-			super();
-			if (field == null) {
-				throw new NullPointerException();
-			}
+		public Segment(Field field, boolean ascending) {
+			if (field == null) throw new NullPointerException();
 			this.field = field;
-			this.asc = asc;
+			this.ascending = ascending;
 		}
 
 		/**
-		 * Get the field.
-		 *
 		 * @return The field.
 		 */
 		public Field getField() {
 			return field;
 		}
-
 		/**
-		 * Check the ascending flag.
-		 *
-		 * @return A <code>boolean</code>
-		 */
-		public boolean isAsc() {
-			return asc;
-		}
-
-		/**
-		 * Set the ascending flag.
-		 *
-		 * @param asc The ascending flag.
-		 */
-		public void setAsc(boolean asc) {
-			this.asc = asc;
-		}
-
-		/**
-		 * Set the field.
-		 *
 		 * @param field The field.
 		 */
 		public void setField(Field field) {
-			if (field == null) {
-				throw new NullPointerException();
-			}
+			if (field == null) throw new NullPointerException();
 			this.field = field;
+		}
+		/**
+		 * @return A boolean indicating whether the segment is ascending.
+		 */
+		public boolean isAscending() {
+			return ascending;
+		}
+		/**
+		 * @param ascending A boolean indicating whether the segment is ascending.
+		 */
+		public void setAscending(boolean ascending) {
+			this.ascending = ascending;
 		}
 
 		/**
@@ -116,64 +77,45 @@ public class Order {
 		public int hashCode() {
 			int hash = 0;
 			hash ^= field.hashCode();
-			hash ^= Boolean.valueOf(asc).hashCode();
+			hash ^= Boolean.valueOf(ascending).hashCode();
 			return hash;
 		}
-
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
 		public boolean equals(Object obj) {
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			final Segment other = (Segment) obj;
-			if (!Objects.equals(this.field, other.field)) {
-				return false;
-			}
-			return this.asc == other.asc;
+			if (obj == null) return false;
+			if (getClass() != obj.getClass()) return false;
+			Segment other = (Segment) obj;
+			if (!Objects.equals(this.field, other.field)) return false;
+			return this.ascending == other.ascending;
 		}
-
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
 		public int compareTo(Object o) {
-			if (o == null) {
-				throw new NullPointerException();
-			}
+			if (o == null) throw new NullPointerException();
 			if (!(o instanceof Segment)) {
 				throw new UnsupportedOperationException("Not comparable type: " + o.getClass().getName());
 			}
 			Segment orderSegment = (Segment) o;
 			int compare = field.compareTo(orderSegment.field);
-			if (compare != 0) {
-				return compare * (asc ? 1 : -1);
-			}
-			return 0;
+			if (compare != 0) return compare * (ascending ? 1 : -1);
+			return compare;
 		}
-
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
 		public String toString() {
 			StringBuilder b = new StringBuilder(128);
-			if (field != null) {
-				b.append(field.toString());
-			} else {
-				b.append("null");
-			}
+			if (field != null) b.append(field.toString());
+			else b.append("null");
 			b.append(" - ");
-			if (asc) {
-				b.append("ASC");
-			} else {
-				b.append("DESC");
-			}
+			if (ascending) b.append("ASC");
+			else b.append("DESC");
 			return b.toString();
 		}
 
@@ -185,19 +127,13 @@ public class Order {
 	/**
 	 * Default constructor.
 	 */
-	public Order() {
-		super();
-	}
-
+	public Order() {}
 	/**
-	 * Copy.
-	 *
-	 * @param order Source order.
+	 * @param order Source order to copy.
 	 */
 	public Order(Order order) {
-		super();
 		for (Segment segment : order.segments) {
-			segments.add(new Segment(segment));
+			segments.add(new Segment(segment.field, segment.ascending));
 		}
 	}
 
@@ -209,22 +145,19 @@ public class Order {
 	public void add(Field field) {
 		segments.add(new Segment(field, true));
 	}
-
 	/**
 	 * Add a segment defined by the field and the ascending flag.
 	 *
 	 * @param field The field
-	 * @param asc   The ascending flag
+	 * @param ascending   The ascending flag
 	 */
-	public void add(Field field, boolean asc) {
-		segments.add(new Segment(field, asc));
+	public void add(Field field, boolean ascending) {
+		segments.add(new Segment(field, ascending));
 	}
 
 	/**
-	 * Returns a boolean indicating whether this order contains the argument field.
-	 *
 	 * @param field The field.
-	 * @return A boolean.
+	 * @return A boolean indicating whether this order contains the argument field.
 	 */
 	public boolean contains(Field field) {
 		for (Segment segment : segments) {
@@ -236,97 +169,46 @@ public class Order {
 	}
 
 	/**
-	 * Returns the segment containing the argument field or null.
-	 *
-	 * @param field The field.
-	 * @return The segment containing the argument field or null.
-	 */
-	public Segment get(Field field) {
-		for (Segment segment : segments) {
-			if (segment.getField().equals(field)) {
-				return segment;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Returns the segment at the given index.
-	 *
 	 * @param index The segment index.
-	 * @return The segment.
+	 * @return The segment at the given index.
 	 */
 	public Segment get(int index) {
 		return segments.get(index);
 	}
-
 	/**
-	 * Returns the field at the given index.
-	 *
 	 * @param index The index of the field.
-	 * @return The field.
+	 * @return The field the field at the given index.
 	 */
 	public Field getField(int index) {
 		return get(index).getField();
+	}
+	/**
+	 * @param index The index of the segment.
+	 * @return A boolean indicating whether the segment is ascending.
+	 */
+	public boolean isAscending(int index) {
+		return get(index).isAscending();
+	}
+	/**
+	 * @return The number of segments.
+	 */
+	public int size() {
+		return segments.size();
 	}
 
 	/**
 	 * Invert the ascending flag for each segment.
 	 */
-	public void invertAsc() {
+	public void invertAscending() {
 		for (int i = 0; i < segments.size(); i++) {
-			segments.get(i).setAsc(!segments.get(i).isAsc());
+			segments.get(i).setAscending(!segments.get(i).isAscending());
 		}
 	}
-
 	/**
-	 * Check if the segment is ascending.
-	 *
-	 * @param index The index of the segment.
-	 * @return A boolean.
+	 * @param A boolean indicating the ascending order for all segments.
 	 */
-	public boolean isAsc(int index) {
-		return get(index).isAsc();
-	}
-
-	/**
-	 * Sets the segment containing the field, if any, ascending or descending.
-	 *
-	 * @param field The field.
-	 * @param asc   Ascending/descending flag.
-	 */
-	public void set(Field field, boolean asc) {
-		Segment segment = get(field);
-		if (segment != null) {
-			segment.setAsc(asc);
-		}
-	}
-	
-	/**
-	 * Set all the order as ascending.
-	 */
-	public void setAscending() {
-		for (int i = 0; i < segments.size(); i++) {
-			segments.get(i).setAsc(true);
-		}		
-	}
-
-	/**
-	 * Set all the order as descending.
-	 */
-	public void setDescending() {
-		for (int i = 0; i < segments.size(); i++) {
-			segments.get(i).setAsc(false);
-		}		
-	}
-
-	/**
-	 * Return the size or number of segments.
-	 *
-	 * @return The number of segments.
-	 */
-	public int size() {
-		return segments.size();
+	public void setAscending(boolean ascending) {
+		segments.forEach(s -> s.setAscending(ascending));
 	}
 
 	/**
@@ -337,10 +219,10 @@ public class Order {
 		StringBuilder b = new StringBuilder(256);
 		for (int i = 0; i < segments.size(); i++) {
 			b.append(segments.get(i).toString());
-			if (i < segments.size() - 1) {
-				b.append("; ");
-			}
+			if (i < segments.size() - 1) b.append("; ");
 		}
 		return b.toString();
 	}
+
+	// TODO implement  equals and hashcode
 }
