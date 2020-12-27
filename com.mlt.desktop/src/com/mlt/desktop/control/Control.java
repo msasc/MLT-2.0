@@ -25,6 +25,7 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.geom.Dimension2D;
@@ -43,27 +44,9 @@ public class Control {
 	 * @param component The JComponent.
 	 * @return The control stored in the component.
 	 */
-	public static Control getControl(JComponent component) {
+	public static Control getControl(Component component) {
 		if (component == null) return null;
-		return (Control) getProperties(component).get("CONTROL");
-	}
-	/**
-	 * Returns the properties installed in the component. Since the JComponent class does not offer
-	 * a direct method to install user objects, we use the tricky workaround of using the input map
-	 * with a MIN_INTEGER key stroke.
-	 *
-	 * @param component The JComponent.
-	 * @return The properties map.
-	 */
-	private static Map<String, Object> getProperties(JComponent component) {
-		InputMap map = component.getInputMap();
-		KeyStroke key = KeyStroke.getKeyStroke(Numbers.MIN_INTEGER, 0);
-		Map<String, Object> properties = (Map<String, Object>) map.get(key);
-		if (properties == null) {
-			properties = new HashMap<>();
-			map.put(key, properties);
-		}
-		return properties;
+		return (Control) AWT.getProperties(component).get("CONTROL");
 	}
 
 	/** Internal component. */
@@ -93,14 +76,14 @@ public class Control {
 	 * @return The property.
 	 */
 	public Object getProperty(String key) {
-		return getProperties(getComponent()).get(key);
+		return AWT.getProperties(getComponent()).get(key);
 	}
 	/**
 	 * @param key      The key.
 	 * @param property The property.
 	 */
 	public void setProperty(String key, Object property) {
-		getProperties(getComponent()).put(key, property);
+		AWT.getProperties(getComponent()).put(key, property);
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Miquel Sas
+ * Copyright (C) 2018 Miquel Sas
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
@@ -11,13 +11,25 @@
  * You should have received a copy of the GNU General Public License along with this program. If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package com.mlt.desktop.layout;
+package com.mlt.desktop.event;
+
+import java.awt.event.HierarchyBoundsListener;
+import java.awt.event.HierarchyEvent;
 
 /**
- * Orientation.
+ * Hierarchy bounds adapter.
  *
  * @author Miquel Sas
  */
-public enum Orientation {
-	HORIZONTAL, VERTICAL
+public class HierarchyBoundsHandler implements HierarchyBoundsListener {
+	/** Constructor. */
+	public HierarchyBoundsHandler() {
+		super();
+	}
+	/** {@inheritDoc} */
+	@Override
+	public void ancestorMoved(HierarchyEvent e) {}
+	/** {@inheritDoc} */
+	@Override
+	public void ancestorResized(HierarchyEvent e) {}
 }

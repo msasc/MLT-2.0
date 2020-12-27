@@ -25,10 +25,17 @@ import javax.swing.JWindow;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Window;
 import java.awt.geom.Dimension2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * AWT utilities.
@@ -36,6 +43,34 @@ import java.util.List;
  * @author Miquel Sas
  */
 public class AWT {
+
+	/**
+	 * Tricky class to put a properties map into a component, hidden in a property change listener.
+	 */
+	private static class ComponentProperties implements PropertyChangeListener {
+		private Map<String, Object> properties = new HashMap<>();
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {}
+	}
+	/**
+	 * @param component The source component.
+	 * @return The properties stored in the component.
+	 */
+	public static Map<String, Object> getProperties(Component component) {
+		ComponentProperties properties = null;
+		PropertyChangeListener[] listeners = component.getPropertyChangeListeners();
+		for (PropertyChangeListener listener : listeners) {
+			if (listener instanceof ComponentProperties) {
+				properties = (ComponentProperties) listener;
+			}
+		}
+		if (properties == null) {
+			properties = new ComponentProperties();
+			component.addPropertyChangeListener(properties);
+		}
+		return properties.properties;
+	}
+
 	/**
 	 * Fills the list with the all the components contained in the parent component and its
 	 * sub-components.
@@ -88,6 +123,23 @@ public class AWT {
 			cmp = cmp.getParent();
 		}
 		return null;
+	}
+
+	/**
+	 * @param window The window.
+	 * @return The graphics device that should apply to a window.
+	 */
+	private static GraphicsDevice getGraphicsDevice(Window window) {
+		if (window != null) return window.getGraphicsConfiguration().getDevice();
+		return GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+	}
+	/**
+	 * @param window The window.
+	 * @return The screen size containing the argument window or the primary screen if current
+	 * window is not selected.
+	 */
+	public static Dimension2D getScreenSize(Window window) {
+		return getGraphicsDevice(window).getConfigurations()[0].getBounds().getSize();
 	}
 
 	/**

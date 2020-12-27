@@ -14,14 +14,29 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
+package com.mlt.desktop.event;
 
-package com.mlt.desktop.layout;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 
 /**
- * Enumerates padding.
+ * A component event handler or adapter.
  *
  * @author Miquel Sas
  */
-public enum Pad {
-	LEFT, RIGHT
+public class ComponentHandler implements ComponentListener {
+	/** Constructor. */
+	public ComponentHandler() {}
+	/** {@inheritDoc} */
+	@Override
+	public void componentResized(ComponentEvent e) {}
+	/** {@inheritDoc} */
+	@Override
+	public void componentMoved(ComponentEvent e) {}
+	/** {@inheritDoc} */
+	@Override
+	public void componentShown(ComponentEvent e) {}
+	/** {@inheritDoc} */
+	@Override
+	public void componentHidden(ComponentEvent e) {}
 }
