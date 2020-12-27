@@ -15,8 +15,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.mlt.desktop.graphic;
+package com.mlt.desktop.control;
 
+import com.mlt.desktop.graphic.Drawing;
+import com.mlt.desktop.graphic.Hint;
 import com.mlt.lang.Numbers;
 
 import javax.swing.JPanel;
@@ -43,8 +45,30 @@ import java.util.List;
  *
  * @author Miquel Sas
  */
-public abstract class Canvas extends JPanel {
+public abstract class Canvas extends Control {
 
+	/**
+	 * Internal pane.
+	 */
+	private class CanvasPane extends JPanel {
+		/**
+		 * @param isDoubleBuffered
+		 */
+		private CanvasPane(boolean isDoubleBuffered) {
+			super(isDoubleBuffered);
+		}
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void paint(Graphics g) {
+			gc.parent = (Graphics2D) g;
+			gc.refresh();
+			paintCanvas(gc);
+			gc.flush();
+			paintBorder(g);
+		}
+	}
 	/**
 	 * The graphics context to paint on.
 	 */
@@ -212,10 +236,10 @@ public abstract class Canvas extends JPanel {
 	private Context gc;
 
 	/**
-	 * Unique constructor, without any layout manager.
+	 * Constructor.
 	 */
 	public Canvas() {
-		super(false);
+		setComponent(new CanvasPane(false));
 		gc = new Context();
 	}
 	/**
@@ -229,7 +253,7 @@ public abstract class Canvas extends JPanel {
 	 */
 	public void repaintImmediately() {
 		gc.immediateRepaint = true;
-		paintImmediately(getBounds());
+		getComponent().paintImmediately(getComponent().getBounds());
 		gc.immediateRepaint = false;
 	}
 
@@ -239,16 +263,4 @@ public abstract class Canvas extends JPanel {
 	 * @param gc The context.
 	 */
 	protected abstract void paintCanvas(Context gc);
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final void paint(Graphics g) {
-		gc.parent = (Graphics2D) g;
-		gc.refresh();
-		paintCanvas(gc);
-		gc.flush();
-		paintBorder(g);
-	}
 }

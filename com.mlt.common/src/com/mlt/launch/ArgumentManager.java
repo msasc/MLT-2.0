@@ -16,7 +16,11 @@ package com.mlt.launch;
 import com.mlt.lang.Strings;
 
 import java.nio.channels.IllegalSelectorException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Startup or command line argument manager.

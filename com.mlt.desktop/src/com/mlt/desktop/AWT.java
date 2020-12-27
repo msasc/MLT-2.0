@@ -17,11 +17,15 @@
 
 package com.mlt.desktop;
 
+import com.mlt.lang.Numbers;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JWindow;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,8 +40,8 @@ public class AWT {
 	 * Fills the list with the all the components contained in the parent component and its
 	 * sub-components.
 	 *
-	 * @param cmps The list to fill.
-	 * @param parent  The parent component.
+	 * @param cmps   The list to fill.
+	 * @param parent The parent component.
 	 */
 	public static void fillComponentList(Component parent, Collection<Component> cmps) {
 		cmps.add(parent);
@@ -52,10 +56,10 @@ public class AWT {
 	/**
 	 * Returns the list of all components contained in a component and its subcomponents.
 	 *
-	 * @return The list of components.
 	 * @param parent The parent component.
+	 * @return The list of components.
 	 */
-	public static List<Component> getAllChildComponents(Component parent) {
+	public static Collection<Component> getAllChildComponents(Component parent) {
 		List<Component> list = new ArrayList<>();
 		fillComponentList(parent, list);
 		return list;
@@ -64,10 +68,10 @@ public class AWT {
 	 * Returns the list of all components contained in the tres that contains the
 	 * component.
 	 *
-	 * @return The list of components.
 	 * @param parent The starting component.
+	 * @return The list of components.
 	 */
-	public static List<Component> getAllComponents(Component parent) {
+	public static Collection<Component> getAllComponents(Component parent) {
 		return getAllChildComponents(getTopComponent(parent));
 	}
 	/**
@@ -84,5 +88,15 @@ public class AWT {
 			cmp = cmp.getParent();
 		}
 		return null;
+	}
+
+	/**
+	 * @param size The Dimension2D to convert to simple integer Dimension.
+	 * @return The Dimension.
+	 */
+	public static Dimension toDimension(Dimension2D size) {
+		int width = (int) Numbers.round(size.getWidth(), 0);
+		int height = (int) Numbers.round(size.getHeight(), 0);
+		return new Dimension(width, height);
 	}
 }

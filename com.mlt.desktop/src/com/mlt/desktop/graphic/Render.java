@@ -19,6 +19,7 @@
 package com.mlt.desktop.graphic;
 
 
+import com.mlt.desktop.control.Canvas;
 import com.mlt.lang.Numbers;
 
 import java.awt.geom.Rectangle2D;

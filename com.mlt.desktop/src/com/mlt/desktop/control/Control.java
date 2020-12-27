@@ -17,9 +17,17 @@
 
 package com.mlt.desktop.control;
 
+import com.mlt.desktop.AWT;
 import com.mlt.lang.Numbers;
 
-import javax.swing.*;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
+import javax.swing.border.Border;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.geom.Dimension2D;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +39,14 @@ import java.util.Map;
  */
 public class Control {
 
+	/**
+	 * @param component The JComponent.
+	 * @return The control stored in the component.
+	 */
+	public static Control getControl(JComponent component) {
+		if (component == null) return null;
+		return (Control) getProperties(component).get("CONTROL");
+	}
 	/**
 	 * Returns the properties installed in the component. Since the JComponent class does not offer
 	 * a direct method to install user objects, we use the tricky workaround of using the input map
@@ -85,5 +101,159 @@ public class Control {
 	 */
 	public void setProperty(String key, Object property) {
 		getProperties(getComponent()).put(key, property);
+	}
+
+	/**
+	 * @return The name.
+	 */
+	public String getName() {
+		return component.getName();
+	}
+	/**
+	 * @param name The name.
+	 */
+	public final void setName(String name) {
+		component.setName(name);
+	}
+
+	/**
+	 * @return The background color.
+	 */
+	public Color getBackground() {
+		return component.getBackground();
+	}
+	/**
+	 * @param background The background color.
+	 */
+	public final void setBackground(Color background) {
+		component.setBackground(background);
+	}
+	/**
+	 * @return The foreground color.
+	 */
+	public Color getForeground() {
+		return component.getForeground();
+	}
+	/**
+	 * @param foreground The foreground color.
+	 */
+	public void setForeground(Color foreground) {
+		component.setForeground(foreground);
+	}
+	/**
+	 * @return The border.
+	 */
+	public Border getBorder() {
+		return component.getBorder();
+	}
+	/**
+	 * @param border The border.
+	 */
+	public final void setBorder(Border border) {
+		component.setBorder(border);
+	}
+	/**
+	 * @return The font.
+	 */
+	public Font getFont() {
+		return component.getFont();
+	}
+	/**
+	 * @param font The font.
+	 */
+	public void setFont(Font font) {
+		component.setFont(font);
+	}
+	/**
+	 * @return The font metrics.
+	 */
+	public FontMetrics getFontMetrics() {
+		return getComponent().getFontMetrics(getFont());
+	}
+
+	/**
+	 * @return A boolean.
+	 */
+	public boolean isEnabled() {
+		return component.isEnabled();
+	}
+	/**
+	 * @param enabled A boolean.
+	 */
+	public void setEnabled(boolean enabled) {
+		component.setEnabled(enabled);
+	}
+	/**
+	 * @return A boolean.
+	 */
+	public boolean isOpaque() {
+		return component.isOpaque();
+	}
+	/**
+	 * @param opaque A boolean.
+	 */
+	public final void setOpaque(boolean opaque) {
+		component.setOpaque(opaque);
+	}
+	/**
+	 * @return A boolean.
+	 */
+	public boolean isVisible() {
+		return component.isVisible();
+	}
+	/**
+	 * @param visible A boolean.
+	 */
+	public void setVisible(boolean visible) {
+		component.setVisible(visible);
+	}
+
+	/**
+	 * @return The maximum size.
+	 */
+	public Dimension2D getMaximumSize() {
+		return component.getMaximumSize();
+	}
+	/**
+	 * @param size The maximum size.
+	 */
+	public void setMaximumSize(Dimension2D size) {
+		component.setMaximumSize(AWT.toDimension(size));
+	}
+	/**
+	 * @return The minimum size.
+	 */
+	public Dimension2D getMinimumSize() {
+		return component.getMinimumSize();
+	}
+	/**
+	 * @param size The minimum size.
+	 */
+	public void setMinimumSize(Dimension2D size) {
+		component.setMinimumSize(AWT.toDimension(size));
+	}
+	/**
+	 * @return The preferred size.
+	 */
+	public Dimension2D getPreferredSize() {
+		return component.getPreferredSize();
+	}
+	/**
+	 * @param size The preferred size.
+	 */
+	public void setPreferredSize(Dimension2D size) {
+		component.setPreferredSize(AWT.toDimension(size));
+	}
+	/**
+	 * @return The size.
+	 */
+	public Dimension2D getSize() {
+		return component.getSize();
+	}
+	/**
+	 * @param size The size.
+	 */
+	public void setSize(Dimension2D size) {
+		component.setSize(AWT.toDimension(size));
 	}
 }
