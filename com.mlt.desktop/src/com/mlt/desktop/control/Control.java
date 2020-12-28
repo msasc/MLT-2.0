@@ -192,6 +192,14 @@ public class Control {
 	}
 
 	/**
+	 * @param focusable A boolean to set the focusable state.
+	 */
+	public void setFocusable(boolean focusable) {
+		getComponent().setFocusable(focusable);
+		AWT.getAllChildComponents(getComponent()).forEach(cmp -> cmp.setFocusable(focusable));
+	}
+
+	/**
 	 * @return The maximum size.
 	 */
 	public Dimension2D getMaximumSize() {

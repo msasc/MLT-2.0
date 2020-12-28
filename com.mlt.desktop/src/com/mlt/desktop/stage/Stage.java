@@ -18,13 +18,18 @@
 package com.mlt.desktop.stage;
 
 import com.mlt.desktop.AWT;
+import com.mlt.desktop.control.Control;
+import com.mlt.desktop.control.Pane;
 import com.mlt.desktop.event.WindowHandler;
 
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JWindow;
-import java.awt.Component;
+import java.awt.Container;
+import java.awt.Image;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -256,7 +261,7 @@ public abstract class Stage {
 	/**
 	 * Internal window, either a JWindow, a JDialog or a JFrame.
 	 */
-	private java.awt.Window window;
+	private java.awt.Window awtWindow;
 	/**
 	 * List of listeners.
 	 */
@@ -271,17 +276,17 @@ public abstract class Stage {
 	 * @return The internal AWT window.
 	 */
 	protected java.awt.Window getAWTWindow() {
-		return window;
+		return awtWindow;
 	}
 	/**
 	 * @param component The internal window, either a JWindow, a JDialog or a JFrame.
 	 */
 	protected void setAWTWindow(java.awt.Window window) {
 		Forwarder forwarder = new Forwarder();
-		this.window = window;
-		this.window.addWindowListener(forwarder);
-		this.window.addWindowFocusListener(forwarder);
-		this.window.addWindowStateListener(forwarder);
+		this.awtWindow = window;
+		this.awtWindow.addWindowListener(forwarder);
+		this.awtWindow.addWindowFocusListener(forwarder);
+		this.awtWindow.addWindowStateListener(forwarder);
 		setProperty("STAGE", this);
 	}
 
@@ -330,34 +335,122 @@ public abstract class Stage {
 	 * @return The property.
 	 */
 	public Object getProperty(String key) {
-		return AWT.getProperties(window).get(key);
+		return AWT.getProperties(awtWindow).get(key);
 	}
 	/**
 	 * @param key      The key.
 	 * @param property The property.
 	 */
 	public void setProperty(String key, Object property) {
-		AWT.getProperties(window).put(key, property);
+		AWT.getProperties(awtWindow).put(key, property);
 	}
 
+	/**
+	 * @return The content pane.
+	 */
+	public Pane getContentPane() {
+		Container contentPane = null;
+		if (awtWindow instanceof JWindow) {
+			JWindow window = (JWindow) awtWindow;
+			contentPane = window.getContentPane();
+		}
+		if (awtWindow instanceof JDialog) {
+			JDialog dialog = (JDialog) awtWindow;
+			contentPane = dialog.getContentPane();
+		}
+		if (awtWindow instanceof JFrame) {
+			JFrame frame = (JFrame) awtWindow;
+			contentPane = frame.getContentPane();
+		}
+		return (Pane) Control.getControl(contentPane);
+	}
+	/**
+	 * @param content The content pane.
+	 */
+	protected void setContentPane(Pane content) {
+		if (awtWindow instanceof JWindow) {
+			JWindow window = (JWindow) awtWindow;
+			window.setContentPane(content.getComponent());
+			return;
+		}
+		if (awtWindow instanceof JDialog) {
+			JDialog dialog = (JDialog) awtWindow;
+			dialog.setContentPane(content.getComponent());
+			return;
+		}
+		if (awtWindow instanceof JFrame) {
+			JFrame frame = (JFrame) awtWindow;
+			frame.setContentPane(content.getComponent());
+			return;
+		}
+	}
+
+	/**
+	 * @param image The image.
+	 */
+	public void setImage(Image image) {
+		awtWindow.setIconImage(image);
+	}
+
+	/**
+	 * Center on screen.
+	 */
+	public void centerOnScreen() {
+		AWT.centerOnScreen(awtWindow);
+	}
+	/**
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 */
+	public void setLocation(int x, int y) {
+		awtWindow.setLocation(x, y);
+	}
+	/**
+	 * @param size The size.
+	 */
+	public void setSize(Dimension2D size) {
+		awtWindow.setSize((int) size.getWidth(), (int) size.getHeight());
+	}
+	/**
+	 * Set the size as a factor of the screen size.
+	 *
+	 * @param widthFactor  The width factor.
+	 * @param heightFactor The height factor.
+	 */
+	public void setSize(double widthFactor, double heightFactor) {
+		AWT.setSize(awtWindow, widthFactor, heightFactor);
+	}
 
 	/**
 	 * @param b A boolean.
 	 */
 	public void setVisible(boolean b) {
-		window.setVisible(b);
+		awtWindow.setVisible(b);
+	}
+
+	/**
+	 * Dispose the required window resources.
+	 */
+	public void dispose() {
+		awtWindow.dispose();
+	}
+	/**
+	 * Pack the window.
+	 */
+	public void pack() {
+		awtWindow.pack();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void toBack() {
-		window.toBack();
+		awtWindow.toBack();
 	}
 	/**
 	 * {@inheritDoc}
 	 */
 	public void toFront() {
-		window.toFront();
+		awtWindow.toFront();
 	}
 }

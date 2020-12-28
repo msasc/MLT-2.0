@@ -27,6 +27,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
 import java.awt.Window;
 import java.awt.geom.Dimension2D;
 import java.beans.PropertyChangeEvent;
@@ -62,6 +63,7 @@ public class AWT {
 		for (PropertyChangeListener listener : listeners) {
 			if (listener instanceof ComponentProperties) {
 				properties = (ComponentProperties) listener;
+				break;
 			}
 		}
 		if (properties == null) {
@@ -140,6 +142,30 @@ public class AWT {
 	 */
 	public static Dimension2D getScreenSize(Window window) {
 		return getGraphicsDevice(window).getConfigurations()[0].getBounds().getSize();
+	}
+
+	/**
+	 * @param window The window to center on the screen.
+	 */
+	public static void centerOnScreen(Window window) {
+		Dimension2D szWnd = window.getSize();
+		Dimension2D szScr = getScreenSize(window);
+		double x = (szScr.getWidth() > szWnd.getWidth() ? (szScr.getWidth() - szWnd.getWidth()) / 2 : 0);
+		double y = (szScr.getHeight() > szWnd.getHeight() ? (szScr.getHeight() - szWnd.getHeight()) / 2 : 0);
+		window.setLocation((int) x, (int) y);
+	}
+	/**
+	 * Set the window applying a width and/or height factor relative to the screen dimension.
+	 *
+	 * @param window       The window.
+	 * @param widthFactor  The width factor relative to the screen (0 &lt; factor &lt;= 1).
+	 * @param heightFactor The height factor relative to the screen (0 &lt; factor &lt;= 1).
+	 */
+	public static void setSize(Window window, double widthFactor, double heightFactor) {
+		Dimension2D d = getScreenSize(window);
+		double width = d.getWidth() * widthFactor;
+		double height = d.getHeight() * heightFactor;
+		window.setSize((int) width, (int) height);
 	}
 
 	/**
