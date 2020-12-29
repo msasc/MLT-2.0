@@ -17,10 +17,10 @@
 
 package com.mlt.desktop.stage;
 
+import com.mlt.desktop.control.GridBagPane;
 import com.mlt.desktop.control.Pane;
 
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 
 /**
  * Dialog extension of window.
@@ -28,6 +28,12 @@ import javax.swing.JFrame;
  * @author Miquel Sas
  */
 public class Dialog extends Stage {
+	/**
+	 * Constructor.
+	 */
+	public Dialog() {
+		this(null, new GridBagPane());
+	}
 	/**
 	 * @param owner   This dialog owner.
 	 * @param content The content pane.
@@ -49,4 +55,16 @@ public class Dialog extends Stage {
 	 * @return The internal JDialog.
 	 */
 	protected JDialog getJDialog() { return (JDialog) getAWTWindow(); }
+	/**
+	 * @return The frame title.
+	 */
+	public String getTitle() {
+		return getJDialog().getTitle();
+	}
+	/**
+	 * @param title The title.
+	 */
+	public void setTitle(String title) {
+		getJDialog().setTitle(title);
+	}
 }

@@ -196,7 +196,6 @@ public class Control {
 	 */
 	public void setFocusable(boolean focusable) {
 		getComponent().setFocusable(focusable);
-		AWT.getAllChildComponents(getComponent()).forEach(cmp -> cmp.setFocusable(focusable));
 	}
 
 	/**
