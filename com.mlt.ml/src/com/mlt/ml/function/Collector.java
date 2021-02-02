@@ -14,7 +14,7 @@
 
 package com.mlt.ml.function;
 
-import com.mlt.collections.Queue;
+import com.mlt.common.collections.Queue;
 
 /**
  * A function that is applied to a collection of vectors to produce a result vector.

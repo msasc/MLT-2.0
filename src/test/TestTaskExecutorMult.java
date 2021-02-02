@@ -17,9 +17,9 @@
 
 package test;
 
-import com.mlt.lang.Strings;
-import com.mlt.task.Task;
-import com.mlt.task.TaskExecutor;
+import com.mlt.common.lang.Strings;
+import com.mlt.common.task.Task;
+import com.mlt.common.task.TaskExecutor;
 
 import java.util.ArrayList;
 import java.util.List;

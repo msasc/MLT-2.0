@@ -17,7 +17,7 @@
 
 package com.mlt.desktop.graphic;
 
-import com.mlt.lang.Numbers;
+import com.mlt.common.lang.Numbers;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;

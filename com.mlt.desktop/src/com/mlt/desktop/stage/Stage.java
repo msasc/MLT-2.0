@@ -279,7 +279,7 @@ public abstract class Stage {
 		return awtWindow;
 	}
 	/**
-	 * @param component The internal window, either a JWindow, a JDialog or a JFrame.
+	 * @param window The internal window, either a JWindow, a JDialog or a JFrame.
 	 */
 	protected void setAWTWindow(java.awt.Window window) {
 		Forwarder forwarder = new Forwarder();

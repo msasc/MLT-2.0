@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020. Miquel Sas
+ * Copyright (c) 2021. Miquel Sas
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,34 +14,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-package com.mlt.ml.function.collector;
-
-import com.mlt.common.collections.Queue;
-import com.mlt.ml.function.Collector;
+package com.mlt.common.task;
 
 /**
- * A collector that just transfers the unique queued vector.
+ * Task states.
  *
  * @author Miquel Sas
  */
-public class CollectorTransfer implements Collector {
+public enum State {
 	/**
-	 * Constructor for restore.
+	 * The task has not yet been executed and is ready, or has been reinitialized after execution.
+	 * This is the default initial state of the task.
 	 */
-	public CollectorTransfer() {}
+	READY,
 	/**
-	 * {@inheritDoc}
+	 * The task is running. This is set just immediately prior to the task actually doing its first
+	 * bit of work.
 	 */
-	@Override
-	public double[] collect(Queue<double[]> vectors) {
-		if (vectors.isEmpty()) throw new IllegalStateException("No vectors");
-		if (vectors.size() > 1) throw new IllegalStateException("Too many vectors");
-		return vectors.getFirst();
-	}
+	RUNNING,
 	/**
-	 * {@inheritDoc}
+	 * The task has completed successfully.
 	 */
-	@Override
-	public String getName() { return "collector-addition"; }
+	SUCCEEDED,
+	/**
+	 * The task has been cancelled, usually as a result of an external request.
+	 */
+	CANCELLED,
+	/**
+	 * Indicates that this task has failed, usually due to some unexpected condition having
+	 * occurred, and an exception can be retrieved.
+	 */
+	FAILED
 }

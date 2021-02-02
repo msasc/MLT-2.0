@@ -17,13 +17,10 @@
 
 package com.mlt.ml.graph.nodes;
 
-import com.mlt.collections.Queue;
+import com.mlt.common.collections.Queue;
 import com.mlt.ml.function.Collector;
 import com.mlt.ml.graph.Edge;
 import com.mlt.ml.graph.Node;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A branch node has one or more input edges and one or more output edges. It also has a forward

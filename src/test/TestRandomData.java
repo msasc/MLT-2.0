@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020. Miquel Sas
+ * Copyright (c) 2021. Miquel Sas
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,21 +17,15 @@
 
 package test;
 
-import com.mlt.common.launch.Argument;
-import com.mlt.common.launch.ArgumentManager;
+import com.mlt.common.lang.Strings;
+import com.mlt.common.util.RandomData;
 
-import java.io.File;
-
-public class TestResources {
+public class TestRandomData {
 	public static void main(String[] args) {
-		ArgumentManager argMngr = new ArgumentManager();
-		Argument arg = new Argument("res", "Resources", true, true, false);
-		argMngr.add(arg);
-		if (!argMngr.parse(args)) {
-			System.exit(1);
+		RandomData rd = new RandomData();
+		System.out.println(rd.getToken(15));
+		for (int i = 0; i < 20; i++) {
+			System.out.println(Strings.leftPad(rd.getDecimal(12, 2).toString(), 15));
 		}
-		System.out.println(argMngr.getValue("res"));
-		File path = new File(argMngr.getValue("res"));
-		System.out.println(path.exists());
 	}
 }

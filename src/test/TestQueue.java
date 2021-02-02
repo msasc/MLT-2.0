@@ -17,9 +17,8 @@
 
 package test;
 
-import com.mlt.collections.Queue;
+import com.mlt.common.collections.Queue;
 
-import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Properties;
 

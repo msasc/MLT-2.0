@@ -18,19 +18,15 @@
 package com.mlt.desktop.control;
 
 import com.mlt.desktop.AWT;
-import com.mlt.lang.Numbers;
+import com.mlt.common.lang.Numbers;
 
-import javax.swing.InputMap;
 import javax.swing.JComponent;
-import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.geom.Dimension2D;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Base control, essentially a component wrapper, intended to expose only the methods strictly

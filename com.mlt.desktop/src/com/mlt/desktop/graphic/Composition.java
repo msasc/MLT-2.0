@@ -18,7 +18,7 @@
 package com.mlt.desktop.graphic;
 
 import com.mlt.desktop.control.Canvas;
-import com.mlt.lang.Numbers;
+import com.mlt.common.lang.Numbers;
 
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -123,6 +123,7 @@ public class Composition {
 		return new Rectangle2D.Double.Double(startX, startY, endX - startX, endY - startY);
 	}
 	/**
+	 * @param gc The graphics context.
 	 * @return The bounds of the composition without exceeding the context bounds and ensuring they
 	 * completely cover the composition at pixel (integer-round) level.
 	 */

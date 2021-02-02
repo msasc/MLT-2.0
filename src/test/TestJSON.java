@@ -78,7 +78,5 @@ public class TestJSON {
 		System.out.println(bt.precision());
 		System.out.println(bt.scale());
 		System.out.println(bt);
-
-
 	}
 }

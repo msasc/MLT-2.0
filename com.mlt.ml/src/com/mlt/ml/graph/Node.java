@@ -17,7 +17,7 @@
 
 package com.mlt.ml.graph;
 
-import com.mlt.collections.Queue;
+import com.mlt.common.collections.Queue;
 
 import java.util.UUID;
 

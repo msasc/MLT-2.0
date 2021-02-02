@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020. Miquel Sas
+ * Copyright (c) 2021. Miquel Sas
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,9 @@
 
 package com.mlt.db;
 
+import com.mlt.common.json.JSONDocument;
+import com.mlt.common.json.JSONList;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -24,387 +27,336 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 /**
- * A value for the supported types.
+ * Mutable value of a field.
  *
  * @author Miquel Sas
  */
-public class Value implements Comparable<Object> {
-
-	/** The value type. */
-	private Types type = null;
-	/** The value itself. */
-	private Object value = null;
-	/** Modified flag. */
-	private boolean modified = false;
-	/** Decimals. */
-	private int decimals = -1;
+public class Value {
 
 	/**
-	 * @param value A boolean.
+	 * Internal value.
+	 */
+	private Object value;
+	/**
+	 * Type.
+	 */
+	private Type type;
+	/**
+	 * Number of decimal places, if applicable, necessary to retain them when the value is set to
+	 * null.
+	 */
+	private Integer decimals;
+	/**
+	 * Modified flag.
+	 */
+	private boolean modified;
+
+	/**
+	 * @param value A Boolean value.
 	 */
 	public Value(Boolean value) {
-		this.value = value;
-		this.type = Types.BOOLEAN;
+		initialize(value, Type.BOOLEAN, null);
 	}
 
 	/**
-	 * @param value A big decimal that can not be null to ensure the number of decimal places, read
-	 *              from the scale.
+	 * @param value A BigDecimal value. If null, then the number of decimal places is set to zero.
 	 */
 	public Value(BigDecimal value) {
-		if (value == null) throw new NullPointerException("Null big decimal");
-		this.type = Types.DECIMAL;
-		this.decimals = value.scale();
-		this.value = value;
+		initialize(value, Type.BOOLEAN, value == null ? 0 : value.scale());
 	}
-
 	/**
-	 * @param value    A big decimal that can be null.
-	 * @param decimals The scale or number of decimal places.
-	 */
-	public Value(BigDecimal value, int decimals) {
-		if (value != null) this.value = value.setScale(decimals, RoundingMode.HALF_UP);
-		this.type = Types.DECIMAL;
-		this.decimals = decimals;
-	}
-
-	/**
-	 * @param value A double.
+	 * @param value A Double value.
 	 */
 	public Value(Double value) {
-		this.value = value;
-		this.type = Types.DOUBLE;
+		initialize(value, Type.DOUBLE, null);
 	}
-
 	/**
-	 * @param value An integer.
+	 * @param value An Integer value.
 	 */
 	public Value(Integer value) {
-		this.value = value;
-		this.type = Types.INTEGER;
+		initialize(value, Type.INTEGER, null);
 	}
-
 	/**
-	 * @param value A long.
+	 * @param value A Long value.
 	 */
 	public Value(Long value) {
-		this.value = value;
-		this.type = Types.LONG;
+		initialize(value, Type.LONG, null);
 	}
 
 	/**
-	 * @param value A string.
-	 */
-	public Value(String value) {
-		this.value = value;
-		this.type = Types.STRING;
-	}
-
-	/**
-	 * @param value A date.
+	 * @param value A LocalDate value.
 	 */
 	public Value(LocalDate value) {
-		this.value = value;
-		this.type = Types.DATE;
+		initialize(value, Type.DATE, null);
 	}
-
 	/**
-	 * @param value A timestamp.
-	 */
-	public Value(LocalDateTime value) {
-		this.value = value;
-		this.type = Types.DATETIME;
-	}
-
-	/**
-	 * @param value A time.
+	 * @param value A LocalTime value.
 	 */
 	public Value(LocalTime value) {
-		this.value = value;
-		this.type = Types.TIME;
+		initialize(value, Type.TIME, null);
+	}
+	/**
+	 * @param value A LocalDateTime value.
+	 */
+	public Value(LocalDateTime value) {
+		initialize(value, Type.DATETIME, null);
 	}
 
 	/**
-	 * @param value A byte array.
+	 * @param value A String value.
+	 */
+	public Value(String value) {
+		initialize(value, Type.STRING, null);
+	}
+
+	/**
+	 * @param value A byte[] value.
 	 */
 	public Value(byte[] value) {
-		this.value = value;
-		this.type = Types.BYTEARRAY;
+		initialize(value, Type.BINARY, null);
 	}
 
 	/**
-	 * @param value A value that can not be null.
+	 * @param value A JSONDocument value.
 	 */
-	public Value(Value value) {
-		if (value == null) throw new NullPointerException();
-		this.value = value.value;
-		this.type = value.type;
-		this.decimals = value.decimals;
-		this.modified = false;
+	public Value(JSONDocument value) {
+		initialize(value, Type.DOCUMENT, null);
 	}
-
 	/**
-	 * {@inheritDoc}
+	 * @param value A JSONList value.
 	 */
-	@Override
-	public int compareTo(Object o) {
-		return 0;
+	public Value(JSONList value) {
+		initialize(value, Type.LIST, null);
 	}
 
 	/**
-	 * @return A boolean.
+	 * @return A boolean to confirm the type.
+	 */
+	public boolean isBoolean() {
+		return type.isBoolean();
+	}
+
+	/**
+	 * @return A boolean to confirm the type.
+	 */
+	public boolean isDecimal() {
+		return type.isDecimal();
+	}
+	/**
+	 * @return A boolean to confirm the type.
+	 */
+	public boolean isDouble() {
+		return type.isDouble();
+	}
+	/**
+	 * @return A boolean to confirm the type.
+	 */
+	public boolean isInteger() {
+		return type.isInteger();
+	}
+	/**
+	 * @return A boolean to confirm the type.
+	 */
+	public boolean isLong() {
+		return type.isLong();
+	}
+	/**
+	 * @return A boolean to confirm the type.
+	 */
+	public boolean isNumber() {
+		return type.isNumber();
+	}
+
+	/**
+	 * @return A boolean to confirm the type.
+	 */
+	public boolean isDate() {
+		return type.isDate();
+	}
+	/**
+	 * @return A boolean to confirm the type.
+	 */
+	public boolean isTime() {
+		return type.isTime();
+	}
+	/**
+	 * @return A boolean to confirm the type.
+	 */
+	public boolean isDateTime() {
+		return type.isDateTime();
+	}
+
+	/**
+	 * @return A boolean to confirm the type.
+	 */
+	public boolean isString() {
+		return type.isString();
+	}
+
+	/**
+	 * @return A boolean to confirm the type.
+	 */
+	public boolean isBinary() {
+		return type.isBinary();
+	}
+
+	/**
+	 * @return A boolean to confirm the type.
+	 */
+	public boolean isDocument() {
+		return type.isDocument();
+	}
+	/**
+	 * @return A boolean to confirm the type.
+	 */
+	public boolean isList() {
+		return type.isList();
+	}
+
+	/**
+	 * @return A boolean indicating whether the value is null.
+	 */
+	public boolean isNull() {
+		return value == null;
+	}
+
+	/**
+	 * @return A Boolean if the type is boolean, otherwise throws an IllegalStateException.
 	 */
 	public Boolean getBoolean() {
-		if (isBoolean()) {
-			if (isNull()) return false;
-			return ((Boolean) value);
-		}
-		throw new UnsupportedOperationException("Value " + value + " is not a boolean");
+		if (!isBoolean()) throw new IllegalStateException();
+		return (Boolean) value;
 	}
 
 	/**
-	 * @return A BigDecimal.
+	 * @return A BigDecimal if the type is numeric, otherwise throws an IllegalStateException. The
+	 * returned BigDecimal retains the number of decimal places.
 	 */
 	public BigDecimal getBigDecimal() {
-		if (isDecimal()) return (BigDecimal) value;
-		if (isNumber()) {
-			if (isDouble()) return BigDecimal.valueOf(getDouble());
-			return BigDecimal.valueOf(getLong());
+		if (!isNumber()) {
+			throw new IllegalStateException();
 		}
-		throw new UnsupportedOperationException("Value " + value + " is not a number");
+		if (isNull()) {
+			return (BigDecimal) null;
+		}
+		if (!isDecimal()) {
+			return BigDecimal.valueOf(((Number) value).doubleValue()).setScale(decimals, RoundingMode.HALF_UP);
+		}
+		return (BigDecimal) value;
 	}
-
 	/**
-	 * @return A double.
+	 * @return A Double if the type is numeric, otherwise throws an IllegalStateException.
 	 */
 	public Double getDouble() {
-		if (isNumber()) {
-			if (isNull()) return Double.valueOf(0);
-			return ((Number) value).doubleValue();
+		if (!isNumber()) {
+			throw new IllegalStateException();
 		}
-		throw new UnsupportedOperationException("Value " + value + " is not a number");
+		if (isNull()) {
+			return (Double) null;
+		}
+		return ((Number) value).doubleValue();
 	}
 	/**
-	 * @return An integer.
+	 * @return A Integer if the type is numeric, otherwise throws an IllegalStateException.
 	 */
 	public Integer getInteger() {
-		if (isNumber()) {
-			if (isNull()) return Integer.valueOf(0);
-			return ((Number) value).intValue();
+		if (!isNumber()) {
+			throw new IllegalStateException();
 		}
-		throw new UnsupportedOperationException("Value " + value + " is not a number");
+		if (isNull()) {
+			return (Integer) null;
+		}
+		return ((Number) value).intValue();
 	}
 	/**
-	 * @return A long.
+	 * @return A Long if the type is numeric, otherwise throws an IllegalStateException.
 	 */
 	public Long getLong() {
-		if (isNumber()) {
-			if (isNull()) return Long.valueOf(0);
-			return ((Number) value).longValue();
+		if (!isNumber()) {
+			throw new IllegalStateException();
 		}
-		throw new UnsupportedOperationException("Value " + value + " is not a number");
+		if (isNull()) {
+			return (Long) null;
+		}
+		return ((Number) value).longValue();
 	}
+
 	/**
-	 * @return The number.
-	 */
-	public Number getNumber() {
-		if (isNumber()) return (Number) value;
-		throw new UnsupportedOperationException("Value " + value + " is not a number");
-	}
-	/**
-	 * @return A String.
-	 */
-	public String getString() {
-		if (isString()) return (String) value;
-		throw new UnsupportedOperationException("Value " + value + " is not a string");
-	}
-	/**
-	 * @return A byte array.
-	 */
-	public byte[] getByteArray() {
-		if (isByteArray()) return (byte[]) value;
-		throw new UnsupportedOperationException("Value " + value + " is not a byte array");
-	}
-	/**
-	 * @return A Date.
+	 * @return A LocalDate if the type is a date, otherwise throws an IllegalStateException.
 	 */
 	public LocalDate getDate() {
-		if (isNull()) return null;
-		if (isDate()) return (LocalDate) value;
-		if (isDateTime()) return getDateTime().toLocalDate();
-		throw new UnsupportedOperationException("Value " + value + " is not a date");
+		if (!isDate()) {
+			throw new IllegalStateException();
+		}
+		return (LocalDate) value;
 	}
 	/**
-	 * @return A Timestamp.
-	 */
-	public LocalDateTime getDateTime() {
-		if (isNull()) return null;
-		if (isDateTime()) return (LocalDateTime) value;
-		throw new UnsupportedOperationException("Value " + value + " is not a date-time");
-	}
-	/**
-	 * @return A Time.
+	 * @return A LocalTime if the type is a time, otherwise throws an IllegalStateException.
 	 */
 	public LocalTime getTime() {
-		if (isNull()) return null;
-		if (isTime()) return (LocalTime) value;
-		if (isDateTime()) return getDateTime().toLocalTime();
-		throw new UnsupportedOperationException("Value " + value + " is not a time");
+		if (!isTime()) {
+			throw new IllegalStateException();
+		}
+		return (LocalTime) value;
 	}
-	public boolean isBlank() { return isEmpty() || (isString() && getString().trim().length() == 0); }
-	public boolean isEmpty() {
-		if (isNull()) return true;
-		if (isString() && getString().length() == 0) return true;
-		return isNumber() && getDouble() == 0;
+	/**
+	 * @return A LocalDateTime if the type is a date-time, otherwise throws an IllegalStateException.
+	 */
+	public LocalDateTime getDateTime() {
+		if (!isDateTime()) {
+			throw new IllegalStateException();
+		}
+		return (LocalDateTime) value;
 	}
-	public boolean isModified() { return modified; }
-	public boolean isNull() { return (value == null); }
-
-	public boolean isBoolean() { return type.isBoolean(); }
-	public boolean isDecimal() { return type.isDecimal(); }
-	public boolean isDouble() { return type.isDouble(); }
-	public boolean isInteger() { return type.isInteger(); }
-	public boolean isLong() { return type.isLong(); }
-	public boolean isNumber() { return type.isNumber(); }
-	public boolean isFloatingPoint() { return type.isFloatingPoint(); }
-	public boolean isString() { return type.isString(); }
-	public boolean isDate() { return type.isDate(); }
-	public boolean isDateTime() { return type.isDateTime(); }
-	public boolean isTime() { return type.isTime(); }
-	public boolean isByteArray() { return type.isByteArray(); }
 
 	/**
-	 * @param value A boolean, can be null.
+	 * @return A String if the type is a string, otherwise throws an IllegalStateException.
 	 */
-	public void setBoolean(Boolean value) {
-		if (!isBoolean()) throw new IllegalArgumentException("Value is not a boolean");
+	public String getString() {
+		if (!isString()) {
+			throw new IllegalStateException();
+		}
+		return (String) value;
+	}
+
+	/**
+	 * @return A byte[] if the type is a binary, otherwise throws an IllegalStateException.
+	 */
+	public byte[] getBinary() {
+		if (!isBinary()) {
+			throw new IllegalStateException();
+		}
+		return (byte[]) value;
+	}
+
+	/**
+	 * @return A JSONDocument if the type is a document, otherwise throws an IllegalStateException.
+	 */
+	public JSONDocument getDocument() {
+		if (!isDocument()) {
+			throw new IllegalStateException();
+		}
+		return (JSONDocument) value;
+	}
+	/**
+	 * @return A JSONList if the type is a list, otherwise throws an IllegalStateException.
+	 */
+	public JSONList getList() {
+		if (!isList()) {
+			throw new IllegalStateException();
+		}
+		return (JSONList) value;
+	}
+
+	/**
+	 * @param value    The value.
+	 * @param type     The type.
+	 * @param decimals The number of decimal places if applicable.
+	 */
+	private void initialize(Object value, Type type, Integer decimals) {
 		this.value = value;
-		this.modified = true;
-	}
-
-	/**
-	 * @param value A big decimal, can be null.
-	 */
-	public void setBigDecimal(BigDecimal value) {
-		setNumber(value);
-	}
-
-	/**
-	 * @param value A double, can be null.
-	 */
-	public void setDouble(Double value) {
-		setNumber(value);
-	}
-
-	/**
-	 * @param value An integer, can be null.
-	 */
-	public void setInteger(Integer value) {
-		setNumber(value);
-	}
-
-	/**
-	 * @param value A long, can be null.
-	 */
-	public void setLong(Long value) {
-		setNumber(value);
-	}
-
-	/**
-	 * @param value The number.
-	 */
-	public void setNumber(Number value) {
-		if (!isNumber()) throw new IllegalArgumentException("Value is not a number");
-		/* No matter the numeric type, null can be assigned. */
-		if (value == null) {
-			this.value = null;
-		} else if (isDecimal()) {
-			if (value instanceof BigDecimal) {
-				/* Preserve scale? */
-				BigDecimal b = (BigDecimal) value;
-				if (b.scale() != decimals) {
-					throw new IllegalArgumentException("Invalid value scale");
-				}
-				this.value = value;
-			}
-		} else if (isDouble()) {
-			this.value = value.doubleValue();
-		} else if (isInteger()) {
-			this.value = value.intValue();
-		} else {
-			this.value = value.longValue();
-		}
-		this.modified = true;
-	}
-
-	/**
-	 * @param value A date, can be null and if not, can be set as the date part of date-time.
-	 */
-	public void setDate(LocalDate value) {
-		if (!isDate() && !isDateTime()) {
-			throw new IllegalArgumentException("Value is not a date or date-time");
-		}
-		/* No matter date or date-time, null can be assigned. */
-		if (value == null) {
-			this.value = null;
-		} else if (isDate()) {
-			this.value = value;
-		} else {
-			this.value = LocalDateTime.of(value, getDateTime().toLocalTime());
-		}
-		this.modified = true;
-	}
-
-	/**
-	 * @param value A date-time.
-	 */
-	public void setDateTime(LocalDateTime value) {
-		if (!isDateTime()) throw new IllegalArgumentException("Value is not a date-time");
-		this.value = value;
-		this.modified = true;
-	}
-
-	/**
-	 * @param value A time, can be null and if not, can be set as the time part of date-time.
-	 */
-	public void setTime(LocalTime value) {
-		if (!isTime() && !isDateTime()) {
-			throw new IllegalArgumentException("Value is not a time or date-time");
-		}
-		/* No matter time or date-time, null can be assigned. */
-		if (value == null) {
-			this.value = null;
-		} else if (isTime()) {
-			this.value = value;
-		} else {
-			this.value = LocalDateTime.of(getDateTime().toLocalDate(), value);
-		}
-		this.modified = true;
-	}
-
-	/**
-	 * @param value A string.
-	 */
-	public void setString(String value) {
-		if (!isString()) throw new IllegalArgumentException("Value is not a string");
-		this.value = value;
-		this.modified = true;
-	}
-
-	/**
-	 * @param value A byte array.
-	 */
-	public void setByteArray(byte[] value) {
-		if (!isByteArray()) throw new IllegalArgumentException("Value is not a byte array");
-		this.value = value;
-		this.modified = true;
-	}
-
-	/**
-	 * Force the modified flag.
-	 * @param modified A boolean.
-	 */
-	public void setModified(boolean modified) {
-		this.modified = modified;
+		this.type = type;
+		this.decimals = decimals;
+		this.modified = false;
 	}
 }

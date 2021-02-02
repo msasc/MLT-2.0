@@ -17,7 +17,7 @@
 
 package com.mlt.desktop;
 
-import com.mlt.lang.Numbers;
+import com.mlt.common.lang.Numbers;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -27,7 +27,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.GridBagConstraints;
 import java.awt.Window;
 import java.awt.geom.Dimension2D;
 import java.beans.PropertyChangeEvent;

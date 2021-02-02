@@ -18,7 +18,7 @@
 package test;
 
 
-import com.mlt.collections.Properties;
+import com.mlt.common.collections.Properties;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

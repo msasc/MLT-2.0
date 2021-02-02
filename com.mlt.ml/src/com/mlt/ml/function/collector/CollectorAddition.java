@@ -17,7 +17,7 @@
 
 package com.mlt.ml.function.collector;
 
-import com.mlt.collections.Queue;
+import com.mlt.common.collections.Queue;
 import com.mlt.ml.function.Collector;
 
 /**

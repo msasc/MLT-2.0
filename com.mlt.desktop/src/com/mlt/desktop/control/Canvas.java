@@ -19,7 +19,7 @@ package com.mlt.desktop.control;
 
 import com.mlt.desktop.graphic.Drawing;
 import com.mlt.desktop.graphic.Hint;
-import com.mlt.lang.Numbers;
+import com.mlt.common.lang.Numbers;
 
 import javax.swing.JPanel;
 import java.awt.Font;
@@ -129,7 +129,8 @@ public abstract class Canvas extends Control {
 			restoreHints();
 		}
 		/**
-		 * @param drawing The drawing.
+		 * @param shape The shape to fill.
+		 * @param paint The paint to use.
 		 */
 		public void fill(Shape shape, Paint paint) {
 			g2d.setPaint(paint);

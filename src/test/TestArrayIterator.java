@@ -17,7 +17,7 @@
 
 package test;
 
-import com.mlt.collections.ArrayIterator;
+import com.mlt.common.collections.ArrayIterator;
 
 public class TestArrayIterator {
 	public static void main(String[] args) {

@@ -13,7 +13,7 @@
  */
 package com.mlt.desktop.control;
 
-import com.mlt.logging.Logs;
+import com.mlt.common.logging.Logs;
 
 import javax.swing.Icon;
 import javax.swing.JMenuItem;

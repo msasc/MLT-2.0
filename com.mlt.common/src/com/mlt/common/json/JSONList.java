@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020. Miquel Sas
+ * Copyright (c) 2021. Miquel Sas
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,23 +15,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package test;
+package com.mlt.common.json;
 
-import com.mlt.common.launch.Argument;
-import com.mlt.common.launch.ArgumentManager;
+import org.json.JSONArray;
 
-import java.io.File;
+/**
+ * JSONArray wrapper to conform with a more strict typing.
+ *
+ * @author Miquel Sas
+ */
+public class JSONList {
 
-public class TestResources {
-	public static void main(String[] args) {
-		ArgumentManager argMngr = new ArgumentManager();
-		Argument arg = new Argument("res", "Resources", true, true, false);
-		argMngr.add(arg);
-		if (!argMngr.parse(args)) {
-			System.exit(1);
-		}
-		System.out.println(argMngr.getValue("res"));
-		File path = new File(argMngr.getValue("res"));
-		System.out.println(path.exists());
+	/**
+	 * Internal JSONArray.
+	 */
+	JSONArray jsonArray;
+
+	/**
+	 * Construct an empty JSONList.
+	 */
+	public JSONList() {
+		jsonArray = new JSONArray();
 	}
 }
