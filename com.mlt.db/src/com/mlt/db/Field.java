@@ -17,6 +17,15 @@
 
 package com.mlt.db;
 
+import com.mlt.common.json.JSONDocument;
+import com.mlt.common.json.JSONList;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 /**
  * Metadata definition of a field.
  *
@@ -40,6 +49,137 @@ public class Field {
 	 * The number of decimal places if applicable or null.
 	 */
 	private Integer decimals;
+
+	/**
+	 * Constructor assingning only the name and the type. Applicable to all types, those that accept
+	 * a length are treated as no length limit, and for a decimal the scale is set to zero.
+	 *
+	 * @param name The name.
+	 * @param type The type.
+	 */
+	public Field(String name, Type type) {
+		this(name, type, null, null);
+	}
+	/**
+	 * Constructor assingning the name, the type and the length. Applicable to DECIMAL, STRING and
+	 * BINARY types.
+	 *
+	 * @param name   The name.
+	 * @param type   The type.
+	 * @param length The length.
+	 */
+	public Field(String name, Type type, Integer length) {
+		this(name, type, length, null);
+	}
+	/**
+	 * Constructor assingning the name, the type, length and decimals. Applicable to DECIMAL, STRING
+	 * and
+	 * BINARY types.
+	 *
+	 * @param name     The name.
+	 * @param type     The type.
+	 * @param length   The length.
+	 * @param decimals The number of decimal places.
+	 */
+	public Field(String name, Type type, Integer length, Integer decimals) {
+
+		/*
+		 * Name and type can not be null.
+		 */
+		if (name == null) {
+			throw new NullPointerException("Name can not be null");
+		}
+		if (type == null) {
+			throw new NullPointerException("Type can not be null");
+		}
+		if (length != null && length <= 0) {
+			throw new IllegalArgumentException("Invalid length " + length + " do not accept length");
+		}
+
+		/*
+		 * Only types DECIMAL, STRING and BINARY accept lengh.
+		 */
+		if (type != Type.DECIMAL && type != Type.STRING && type != Type.BINARY && length != null) {
+			throw new IllegalArgumentException("Type " + type + " do not accept length");
+		}
+
+		/*
+		 * Only type DECIMAL accepts decimals.
+		 */
+		if (type != Type.DECIMAL && decimals != null) {
+			throw new IllegalArgumentException("Type " + type + " do not accept decimals");
+		}
+
+		/*
+		 * If type is DECIMAL and decimals is null, set decimals to zero.
+		 */
+		if (type == Type.DECIMAL && decimals == null) {
+			decimals = 0;
+		}
+
+		/*
+		 * Assign.
+		 */
+		this.name = name;
+		this.type = type;
+		this.length = length;
+		this.decimals = decimals;
+	}
+
+	/**
+	 * @return The name.
+	 */
+	public String getName() {
+		return name;
+	}
+	/**
+	 * @return The type.
+	 */
+	public Type getType() {
+		return type;
+	}
+	/**
+	 * @return The length if applicable.
+	 */
+	public Integer getLength() {
+		return length;
+	}
+	/**
+	 * @return The lengthnumber of decimal places if applicable.
+	 */
+	public Integer getDecimals() {
+		return decimals;
+	}
+
+	public Value getDefaultValue() {
+		switch (type) {
+		case BOOLEAN:
+			return new Value(false);
+		case DECIMAL:
+			return new Value(BigDecimal.valueOf(0).setScale(decimals, RoundingMode.HALF_UP));
+		case DOUBLE:
+			return new Value(Double.valueOf(0));
+		case INTEGER:
+			return new Value(Integer.valueOf(0));
+		case LONG:
+			return new Value(Long.valueOf(0));
+		case DATE:
+			return new Value(LocalDate.now());
+		case TIME:
+			return new Value(LocalTime.now());
+		case DATETIME:
+			return new Value(LocalDateTime.now());
+		case STRING:
+			return new Value("");
+		case BINARY:
+			return new Value((byte[]) null);
+		case DOCUMENT:
+			return new Value(new JSONDocument());
+		case LIST:
+			return new Value(new JSONList());
+		}
+		throw new IllegalStateException();
+	}
 
 	/**
 	 * @return A boolean to confirm the type.

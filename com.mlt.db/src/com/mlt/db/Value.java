@@ -25,6 +25,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Objects;
 
 /**
  * Mutable value of a field.
@@ -232,7 +233,7 @@ public class Value {
 	 * @return A BigDecimal if the type is numeric, otherwise throws an IllegalStateException. The
 	 * returned BigDecimal retains the number of decimal places.
 	 */
-	public BigDecimal getBigDecimal() {
+	public BigDecimal getDecimal() {
 		if (!isNumber()) {
 			throw new IllegalStateException();
 		}
@@ -348,6 +349,168 @@ public class Value {
 		return (JSONList) value;
 	}
 
+	/**
+	 * @return The type.
+	 */
+	public Type getType() {
+		return type;
+	}
+	/**
+	 * @return The number of decimal places or null.
+	 */
+	public Integer getDecimals() {
+		return decimals;
+	}
+	/**
+	 * @return A boolean indicating whether the value has been modified.
+	 */
+	public boolean isModified() {
+		return modified;
+	}
+
+	/**
+	 * @param value A Boolean value.
+	 */
+	public void setBoolean(Boolean value) {
+		setValue(value, Type.BOOLEAN);
+	}
+
+	/**
+	 * @param value A BigDecimal value.
+	 */
+	public void setDecimal(BigDecimal value) {
+		setNumber(value);
+	}
+	/**
+	 * @param value A Double value.
+	 */
+	public void setDouble(Double value) {
+		setNumber(value);
+	}
+	/**
+	 * @param value An Integer value.
+	 */
+	public void setInteger(Integer value) {
+		setNumber(value);
+	}
+	/**
+	 * @param value A Long value.
+	 */
+	public void setLong(Long value) {
+		setNumber(value);
+	}
+
+	/**
+	 * @param value A LocalDate value.
+	 */
+	public void setDate(LocalDate value) {
+		setValue(value, Type.DATE);
+	}
+	/**
+	 * @param value A LocalTime value.
+	 */
+	public void setTime(LocalTime value) {
+		setValue(value, Type.TIME);
+	}
+	/**
+	 * @param value A LocalDateTime value.
+	 */
+	public void setDateTime(LocalDateTime value) {
+		setValue(value, Type.DATETIME);
+	}
+
+	/**
+	 * @param value A String value.
+	 */
+	public void setString(String value) {
+		setValue(value, Type.STRING);
+	}
+
+	/**
+	 * @param value A byte[] value.
+	 */
+	public void setBinary(byte[] value) {
+		setValue(value, Type.BINARY);
+	}
+
+	/**
+	 * @param value A JSONDocument value.
+	 */
+	public void setDocument(JSONDocument value) {
+		setValue(value, Type.DOCUMENT);
+	}
+	/**
+	 * @param value A JSONList value.
+	 */
+	public void setList(JSONList value) {
+		setValue(value, Type.LIST);
+	}
+
+	/**
+	 * Set the value to NULL.
+	 */
+	public void setNull() {
+		this.value = null;
+		this.modified = true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Value v = (Value) o;
+		return Objects.equals(value, v.value) && type == v.type;
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		return Objects.hash(value, type);
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		if (value == null) return "null";
+		return value.toString();
+	}
+	/**
+	 * Set any value except numeric values.
+	 *
+	 * @param value The value.
+	 * @param type  The type.
+	 */
+	private void setValue(Object value, Type type) {
+		if (this.type != type) throw new IllegalStateException();
+		this.value = value;
+		this.modified = true;
+	}
+	/**
+	 * Set a number applying the proper transformation depending on the numeric type.
+	 *
+	 * @param value The number value.
+	 */
+	private void setNumber(Number value) {
+		if (value == null) {
+			this.value = null;
+		} else if (isDecimal()) {
+			this.value = BigDecimal.valueOf(value.doubleValue()).setScale(decimals, RoundingMode.HALF_UP);
+		} else if (isDouble()) {
+			this.value = value.doubleValue();
+		} else if (isInteger()) {
+			this.value = value.intValue();
+		} else if (isLong()) {
+			this.value = value.longValue();
+		} else {
+			throw new IllegalStateException();
+		}
+		this.modified = true;
+	}
 	/**
 	 * @param value    The value.
 	 * @param type     The type.

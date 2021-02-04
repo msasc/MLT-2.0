@@ -35,63 +35,63 @@ public enum Type {
 	 * Boolean, can be backed to the underlying database either as a boolean (true/false) or as a
 	 * string (Y/N or Yes/No). Additionally, the field definition specifies how it is displayed.
 	 */
-	BOOLEAN(Boolean.class),
+	BOOLEAN(Boolean.class, "BOOL"),
 
 	/**
 	 * Decimal, a number of any length with a pre-defined number of decimal places.
 	 */
-	DECIMAL(BigDecimal.class),
+	DECIMAL(BigDecimal.class, "NUM"),
 	/**
 	 * Double, floating point 64 bit number.
 	 */
-	DOUBLE(Double.class),
+	DOUBLE(Double.class, "NUM"),
 	/**
 	 * Integer, 32 bit integer number.
 	 */
-	INTEGER(Integer.class),
+	INTEGER(Integer.class, "NUM"),
 	/**
 	 * Long, 64 bit integer number.
 	 */
-	LONG(Long.class),
+	LONG(Long.class, "NUM"),
 
 	/**
 	 * Date, with a normalized 'YYYY-MM-DD' format.
 	 */
-	DATE(LocalDate.class),
+	DATE(LocalDate.class, "DATE"),
 	/**
 	 * Time, with a normalized 'hh:mm:ss.nnnnnnnnn' format. The field definition can specify
 	 * whether nanos are included and to what level of detail.
 	 */
-	TIME(LocalTime.class),
+	TIME(LocalTime.class, "DATE"),
 	/**
 	 * Date-time, with the normalyzed format 'YYY-MM-DD hh:mm:ss.nnnnnnnnn'.
 	 */
-	DATETIME(LocalDateTime.class),
+	DATETIME(LocalDateTime.class, "DATE"),
 
 	/**
 	 * String, whether it will be backed in the database by a simple VARCHAR or a CLOB will depend
 	 * on the database, the supported maximum length for varying chars and the required length of
 	 * the field.
 	 */
-	STRING(String.class),
+	STRING(String.class, "STR"),
 
 	/**
 	 * Binary, as with the string class, whether it will be backed in the database by a simple
 	 * VARBINARY or a BLOB will depend on the database, the supporting maximum length for varying
 	 * binaries and the required length of the field.
 	 */
-	BINARY(byte[].class),
+	BINARY(byte[].class, "BIN"),
 
 	/**
 	 * Document, backed in the database by a CLOB or a document, depending on whether it is a
 	 * relational or document database.
 	 */
-	DOCUMENT(JSONDocument.class),
+	DOCUMENT(JSONDocument.class, "OBJ"),
 	/**
 	 * List, backed in the database by a CLOB or a list, depending on whether it is a relational or
 	 * document database.
 	 */
-	LIST(JSONList.class);
+	LIST(JSONList.class, "OBJ");
 
 	/**
 	 * @return A boolean to confirm the type.
@@ -179,12 +179,18 @@ public enum Type {
 
 	/**
 	 * @param javaClass The java class.
+	 * @param superType The string supertype.
 	 */
-	private Type(Class<?> javaClass) {
+	private Type(Class<?> javaClass, String superType) {
 		this.javaClass = javaClass;
+		this.superType = superType;
 	}
 	/**
 	 * Java rlated class.
 	 */
 	private Class<?> javaClass;
+	/**
+	 * Supertype as as string.
+	 */
+	private String superType;
 }
