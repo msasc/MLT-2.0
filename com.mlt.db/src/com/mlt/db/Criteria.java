@@ -17,184 +17,171 @@
 
 package com.mlt.db;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.mlt.common.collections.Queue;
+import com.mlt.db.criteria.Condition;
+import com.mlt.db.criteria.Logical;
+import com.mlt.db.criteria.Segment;
+import com.mlt.db.criteria.Token;
 
 /**
- * A criteria used to filter collections of documents, either in memory or by the underlying
- * database. Accepted condition operators are:
- * <ul>
- *     <li>"EQ", "GT", "GE", "LT", "LE", "NE"</li>
- *     <li>"STARTS WITH", "CONTAINS", "ENDS WITH"</li>
- *     <li>"IN", "NOT IN"</li>
- *     <li>"IS NULL", "IS NOT NULL"</li>
- *     <li>"BETWEEN", "NOT BETWEEN"</li>
- * </ul>
+ * A criteria to filter documents.
  *
  * @author Miquel Sas
  */
 public class Criteria {
 
 	/**
-	 * Operator identifiers.
+	 * The list of tokens, only logical operators and segments.
 	 */
-	private enum Id {
-		EQ, GT, GE, LT, LE, NE,
-		STARTS_WITH, CONTAINS, ENDS_WITH,
-		IN, NOT_IN,
-		IS_NULL, IS_NOT_NULL,
-		BETWEEN, NOT_BETWEEN
+	private Queue<Token> tokens = new Queue<>();
+
+	/**
+	 * Constructor, appends the first empty segment token.
+	 */
+	public Criteria() {
+		tokens.add(new Token(new Segment()));
 	}
 
-
 	/**
-	 * Operator properties.
+	 * Add a condition to the current segment, that must be empty.
+	 *
+	 * @param cond The condition.
 	 */
-	private static class Operator {
-		/**
-		 * Operator id.
-		 */
-		private Id id;
-		/**
-		 * Number of required values, -1 for a list of one or more values.
-		 */
-		private int requiredValues;
-		/**
-		 * List of accepted supertypes.
-		 */
-		private String[] types;
-		/**
-		 * @param id             Operatir identifier.
-		 * @param requiredValues Number of required values.
-		 * @param types          Accepted types.
-		 */
-		public Operator(Id id, int requiredValues, String... types) {
-			this.requiredValues = requiredValues;
-			this.types = types;
-		}
+	public void add(Condition cond) {
+		add(null, new Token(cond));
 	}
 	/**
-	 * Map of operators, states for each operator its properties.
+	 * Add a condition to the current segment, concatenating it with the last condition or criteria
+	 * using the argument logical operator.
+	 *
+	 * @param logOpStr The logical operator.
+	 * @param cond     The condition.
 	 */
-	private static Map<String, Operator> mapOperators = new HashMap<>();
+	public void add(String logOpStr, Condition cond) {
+		add(logOpStr, new Token(cond));
+	}
 	/**
-	 * Load accepted operators.
+	 * Add a criteria to the current segment, that must be empty.
+	 *
+	 * @param criteria The criteria.
 	 */
-	static {
-		mapOperators.put("EQ", new Operator(Id.EQ, 1, "BOOL", "NUM", "DATE", "STR"));
-		mapOperators.put("GT", new Operator(Id.GT, 1, "NUM", "DATE", "STR"));
-		mapOperators.put("GE", new Operator(Id.GE, 1, "NUM", "DATE", "STR"));
-		mapOperators.put("LT", new Operator(Id.LT, 1, "NUM", "DATE", "STR"));
-		mapOperators.put("LE", new Operator(Id.LE, 1, "NUM", "DATE", "STR"));
-		mapOperators.put("NE", new Operator(Id.NE, 1, "BOOL", "NUM", "DATE", "STR"));
-
-		mapOperators.put("STARTS WITH", new Operator(Id.STARTS_WITH, 1, "STR"));
-		mapOperators.put("CONTAINS", new Operator(Id.CONTAINS, 1, "STR"));
-		mapOperators.put("ENDS WITH", new Operator(Id.ENDS_WITH, 1, "STR"));
-
-		mapOperators.put("IN", new Operator(Id.IN, 1, "BOOL", "NUM", "DATE", "STR"));
-		mapOperators.put("NOT IN", new Operator(Id.NOT_IN, 1, "BOOL", "NUM", "DATE", "STR"));
-
-		mapOperators.put("IS NULL", new Operator(Id.IS_NULL, 1, "DATE", "STR"));
-		mapOperators.put("IS NOT NULL", new Operator(Id.IS_NOT_NULL, 1, "DATE", "STR"));
-
-		mapOperators.put("BETWEEN", new Operator(Id.BETWEEN, 1, "NUM", "DATE", "STR"));
-		mapOperators.put("NOT BETWEEN", new Operator(Id.NOT_BETWEEN, 1, "NUM", "DATE", "STR"));
+	public void add(Criteria criteria) {
+		add(null, new Token(criteria));
+	}
+	/**
+	 * Add a criteria to the current segment, concatenating it with the last condition or criteria
+	 * using the argument logical operator.
+	 *
+	 * @param logOpStr The logical operator.
+	 * @param criteria The criteria.
+	 */
+	public void add(String logOpStr, Criteria criteria) {
+		add(logOpStr, new Token(criteria));
 	}
 
+	/**
+	 * @param field Field.
+	 * @param cmpOpStr Comparison operator.
+	 * @param values List of accepted values.
+	 */
+	public void add(Field field, String cmpOpStr, Value... values) {
+		add(null, field, cmpOpStr, values);
+	}
+	/**
+	 * @param logOpStr Logical operator.
+	 * @param field Field.
+	 * @param cmpOpStr Comparison operator.
+	 * @param values List of accepted values.
+	 */
+	public void add(String logOpStr, Field field, String cmpOpStr, Value... values) {
+		Condition cond = new Condition(field, cmpOpStr, values);
+		add(logOpStr, new Token(cond));
+	}
 
 	/**
-	 * A filtering condition.
+	 * Add a new empty segment to fill with filter expressions, concatenating it with the last
+	 * segment using the argument logical operator.
+	 *
+	 * @param logOpStr The logical string operator.
 	 */
-	private static class Condition {
-		/**
-		 * Field.
-		 */
-		private Field field;
-		/**
-		 * Operator.
-		 */
-		private Operator operator;
-		/**
-		 * List of values.
-		 */
-		private Value[] values;
-		/**
-		 * An optional string condition, database dependent.
-		 */
-		private String condition;
-		/**
-		 * @param field    Field.
-		 * @param operator Operator.
-		 */
-		private Condition(Field field, String operator) {
-			assignAndValidate(field, operator, null, null);
+	public void addSegment(String logOpStr) {
+		/* Last segment can not be empty. */
+		if (segment().isEmpty()) {
+			throw new IllegalStateException();
 		}
-		/**
-		 * @param field    Field.
-		 * @param operator Operator.
-		 * @param values   List of values.
-		 */
-		private Condition(Field field, String operator, Value... values) {
-			assignAndValidate(field, operator, values, null);
+		/* Logical operator must exist. */
+		Logical logOp = Logical.get(logOpStr);
+		if (logOp == null) {
+			throw new IllegalArgumentException("Invalid logical operator: " + logOpStr);
 		}
-		/**
-		 * @param field    Field.
-		 * @param operator Operator.
-		 * @param values   List of values.
-		 */
-		private Condition(Field field, String operator, List<Value> values) {
-			assignAndValidate(field, operator, values.toArray(new Value[values.size()]), null);
+		/* Append tokens. */
+		if (logOp != null) tokens.add(new Token(logOp));
+		tokens.add(new Token(new Segment()));
+	}
+
+	/**
+	 * Add a token concatenating it with the previous token using the logical operator.
+	 *
+	 * @param logOpStr The logical operator string.
+	 * @param token    The token, either a condition or a criteria.
+	 */
+	private void add(String logOpStr, Token token) {
+		/* The token argument can not be null. */
+		if (token == null) throw new NullPointerException();
+		/* The token argument can not be a logical operator. */
+		if (token.isLogical()) {
+			throw new IllegalArgumentException("Token argument can not be a logical operator");
 		}
-
-		/**
-		 * @param field     The field.
-		 * @param operator  The operator.
-		 * @param values    The list of values.
-		 * @param condition The special string condition.
+		/*
+		 * If the last segment is empty, the logical operator must be null because it will be the
+		 * first token within the segment.
 		 */
-		private void assignAndValidate(Field field, String operator, Value[] values, String condition) {
-			this.field = field;
-			this.operator = mapOperators.get(operator);
-			this.values = values;
-			this.condition = condition;
-			validate();
+		if (logOpStr != null && segment().isEmpty()) {
+			throw new IllegalStateException("Last segment is empty and the logical operator must be null");
 		}
-		private void validate() {
-
-			/* Only a string condition, nothing to validate. */
-			if (condition != null && field == null && operator == null && values == null) return;
-
-			/* Any other configuration requires the field and the operator. */
-			if (field == null) throw new NullPointerException("Field can not be null");
-			if (operator == null) throw new NullPointerException("Operator can not be null");
-
-			/* A string condition, nothing more to validate. */
-			if (condition != null) return;
-
-			/* If values are null, the operator must require zero values. */
-			if (values == null && operator.requiredValues == 0) return;
-
-			/* Values are required. */
-			if (values == null) throw new IllegalArgumentException("Values are required");
-
-			/* If a fixed number of values is required check it. */
-			if (operator.requiredValues >= 0 && values.length != operator.requiredValues) {
-				throw new IllegalArgumentException("Invalid number of values");
+		/*
+		 * If the last segment is not empty, the logical operator can not be null and must be
+		 * a valid logical operator.
+		 */
+		Logical logOp = null;
+		if (!segment().isEmpty()) {
+			logOp = Logical.get(logOpStr);
+			if (logOp == null) {
+				throw new IllegalArgumentException("Invalid logical operator: " + logOpStr);
 			}
-
-			/* All values must be of the same type. */
-			Type type = null;
-			for (Value value : values) {
-				if (type == null) type = value.getType();
-				if (type != value.getType()) {
-					throw new IllegalArgumentException("All values must have the same type");
-				}
-			}
-			/* The type of the values and field must match. */
-			if (field.getType().isNumber() && type.isNumber()) return;
-			if (field.getType() != type) throw new IllegalArgumentException("Not compatible types");
 		}
+		/* Push tokens. */
+		if (logOp != null) segment().add(new Token(logOp));
+		segment().add(token);
+	}
+
+	/**
+	 * @return A boolean indicating whether the criteria is empty.
+	 */
+	public boolean isEmpty() {
+		return tokens.size() == 1 && segment().isEmpty();
+	}
+	/**
+	 * @return a boolean indicating whether the criteria is valid. A criteria is valid if the last
+	 * segment is not empty.
+	 */
+	public boolean isValid() {
+		return !segment().isEmpty();
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		tokens.forEach(token -> b.append(token.toString()));
+		return b.toString();
+	}
+
+	/**
+	 * @return The last token segment which is the active segment to append filter expressions,
+	 * either conditions or criterias.
+	 */
+	private Segment segment() {
+		return tokens.getLast().getSegment();
 	}
 }
