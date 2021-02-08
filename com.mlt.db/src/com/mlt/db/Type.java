@@ -86,12 +86,12 @@ public enum Type {
 	 * Document, backed in the database by a CLOB or a document, depending on whether it is a
 	 * relational or document database.
 	 */
-	DOCUMENT(JSONDocument.class, "OBJ"),
+	DOCUMENT(Document.class, "OBJ"),
 	/**
 	 * List, backed in the database by a CLOB or a list, depending on whether it is a relational or
 	 * document database.
 	 */
-	LIST(JSONList.class, "OBJ");
+	LIST(ValueList.class, "OBJ");
 
 	/**
 	 * @return A boolean to confirm the type.

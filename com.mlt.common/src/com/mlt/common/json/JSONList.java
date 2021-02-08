@@ -37,4 +37,10 @@ public class JSONList {
 	public JSONList() {
 		jsonArray = new JSONArray();
 	}
+	/**
+	 * @param array The internal JSONArray.
+	 */
+	public JSONList(JSONArray array) {
+		this.jsonArray = array;
+	}
 }

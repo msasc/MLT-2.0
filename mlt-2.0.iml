@@ -17,5 +17,6 @@
     <orderEntry type="library" name="MetaModel-lib-5.3.2" level="application" />
     <orderEntry type="library" name="MetaModel-5.3.2" level="application" />
     <orderEntry type="module" module-name="com.mlt.common" />
+    <orderEntry type="module" module-name="com.mlt.db" />
   </component>
 </module>

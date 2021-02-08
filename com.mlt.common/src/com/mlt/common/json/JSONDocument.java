@@ -17,11 +17,13 @@
 
 package com.mlt.common.json;
 
-import com.mlt.common.logging.Logs;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -44,18 +46,136 @@ public class JSONDocument {
 	public JSONDocument() {
 		jsonObject = new JSONObject();
 	}
+	/**
+	 * @param jsonObject The internal JSONObject.
+	 */
+	public JSONDocument(JSONObject jsonObject) {
+		this.jsonObject = jsonObject;
+	}
 
 	/**
 	 * @param key The key or field name.
-	 * @return A Boolean or null if the field name is not a boolean.
+	 * @return A boolean value.
+	 * @throws JSONException If the field is not a boolean.
 	 */
-	public Boolean getBoolean(String key) {
+	public Boolean getBoolean(String key) throws JSONException {
+		return jsonObject.getBoolean(key);
+	}
+
+	/**
+	 * @param key The key or field name.
+	 * @return A decimal value.
+	 * @throws JSONException If the field is not a double.
+	 */
+	public BigDecimal getDecimal(String key) throws JSONException {
+		return BigDecimal.valueOf(getDouble(key));
+	}
+	/**
+	 * @param key      The key or field name.
+	 * @param decimals The number of decimal places.
+	 * @return A decimal value.
+	 * @throws JSONException If the field is not a double.
+	 */
+	public BigDecimal getDecimal(String key, int decimals) throws JSONException {
+		return getDecimal(key).setScale(decimals, RoundingMode.HALF_UP);
+	}
+	/**
+	 * @param key The key or field name.
+	 * @return A double value.
+	 * @throws JSONException If the field is not a double.
+	 */
+	public Double getDouble(String key) throws JSONException {
+		return jsonObject.getDouble(key);
+	}
+	/**
+	 * @param key The key or field name.
+	 * @return An integer value.
+	 * @throws JSONException If the field is not an integer.
+	 */
+	public Integer getInteger(String key) throws JSONException {
+		return jsonObject.getInt(key);
+	}
+	/**
+	 * @param key The key or field name.
+	 * @return A long value.
+	 * @throws JSONException If the field is not a long.
+	 */
+	public Long getLong(String key) throws JSONException {
+		return jsonObject.getLong(key);
+	}
+
+	/**
+	 * @param key The key or field name.
+	 * @return The local date.
+	 * @throws JSONException If the field is not a date.
+	 */
+	public LocalDate getDate(String key) throws JSONException {
 		try {
-			return jsonObject.getBoolean(key);
-		} catch (JSONException exc) {
-			Logs.catching(exc);
+			return LocalDate.parse(jsonObject.getString(key));
+		} catch (DateTimeException exc) {
+			throw new JSONException(exc);
 		}
-		return null;
+	}
+	/**
+	 * @param key The key or field name.
+	 * @return The local time.
+	 * @throws JSONException If the field is not a time.
+	 */
+	public LocalTime getTime(String key) throws JSONException {
+		try {
+			return LocalTime.parse(jsonObject.getString(key));
+		} catch (DateTimeException exc) {
+			throw new JSONException(exc);
+		}
+	}
+	/**
+	 * @param key The key or field name.
+	 * @return The local date-time.
+	 * @throws JSONException If the field is not a date-time.
+	 */
+	public LocalDateTime getDateTime(String key) throws JSONException {
+		try {
+			return LocalDateTime.parse(jsonObject.getString(key));
+		} catch (DateTimeException exc) {
+			throw new JSONException(exc);
+		}
+	}
+
+	/**
+	 * @param key The key or field name.
+	 * @return The string.
+	 * @throws JSONException If the field is not a string.
+	 */
+	public String getString(String key) throws JSONException {
+		return jsonObject.getString(key);
+	}
+
+	/**
+	 * @param key The key or field name.
+	 * @return The byte array.
+	 * @throws JSONException If the field is not a byte array.
+	 */
+	public byte[] getByteArray(String key) throws JSONException {
+		return (byte[]) jsonObject.get(key);
+	}
+
+	/**
+	 * @param key The key or field name.
+	 * @return The document.
+	 * @throws JSONException If the field is not a document.
+	 */
+	public JSONDocument getDocument(String key) throws JSONException {
+		JSONObject o = (JSONObject) jsonObject.get(key);
+		return new JSONDocument(o);
+	}
+	/**
+	 * @param key The key or field name.
+	 * @return The list.
+	 * @throws JSONException If the field is not a list.
+	 */
+	public JSONList getList(String key) {
+		JSONArray a = (JSONArray) jsonObject.get(key);
+		return new JSONList(a);
 	}
 
 	/**
@@ -70,7 +190,7 @@ public class JSONDocument {
 	 * @param key   The key or field name.
 	 * @param value A decimal value.
 	 */
-	public void setBigDecimal(String key, BigDecimal value) {
+	public void setDecimal(String key, BigDecimal value) {
 		jsonObject.put(key, value);
 	}
 	/**
@@ -140,7 +260,6 @@ public class JSONDocument {
 	public void setDocument(String key, JSONDocument value) {
 		jsonObject.put(key, value.jsonObject);
 	}
-
 	/**
 	 * @param key   The key or field name.
 	 * @param value A JSONList value.

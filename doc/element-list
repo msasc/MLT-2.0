@@ -6,6 +6,7 @@ com.mlt.common.logging
 com.mlt.common.task
 com.mlt.common.util
 com.mlt.db
+com.mlt.db.criteria
 com.mlt.desktop
 com.mlt.desktop.control
 com.mlt.desktop.event

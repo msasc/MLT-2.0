@@ -15,19 +15,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package test;
+package com.mlt.db;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import com.mlt.common.collections.Queue;
 
-public class TestBigDecimal {
-	public static void main(String[] args) {
-		BigDecimal b = new BigDecimal("2.0234856");
-		System.out.println(b);
-		BigDecimal c = b.divide(new BigDecimal("10453.3575308"), 100, RoundingMode.HALF_UP);
-		System.out.println(c);
-		BigDecimal d = c.multiply(new BigDecimal("10000000000000000000000000000000000000000000000000"));
-		System.out.println(d);
-		System.out.println(BigDecimal.valueOf(2.345).scale());
-	}
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+import java.util.function.IntFunction;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+/**
+ * A list of values of the same type.
+ *
+ * @author Miquel Sas
+ */
+public class ValueList extends Queue<Value> {
 }
