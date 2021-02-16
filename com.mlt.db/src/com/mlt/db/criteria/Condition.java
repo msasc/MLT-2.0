@@ -157,6 +157,12 @@ public class Condition {
 			throw new IllegalArgumentException("Invalid number of values");
 		}
 
+		/* The type of the field must match the comparison accepted types. */
+		if (cmp.getTypes() != null) {
+			if (!field.getType().in(cmp.getTypes())) {
+				throw new IllegalArgumentException("Field type does not match comparison accepted types");
+			}
+		}
 		/* All values must be of the same type. */
 		Type type = null;
 		for (Value value : values) {

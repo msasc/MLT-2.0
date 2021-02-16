@@ -42,8 +42,16 @@ import java.util.Map;
  */
 public class Properties {
 
+	/**
+	 * Internal map.
+	 */
 	private Map<String, Object> map = new HashMap<>();
 
+	/**
+	 * @param key   The string key.
+	 * @param value The value to store.
+	 * @throws IllegalArgumentException If the type is not valid.
+	 */
 	private void put(String key, Object value) {
 
 		if (key == null) throw new NullPointerException();
@@ -71,7 +79,7 @@ public class Properties {
 
 	/**
 	 * @param key The string key.
-	 * @return A {@link Boolean} value.
+	 * @return A Boolean value.
 	 * @throws ClassCastException If the underlying value is not a {@link Boolean}.
 	 */
 	public Boolean getBoolean(String key) {
@@ -183,8 +191,6 @@ public class Properties {
 	}
 
 	/**
-	 * Put a key/value pair where the value is a boolean.
-	 *
 	 * @param key   String key.
 	 * @param value A double.
 	 */
@@ -192,8 +198,6 @@ public class Properties {
 		put(key, value);
 	}
 	/**
-	 * Put a key/value pair where the value is a big decimal.
-	 *
 	 * @param key   String key.
 	 * @param value A big decimal.
 	 */
@@ -201,8 +205,6 @@ public class Properties {
 		put(key, value);
 	}
 	/**
-	 * Put a key/value pair where the value is a big integer.
-	 *
 	 * @param key   String key.
 	 * @param value A big integer.
 	 */
@@ -210,8 +212,6 @@ public class Properties {
 		put(key, value);
 	}
 	/**
-	 * Put a key/value pair where the value is a double.
-	 *
 	 * @param key   String key.
 	 * @param value A double.
 	 */
@@ -219,8 +219,6 @@ public class Properties {
 		put(key, value);
 	}
 	/**
-	 * Put a key/value pair where the value is an integer.
-	 *
 	 * @param key   String key.
 	 * @param value An integer.
 	 */
@@ -228,8 +226,6 @@ public class Properties {
 		put(key, value);
 	}
 	/**
-	 * Put a key/value pair where the value is a long.
-	 *
 	 * @param key   String key.
 	 * @param value A long.
 	 */
@@ -237,8 +233,6 @@ public class Properties {
 		put(key, value);
 	}
 	/**
-	 * Put a key/value pair where the value is a local date.
-	 *
 	 * @param key   String key.
 	 * @param value A local date.
 	 */
@@ -246,8 +240,6 @@ public class Properties {
 		put(key, value);
 	}
 	/**
-	 * Put a key/value pair where the value is a local date-time.
-	 *
 	 * @param key   String key.
 	 * @param value A local date-time.
 	 */
@@ -255,8 +247,6 @@ public class Properties {
 		put(key, value);
 	}
 	/**
-	 * Put a key/value pair where the value is a local time.
-	 *
 	 * @param key   String key.
 	 * @param value A local time.
 	 */
@@ -264,8 +254,6 @@ public class Properties {
 		put(key, value);
 	}
 	/**
-	 * Put a key/value pair where the value is a string.
-	 *
 	 * @param key   String key.
 	 * @param value A string.
 	 */
@@ -273,8 +261,6 @@ public class Properties {
 		put(key, value);
 	}
 	/**
-	 * Put a key/value pair where the value is a JSON array.
-	 *
 	 * @param key   String key.
 	 * @param value A JSON array.
 	 */
@@ -282,8 +268,6 @@ public class Properties {
 		put(key, value);
 	}
 	/**
-	 * Put a key/value pair where the value is a JSON object.
-	 *
 	 * @param key   String key.
 	 * @param value A JSON object.
 	 */
@@ -291,8 +275,6 @@ public class Properties {
 		put(key, value);
 	}
 	/**
-	 * Put a key/value pair where the value is a double vector.
-	 *
 	 * @param key   String key.
 	 * @param value A double vector.
 	 */
@@ -300,8 +282,6 @@ public class Properties {
 		put(key, value);
 	}
 	/**
-	 * Put a key/value pair where the value is a double matrix.
-	 *
 	 * @param key   String key.
 	 * @param value A double matrix.
 	 */
@@ -309,6 +289,11 @@ public class Properties {
 		put(key, value);
 	}
 
+	/**
+	 * @param property The {@link JSONObject} container property.
+	 * @param key      The key.
+	 * @return The {@link Integer} value.
+	 */
 	private Integer getInteger(JSONObject property, String key) {
 		Integer value = null;
 		try {
@@ -316,6 +301,11 @@ public class Properties {
 		} catch (JSONException ignore) {}
 		return value;
 	}
+	/**
+	 * @param property The {@link JSONObject} container property.
+	 * @param key      The key.
+	 * @return The {@link String} value.
+	 */
 	private String getString(JSONObject property, String key) {
 		String value = null;
 		try {
@@ -323,6 +313,10 @@ public class Properties {
 		} catch (JSONException ignore) {}
 		return value;
 	}
+	/**
+	 * @param property The {@link JSONObject} container property.
+	 * @return The {@link Object} value.
+	 */
 	private Object getObject(JSONObject property) {
 		Object object = null;
 		try {
@@ -330,6 +324,10 @@ public class Properties {
 		} catch (JSONException ignore) {}
 		return object;
 	}
+	/**
+	 * @param s The source string.
+	 * @return The {@link LocalDate}
+	 */
 	private LocalDate parseLocalDate(String s) {
 		LocalDate value = null;
 		try {
@@ -337,6 +335,10 @@ public class Properties {
 		} catch (DateTimeParseException ignore) {}
 		return value;
 	}
+	/**
+	 * @param s The source string.
+	 * @return The {@link LocalDateTime}
+	 */
 	private LocalDateTime parseLocalDateTime(String s) {
 		LocalDateTime value = null;
 		try {
@@ -344,6 +346,10 @@ public class Properties {
 		} catch (DateTimeParseException ignore) {}
 		return value;
 	}
+	/**
+	 * @param s The source string.
+	 * @return The {@link LocalTime}
+	 */
 	private LocalTime parseLocalTime(String s) {
 		LocalTime value = null;
 		try {

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.mlt.common.json;
+package com.mlt.db.json;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,10 +27,11 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * JSONObject wrapper to conform with a more strict typing.
- *
  * @author Miquel Sas
  */
 public class JSONDocument {
@@ -47,10 +48,27 @@ public class JSONDocument {
 		jsonObject = new JSONObject();
 	}
 	/**
+	 * Package private constructor assigning the internal {@link JSONObject}
 	 * @param jsonObject The internal JSONObject.
 	 */
-	public JSONDocument(JSONObject jsonObject) {
+	JSONDocument(JSONObject jsonObject) {
 		this.jsonObject = jsonObject;
+	}
+
+	/**
+	 * Check whether this JSONDocument contains the key.
+	 * @param key The key to check.
+	 * @return A boolean indicating whether the key is contained.
+	 */
+	public boolean containsKey(String key) {
+		return jsonObject.has(key);
+	}
+	/**
+	 * Returns an unmodifiable collection with this object keys.
+	 * @return A collection with the keys.
+	 */
+	public Collection<String> keys() {
+		return Collections.unmodifiableCollection(jsonObject.keySet());
 	}
 
 	/**
@@ -130,10 +148,10 @@ public class JSONDocument {
 	}
 	/**
 	 * @param key The key or field name.
-	 * @return The local date-time.
-	 * @throws JSONException If the field is not a date-time.
+	 * @return The local timestamp.
+	 * @throws JSONException If the field is not a timestamp.
 	 */
-	public LocalDateTime getDateTime(String key) throws JSONException {
+	public LocalDateTime getTimestamp(String key) throws JSONException {
 		try {
 			return LocalDateTime.parse(jsonObject.getString(key));
 		} catch (DateTimeException exc) {
@@ -155,7 +173,7 @@ public class JSONDocument {
 	 * @return The byte array.
 	 * @throws JSONException If the field is not a byte array.
 	 */
-	public byte[] getByteArray(String key) throws JSONException {
+	public byte[] getBinary(String key) throws JSONException {
 		return (byte[]) jsonObject.get(key);
 	}
 
@@ -231,9 +249,9 @@ public class JSONDocument {
 	}
 	/**
 	 * @param key   The key or field name.
-	 * @param value A date-time value.
+	 * @param value A timestamp value.
 	 */
-	public void setDateTime(String key, LocalDateTime value) {
+	public void setTimestamp(String key, LocalDateTime value) {
 		jsonObject.put(key, value);
 	}
 
@@ -249,7 +267,7 @@ public class JSONDocument {
 	 * @param key   The key or field name.
 	 * @param value A binary (byte[]) value.
 	 */
-	public void setByteArray(String key, byte[] value) {
+	public void setBinary(String key, byte[] value) {
 		jsonObject.put(key, value);
 	}
 
@@ -266,5 +284,17 @@ public class JSONDocument {
 	 */
 	public void setList(String key, JSONList value) {
 		jsonObject.put(key, value.jsonArray);
+	}
+
+	/**
+	 * @return A string representation.
+	 */
+	@Override
+	public String toString() {
+		return jsonObject.toString();
+	}
+
+	public String toString(int indentFactor) throws JSONException {
+		return jsonObject.toString(indentFactor);
 	}
 }

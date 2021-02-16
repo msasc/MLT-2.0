@@ -28,7 +28,7 @@ public class MenuBar extends Control {
 		setComponent(new JMenuBar());
 	}
 	/**
-	 * {@inheritDoc}
+	 * @return The underlying {@link JMenuBar}
 	 */
 	@Override
 	public JMenuBar getComponent() {

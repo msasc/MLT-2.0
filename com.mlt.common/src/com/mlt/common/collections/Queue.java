@@ -21,10 +21,10 @@ import java.util.AbstractCollection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 
 /**
  * A queue of sequentially linked entries.
- *
  * @author Miquel Sas
  */
 public class Queue<E> extends AbstractCollection<E> {
@@ -33,13 +33,28 @@ public class Queue<E> extends AbstractCollection<E> {
 	 * Linked entry.
 	 */
 	public class Entry {
+
 		private E item;
 		private Entry next;
 		private Entry prev;
+
+		/**
+		 * Private constructor. Entries can only be created through the queue.
+		 * @param item The entry item.
+		 */
 		private Entry(E item) { this.item = item; }
 
+		/**
+		 * @return The iem stored in the entry.
+		 */
 		public E getItem() { return item; }
+		/**
+		 * @return The next entry or null.
+		 */
 		public Entry getNext() { return next; }
+		/**
+		 * @return The previous entry or null.
+		 */
 		public Entry getPrev() { return prev; }
 	}
 	/**
@@ -231,7 +246,6 @@ public class Queue<E> extends AbstractCollection<E> {
 
 	/**
 	 * Implementation of iterable.
-	 *
 	 * @return An ascending iterator.
 	 */
 	@Override
@@ -255,17 +269,19 @@ public class Queue<E> extends AbstractCollection<E> {
 	@Override
 	public <E> E[] toArray(E[] a) { return toArray(a, true); }
 	/**
-	 * @param a The array to fill with queue items, not null. If the length of the array is less
-	 *          than the queue size, only up to array length items are filled, the length of the
-	 *          array is not changed.
+	 * @param a   The array to fill with queue items, not null. If the length of the array is less
+	 *            than the queue size, only up to array length items are filled, the length of the
+	 *            array is not changed.
+	 * @param <E> The queue type.
 	 * @return The array filled with queue items starting at the head in ascending order.
 	 * @throws NullPointerException If the array is null.
 	 */
 	public <E> E[] toArrayFromHead(E[] a) { return toArray(a, true); }
 	/**
-	 * @param a The array to fill with queue items, not null. If the length of the array is less
-	 *          than the queue size, only up to array length items are filled, the length of the
-	 *          array is not changed.
+	 * @param a   The array to fill with queue items, not null. If the length of the array is less
+	 *            than the queue size, only up to array length items are filled, the length of the
+	 *            array is not changed.
+	 * @param <E> The queue type.
 	 * @return The array filled with queue items starting at the tail in descending order.
 	 * @throws NullPointerException If the array is null.
 	 */

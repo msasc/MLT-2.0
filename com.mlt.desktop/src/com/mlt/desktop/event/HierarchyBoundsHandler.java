@@ -22,14 +22,20 @@ import java.awt.event.HierarchyEvent;
  * @author Miquel Sas
  */
 public class HierarchyBoundsHandler implements HierarchyBoundsListener {
-	/** Constructor. */
+	/**
+	 * Constructor.
+	 */
 	public HierarchyBoundsHandler() {
 		super();
 	}
-	/** {@inheritDoc} */
+	/**
+	 * @param e The hierarchy event.
+	 */
 	@Override
 	public void ancestorMoved(HierarchyEvent e) {}
-	/** {@inheritDoc} */
+	/**
+	 * @param e The hierarchy event.
+	 */
 	@Override
 	public void ancestorResized(HierarchyEvent e) {}
 }

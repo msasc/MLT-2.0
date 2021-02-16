@@ -11,12 +11,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="com.mlt.common" />
+    <orderEntry type="module" module-name="com.mlt.db" />
     <orderEntry type="library" name="postgresql-9.4.1212" level="application" />
     <orderEntry type="library" name="mongo-db" level="application" />
     <orderEntry type="library" name="slf4j" level="application" />
-    <orderEntry type="library" name="MetaModel-lib-5.3.2" level="application" />
-    <orderEntry type="library" name="MetaModel-5.3.2" level="application" />
-    <orderEntry type="module" module-name="com.mlt.common" />
-    <orderEntry type="module" module-name="com.mlt.db" />
   </component>
 </module>

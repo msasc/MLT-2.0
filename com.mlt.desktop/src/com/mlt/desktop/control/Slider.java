@@ -50,7 +50,7 @@ public class Slider extends Control {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * @return The undelying {@link JSlider}
 	 */
 	@Override
 	public JSlider getComponent() {

@@ -15,32 +15,42 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.mlt.common.json;
+package com.mlt.common.collections;
 
-import org.json.JSONArray;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
- * JSONArray wrapper to conform with a more strict typing.
- *
+ * A basic list implementation with add, get, remove and set methods, and iterable functionality.
  * @author Miquel Sas
  */
-public class JSONList {
+public class BasicList<E> implements Iterable<E> {
 
 	/**
-	 * Internal JSONArray.
+	 * Internal list of elements.
 	 */
-	JSONArray jsonArray;
+	private List<E> items = new ArrayList<>();
 
-	/**
-	 * Construct an empty JSONList.
-	 */
-	public JSONList() {
-		jsonArray = new JSONArray();
+	public void add(E item) {
+		items.add(item);
 	}
-	/**
-	 * @param array The internal JSONArray.
-	 */
-	public JSONList(JSONArray array) {
-		this.jsonArray = array;
+	public E get(int index) {
+		return items.get(index);
+	}
+	public E remove(int index) {
+		return items.remove(index);
+	}
+	public void set(int index, E item) {
+		items.set(index, item);
+	}
+
+	public int size() {
+		return items.size();
+	}
+
+	@Override
+	public Iterator<E> iterator() {
+		return items.iterator();
 	}
 }

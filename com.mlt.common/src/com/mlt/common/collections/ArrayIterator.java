@@ -60,21 +60,21 @@ public class ArrayIterator<T> implements Iterator<T>, Iterable<T> {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * @return A boolean.
 	 */
 	@Override
 	public boolean hasNext() {
 		return startIndex <= endIndex;
 	}
 	/**
-	 * {@inheritDoc}
+	 * @return The next element.
 	 */
 	@Override
 	public T next() {
 		return array[startIndex++];
 	}
 	/**
-	 * {@inheritDoc}
+	 * @return The iterator for the type.
 	 */
 	@Override
 	public Iterator<T> iterator() {

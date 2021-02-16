@@ -17,8 +17,7 @@
 
 package com.mlt.db;
 
-import com.mlt.common.json.JSONDocument;
-import com.mlt.common.json.JSONList;
+import com.mlt.common.lang.Comparators;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -29,10 +28,9 @@ import java.util.Objects;
 
 /**
  * Mutable value of a field.
- *
  * @author Miquel Sas
  */
-public class Value {
+public class Value implements Comparable<Object> {
 
 	/**
 	 * Internal value.
@@ -53,6 +51,7 @@ public class Value {
 	private boolean modified;
 
 	/**
+	 * Constructor of a boolean value.
 	 * @param value A Boolean value.
 	 */
 	public Value(Boolean value) {
@@ -60,24 +59,28 @@ public class Value {
 	}
 
 	/**
+	 * Constructor of a decimal value.
 	 * @param value A BigDecimal value. If null, then the number of decimal places is set to zero.
 	 */
 	public Value(BigDecimal value) {
-		initialize(value, Type.BOOLEAN, value == null ? 0 : value.scale());
+		initialize(value, Type.DECIMAL, value == null ? 0 : value.scale());
 	}
 	/**
+	 * Constructor of a double value.
 	 * @param value A Double value.
 	 */
 	public Value(Double value) {
 		initialize(value, Type.DOUBLE, null);
 	}
 	/**
+	 * Constructor of an integer value.
 	 * @param value An Integer value.
 	 */
 	public Value(Integer value) {
 		initialize(value, Type.INTEGER, null);
 	}
 	/**
+	 * Constructor of a long value.
 	 * @param value A Long value.
 	 */
 	public Value(Long value) {
@@ -85,25 +88,29 @@ public class Value {
 	}
 
 	/**
+	 * Constructor of a date value.
 	 * @param value A LocalDate value.
 	 */
 	public Value(LocalDate value) {
 		initialize(value, Type.DATE, null);
 	}
 	/**
+	 * Constructor of a time value.
 	 * @param value A LocalTime value.
 	 */
 	public Value(LocalTime value) {
 		initialize(value, Type.TIME, null);
 	}
 	/**
+	 * Constructor of a timestamp value.
 	 * @param value A LocalDateTime value.
 	 */
 	public Value(LocalDateTime value) {
-		initialize(value, Type.DATETIME, null);
+		initialize(value, Type.TIMESTAMP, null);
 	}
 
 	/**
+	 * Constructor of a string value.
 	 * @param value A String value.
 	 */
 	public Value(String value) {
@@ -111,6 +118,7 @@ public class Value {
 	}
 
 	/**
+	 * Constructor of a binary value.
 	 * @param value A byte[] value.
 	 */
 	public Value(byte[] value) {
@@ -118,19 +126,22 @@ public class Value {
 	}
 
 	/**
-	 * @param value A JSONDocument value.
+	 * Constructor of a document value.
+	 * @param value A Document value.
 	 */
-	public Value(JSONDocument value) {
+	public Value(Document value) {
 		initialize(value, Type.DOCUMENT, null);
 	}
 	/**
-	 * @param value A JSONList value.
+	 * Constructor of a value list  value.
+	 * @param value A ValueList value.
 	 */
-	public Value(JSONList value) {
+	public Value(ValueList value) {
 		initialize(value, Type.LIST, null);
 	}
 
 	/**
+	 * Check whether this value is a boolean.
 	 * @return A boolean to confirm the type.
 	 */
 	public boolean isBoolean() {
@@ -138,30 +149,35 @@ public class Value {
 	}
 
 	/**
+	 * Check whether this value is a decimal.
 	 * @return A boolean to confirm the type.
 	 */
 	public boolean isDecimal() {
 		return type.isDecimal();
 	}
 	/**
+	 * Check whether this value is a double.
 	 * @return A boolean to confirm the type.
 	 */
 	public boolean isDouble() {
 		return type.isDouble();
 	}
 	/**
+	 * Check whether this value is an integer.
 	 * @return A boolean to confirm the type.
 	 */
 	public boolean isInteger() {
 		return type.isInteger();
 	}
 	/**
+	 * Check whether this value is a long.
 	 * @return A boolean to confirm the type.
 	 */
 	public boolean isLong() {
 		return type.isLong();
 	}
 	/**
+	 * Check whether this value is a number.
 	 * @return A boolean to confirm the type.
 	 */
 	public boolean isNumber() {
@@ -169,25 +185,29 @@ public class Value {
 	}
 
 	/**
+	 * Check whether this value is a date.
 	 * @return A boolean to confirm the type.
 	 */
 	public boolean isDate() {
 		return type.isDate();
 	}
 	/**
+	 * Check whether this value is a time.
 	 * @return A boolean to confirm the type.
 	 */
 	public boolean isTime() {
 		return type.isTime();
 	}
 	/**
+	 * Check whether this value is a timestamp.
 	 * @return A boolean to confirm the type.
 	 */
-	public boolean isDateTime() {
-		return type.isDateTime();
+	public boolean isTimestamp() {
+		return type.isTimestamp();
 	}
 
 	/**
+	 * Check whether this value is a string.
 	 * @return A boolean to confirm the type.
 	 */
 	public boolean isString() {
@@ -195,6 +215,7 @@ public class Value {
 	}
 
 	/**
+	 * Check whether this value is a binary.
 	 * @return A boolean to confirm the type.
 	 */
 	public boolean isBinary() {
@@ -202,12 +223,14 @@ public class Value {
 	}
 
 	/**
+	 * Check whether this value is a document.
 	 * @return A boolean to confirm the type.
 	 */
 	public boolean isDocument() {
 		return type.isDocument();
 	}
 	/**
+	 * Check whether this value is a value list.
 	 * @return A boolean to confirm the type.
 	 */
 	public boolean isList() {
@@ -215,6 +238,7 @@ public class Value {
 	}
 
 	/**
+	 * Check whether this value is null.
 	 * @return A boolean indicating whether the value is null.
 	 */
 	public boolean isNull() {
@@ -222,6 +246,7 @@ public class Value {
 	}
 
 	/**
+	 * Return a Boolean if the type is boolean, otherwise throws an IllegalStateException.
 	 * @return A Boolean if the type is boolean, otherwise throws an IllegalStateException.
 	 */
 	public Boolean getBoolean() {
@@ -230,6 +255,7 @@ public class Value {
 	}
 
 	/**
+	 * Return a BigDecimal if the type is numeric, otherwise throws an IllegalStateException.
 	 * @return A BigDecimal if the type is numeric, otherwise throws an IllegalStateException. The
 	 * returned BigDecimal retains the number of decimal places.
 	 */
@@ -246,6 +272,7 @@ public class Value {
 		return (BigDecimal) value;
 	}
 	/**
+	 * Return a Double if the type is numeric, otherwise throws an IllegalStateException.
 	 * @return A Double if the type is numeric, otherwise throws an IllegalStateException.
 	 */
 	public Double getDouble() {
@@ -258,6 +285,7 @@ public class Value {
 		return ((Number) value).doubleValue();
 	}
 	/**
+	 * Return an Integer if the type is numeric, otherwise throws an IllegalStateException.
 	 * @return A Integer if the type is numeric, otherwise throws an IllegalStateException.
 	 */
 	public Integer getInteger() {
@@ -270,6 +298,7 @@ public class Value {
 		return ((Number) value).intValue();
 	}
 	/**
+	 * Return a Long if the type is numeric, otherwise throws an IllegalStateException.
 	 * @return A Long if the type is numeric, otherwise throws an IllegalStateException.
 	 */
 	public Long getLong() {
@@ -281,8 +310,19 @@ public class Value {
 		}
 		return ((Number) value).longValue();
 	}
+	/**
+	 * Return a Number if the type is numeric, otherwise throws an IllegalStateException.
+	 * @return A Number if the type is numeric, otherwise throws an IllegalStateException.
+	 */
+	public Number getNumber() {
+		if (!isNumber()) {
+			throw new IllegalStateException();
+		}
+		return (Number) value;
+	}
 
 	/**
+	 * Return a LocalDate if the type is a date, otherwise throws an IllegalStateException.
 	 * @return A LocalDate if the type is a date, otherwise throws an IllegalStateException.
 	 */
 	public LocalDate getDate() {
@@ -292,6 +332,7 @@ public class Value {
 		return (LocalDate) value;
 	}
 	/**
+	 * Return a LocalTime if the type is a time, otherwise throws an IllegalStateException.
 	 * @return A LocalTime if the type is a time, otherwise throws an IllegalStateException.
 	 */
 	public LocalTime getTime() {
@@ -301,16 +342,18 @@ public class Value {
 		return (LocalTime) value;
 	}
 	/**
+	 * Return a LocalDateTime if the type is a date-time, otherwise throws an IllegalStateException.
 	 * @return A LocalDateTime if the type is a date-time, otherwise throws an IllegalStateException.
 	 */
-	public LocalDateTime getDateTime() {
-		if (!isDateTime()) {
+	public LocalDateTime getTimestamp() {
+		if (!isTimestamp()) {
 			throw new IllegalStateException();
 		}
 		return (LocalDateTime) value;
 	}
 
 	/**
+	 * Return a String if the type is a string, otherwise throws an IllegalStateException.
 	 * @return A String if the type is a string, otherwise throws an IllegalStateException.
 	 */
 	public String getString() {
@@ -321,6 +364,7 @@ public class Value {
 	}
 
 	/**
+	 * Return a byte[] if the type is a binary, otherwise throws an IllegalStateException.
 	 * @return A byte[] if the type is a binary, otherwise throws an IllegalStateException.
 	 */
 	public byte[] getBinary() {
@@ -331,37 +375,42 @@ public class Value {
 	}
 
 	/**
-	 * @return A JSONDocument if the type is a document, otherwise throws an IllegalStateException.
+	 * Return a Document if the type is a document, otherwise throws an IllegalStateException.
+	 * @return A Document if the type is a document, otherwise throws an IllegalStateException.
 	 */
-	public JSONDocument getDocument() {
+	public Document getDocument() {
 		if (!isDocument()) {
 			throw new IllegalStateException();
 		}
-		return (JSONDocument) value;
+		return (Document) value;
 	}
 	/**
-	 * @return A JSONList if the type is a list, otherwise throws an IllegalStateException.
+	 * Return a ValueList if the type is a list, otherwise throws an IllegalStateException.
+	 * @return A ValueList if the type is a list, otherwise throws an IllegalStateException.
 	 */
-	public JSONList getList() {
+	public ValueList getList() {
 		if (!isList()) {
 			throw new IllegalStateException();
 		}
-		return (JSONList) value;
+		return (ValueList) value;
 	}
 
 	/**
+	 * Return the type.
 	 * @return The type.
 	 */
 	public Type getType() {
 		return type;
 	}
 	/**
+	 * Return the number of decimal places or null.
 	 * @return The number of decimal places or null.
 	 */
 	public Integer getDecimals() {
 		return decimals;
 	}
 	/**
+	 * Return a boolean indicating whether the value has been modified.
 	 * @return A boolean indicating whether the value has been modified.
 	 */
 	public boolean isModified() {
@@ -369,6 +418,7 @@ public class Value {
 	}
 
 	/**
+	 * Set the Boolean value if applicable.
 	 * @param value A Boolean value.
 	 */
 	public void setBoolean(Boolean value) {
@@ -376,24 +426,28 @@ public class Value {
 	}
 
 	/**
+	 * Set the BigDecimal value if applicable.
 	 * @param value A BigDecimal value.
 	 */
 	public void setDecimal(BigDecimal value) {
 		setNumber(value);
 	}
 	/**
+	 * Set the Double value if applicable.
 	 * @param value A Double value.
 	 */
 	public void setDouble(Double value) {
 		setNumber(value);
 	}
 	/**
+	 * Set the Integer value if applicable.
 	 * @param value An Integer value.
 	 */
 	public void setInteger(Integer value) {
 		setNumber(value);
 	}
 	/**
+	 * Set the Long value if applicable.
 	 * @param value A Long value.
 	 */
 	public void setLong(Long value) {
@@ -401,25 +455,29 @@ public class Value {
 	}
 
 	/**
+	 * Set the LocalDate value if applicable.
 	 * @param value A LocalDate value.
 	 */
 	public void setDate(LocalDate value) {
 		setValue(value, Type.DATE);
 	}
 	/**
+	 * Set the LocalTime value if applicable.
 	 * @param value A LocalTime value.
 	 */
 	public void setTime(LocalTime value) {
 		setValue(value, Type.TIME);
 	}
 	/**
+	 * Set the LocalDateTime value if applicable.
 	 * @param value A LocalDateTime value.
 	 */
-	public void setDateTime(LocalDateTime value) {
-		setValue(value, Type.DATETIME);
+	public void setTimestamp(LocalDateTime value) {
+		setValue(value, Type.TIMESTAMP);
 	}
 
 	/**
+	 * Set the String value if applicable.
 	 * @param value A String value.
 	 */
 	public void setString(String value) {
@@ -427,6 +485,7 @@ public class Value {
 	}
 
 	/**
+	 * Set the byte[] value if applicable.
 	 * @param value A byte[] value.
 	 */
 	public void setBinary(byte[] value) {
@@ -434,15 +493,17 @@ public class Value {
 	}
 
 	/**
-	 * @param value A JSONDocument value.
+	 * Set the Document value if applicable.
+	 * @param value A Document value.
 	 */
-	public void setDocument(JSONDocument value) {
+	public void setDocument(Document value) {
 		setValue(value, Type.DOCUMENT);
 	}
 	/**
-	 * @param value A JSONList value.
+	 * Set the ValueList value if applicable.
+	 * @param value A ValueList value.
 	 */
-	public void setList(JSONList value) {
+	public void setList(ValueList value) {
 		setValue(value, Type.LIST);
 	}
 
@@ -455,24 +516,74 @@ public class Value {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Return a negative integer, zero, or a positive integer as the first argument is less than,
+	 * equal to, or greater than the second.
+	 * @param b1 the first object to be compared.
+	 * @param b2 the second object to be compared.
+	 * @return a negative integer, zero, or a positive integer as the first argument is less than,
+	 * equal to, or greater than the second.
 	 */
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+	public int compareTo(Object o) {
+		if (o == null) throw new NullPointerException();
+		if (!(o instanceof Value)) throw new UnsupportedOperationException("Not comparable type: " + o.getClass().getName());
 		Value v = (Value) o;
-		return Objects.equals(value, v.value) && type == v.type;
+
+		/* Null types. */
+		if (isNull() && v.isNull()) return 0;
+		if (isNull() && !v.isNull()) return -1;
+		if (!isNull() && v.isNull()) return 1;
+
+		boolean comparable = true;
+		if (isBoolean() && !v.isBoolean()) comparable = false;
+		if (isNumber() && !v.isNumber()) comparable = false;
+		if (isString() && !v.isString()) comparable = false;
+		if (isDate() && !v.isDate()) comparable = false;
+		if (isTime() && !v.isTime()) comparable = false;
+		if (isTimestamp() && !v.isTimestamp()) comparable = false;
+		if (isBinary() && !v.isBinary()) comparable = false;
+		if (isDocument() && !v.isDocument()) comparable = false;
+		if (isList() && !v.isList()) comparable = false;
+		if (!comparable) {
+			throw new UnsupportedOperationException("Not comparable type: " + o.getClass().getName());
+		}
+
+		if (isBoolean()) return Boolean.compare(getBoolean(), v.getBoolean());
+		if (isNumber()) return getDecimal().compareTo(v.getDecimal());
+		if (isString()) return getString().compareTo(v.getString());
+		if (isDate()) return getDate().compareTo(v.getDate());
+		if (isTime()) return getTime().compareTo(v.getTime());
+		if (isTimestamp()) return getTimestamp().compareTo(v.getTimestamp());
+		if (isBinary()) return Comparators.compare(getBinary(), v.getBinary());
+
+		return 0;
 	}
 	/**
-	 * {@inheritDoc}
+	 * Check whether this object is equal to the argument object.
+	 * @param obj The object to compare for equality.
+	 * @return A boolen indicating whether this object can be considered equal to the argument object.
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null || getClass() != obj.getClass()) return false;
+		Value v = (Value) obj;
+		if (isNumber() && v.isNumber()) {
+			return getNumber().doubleValue() == v.getNumber().doubleValue();
+		}
+		return Objects.equals(this.value, v.value);
+	}
+	/**
+	 * Return a suitable hash code.
+	 * @return A suitable hash code.
 	 */
 	@Override
 	public int hashCode() {
 		return Objects.hash(value, type);
 	}
 	/**
-	 * {@inheritDoc}
+	 * Return a string representing this value content.
+	 * @return A string representing this value content.
 	 */
 	@Override
 	public String toString() {
@@ -481,7 +592,6 @@ public class Value {
 	}
 	/**
 	 * Set any value except numeric values.
-	 *
 	 * @param value The value.
 	 * @param type  The type.
 	 */
@@ -492,7 +602,6 @@ public class Value {
 	}
 	/**
 	 * Set a number applying the proper transformation depending on the numeric type.
-	 *
 	 * @param value The number value.
 	 */
 	private void setNumber(Number value) {
@@ -512,6 +621,7 @@ public class Value {
 		this.modified = true;
 	}
 	/**
+	 * Initialize the members.
 	 * @param value    The value.
 	 * @param type     The type.
 	 * @param decimals The number of decimal places if applicable.
