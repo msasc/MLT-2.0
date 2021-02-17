@@ -18,13 +18,10 @@
 package com.mlt.db;
 
 import com.mlt.db.json.JSONDocument;
+import com.mlt.db.json.JSONList;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Describes the structure of a collection of documents.
@@ -41,34 +38,25 @@ public class Schema {
 	 */
 	private String description;
 	/**
-	 * Map of fields.
+	 * The field map associated to this schema.
 	 */
-	private Map<String, Field> fields;
-	/**
-	 * Map of value indexes within the corresponding document.
-	 */
-	private Map<String, Integer> valueIndexes;
+	private FieldMap fieldMap;
 	/**
 	 * List of indexes.
 	 */
 	private List<Index> indexes;
-	/**
-	 * Default and unique constructor.
-	 */
-	public Schema() {
-		fields = new LinkedHashMap<>();
-		valueIndexes = new LinkedHashMap<>();
-		indexes = new ArrayList<>();
-	}
+
 	/**
 	 * Constructor assigning name and description.
 	 * @param name        The schema name.
 	 * @param description The description.
 	 */
 	public Schema(String name, String description) {
-		this();
+		if (name == null) throw new NullPointerException();
 		this.name = name;
 		this.description = description;
+		this.fieldMap = new FieldMap();
+		this.indexes = new ArrayList<>();
 	}
 
 	/**
@@ -99,45 +87,13 @@ public class Schema {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	/**
-	 * Returns the field or null if none is found.
-	 * @param key The key or field name or alias.
-	 * @return The field or null if none is found.
-	 */
-	public Field getField(String key) {
-		return fields.get(key);
-	}
-	/**
-	 * Returns the index of the value within the document.
-	 * @param key The key or field name or alias.
-	 * @return The index of the value within the document.
-	 */
-	public int getValueIndex(String key) {
-		Integer valueIndex = valueIndexes.get(key);
-		return valueIndex == null ? -1 : valueIndex;
-	}
 
 	/**
-	 * @param field The field.
+	 * Returns the map of fields.
+	 * @return The map of fields.
 	 */
-	public void putField(Field field) {
-		String key = field.getAlias();
-		int valueIndex = fields.size();
-		fields.put(key, field);
-		valueIndexes.put(key, valueIndex);
-	}
-	/**
-	 * @return A collection with the schema fields.
-	 */
-	public Collection<Field> fields() {
-		return Collections.unmodifiableCollection(fields.values());
-	}
-
-	/**
-	 * @return The size or number of entries in the schema.
-	 */
-	public int fieldCount() {
-		return fields.size();
+	public FieldMap fieldMap() {
+		return fieldMap;
 	}
 
 	/**
@@ -173,25 +129,22 @@ public class Schema {
 		if (this == obj) return true;
 		if (obj == null || getClass() != obj.getClass()) return false;
 		Schema s = (Schema) obj;
-		return fields.equals(s.fields);
+		return fieldMap.equals(s.fieldMap);
 	}
-
 	/**
 	 * Returns a suitable hash code.
 	 * @return A suitable hash code.
 	 */
 	@Override
 	public int hashCode() {
-		int hash = 5;
-		for (Field e : fields.values()) hash |= e.hashCode();
-		return hash;
+		return fieldMap.hashCode();
 	}
 
 	/**
-	 * Returns a JSON representation of this field.
-	 * @return A JSON representation of this field.
+	 * Returns a JSON representation of this schema.
+	 * @return A JSON representation of this schema.
 	 */
-	public JSONDocument toJSON() {
+	public JSONDocument toJSONDocument() {
 		JSONDocument doc = new JSONDocument();
 		if (getName() != null) {
 			doc.setString("name", getName());
@@ -199,15 +152,19 @@ public class Schema {
 		if (getDescription() != null) {
 			doc.setString("description", getDescription());
 		}
-		if (!fields.isEmpty()) {
+		if (!fieldMap.isEmpty()) {
 			JSONDocument fields_doc = new JSONDocument();
-			for (Field entry : fields.values()) {
-				fields_doc.setDocument(entry.getAlias(), entry.toJSON());
+			for (Field entry : fieldMap.fields()) {
+				fields_doc.setDocument(entry.getAlias(), entry.toJSONDocument());
 			}
 			doc.setDocument("fields", fields_doc);
 		}
 		if (!indexes.isEmpty()) {
-
+			JSONList index_list = new JSONList();
+			for (Index index : indexes) {
+				index_list.addDocument(index.toJSONDocument());
+			}
+			doc.setList("indexes", index_list);
 		}
 		return doc;
 	}

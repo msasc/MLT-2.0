@@ -22,7 +22,6 @@ import com.mlt.desktop.control.Control;
 import com.mlt.desktop.control.Pane;
 import com.mlt.desktop.event.WindowHandler;
 
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JWindow;

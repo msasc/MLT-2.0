@@ -13,8 +13,11 @@
  */
 package com.mlt.db;
 
+import com.mlt.common.lang.Strings;
+import com.mlt.db.json.JSONDocument;
+import com.mlt.db.json.JSONList;
+
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * An order definition.
@@ -41,5 +44,21 @@ public class Order extends ArrayList<FieldKey> {
 	 */
 	public void add(Field field, boolean asc) {
 		add(new FieldKey(field, asc));
+	}
+	/**
+	 * Returns a JSON representation of this order.
+	 * @return A JSON representation of this order.
+	 */
+	public JSONDocument toJSONDocument() {
+		JSONList keys = new JSONList();
+		for (FieldKey fieldKey : this) {
+			JSONList key = new JSONList();
+			key.addString(fieldKey.getField().getName());
+			key.addString(Strings.toBooleanString(fieldKey.isAsc(), "asc", "desc"));
+			keys.addList(key);
+		}
+		JSONDocument doc = new JSONDocument();
+		doc.setList("keys", keys);
+		return doc;
 	}
 }

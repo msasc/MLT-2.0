@@ -18,23 +18,17 @@
 package com.mlt.db;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * A list of values of the same type.
  * @author Miquel Sas
  */
-public class ValueList implements Iterable<Value> {
+public class ValueList extends ArrayList<Value> implements Comparable<Object> {
 
 	/**
 	 * The field that defines the type of this value list.
 	 */
 	private Field field;
-	/**
-	 * The collection of values.
-	 */
-	private List<Value> values;
 
 	/**
 	 * Constructor assigning the required field to know the content type of the list.
@@ -43,16 +37,16 @@ public class ValueList implements Iterable<Value> {
 	public ValueList(Field field) {
 		if (field == null) throw new NullPointerException();
 		this.field = field;
-		this.values = new ArrayList<>();
 	}
 
 	/**
 	 * Add a value to the list. Validates that the value type acceptable for the field definition.
 	 * @param value The value to add.
+	 * @return
 	 */
-	public void add(Value value) {
-		validate(value);
-		values.add(value);
+	public boolean add(Value value) {
+		field.validate(value);
+		return super.add(value);
 	}
 	/**
 	 * Insert a value into the list. Validates that the value type acceptable for the field
@@ -61,48 +55,30 @@ public class ValueList implements Iterable<Value> {
 	 * @param value The value to insert.
 	 */
 	public void add(int index, Value value) {
-		validate(value);
-		values.add(index, value);
-	}
-	/**
-	 * Returns the value at the given index.
-	 * @param index The index.
-	 * @return The value at the given index.
-	 */
-	public Value get(int index) {
-		return values.get(index);
-	}
-	/**
-	 * Removes the value at the given index.
-	 * @param index The index.
-	 * @return The removed value.
-	 */
-	public Value remove(int index) {
-		return values.remove(index);
-	}
-	/**
-	 * Returns the size or number of valus in the list.
-	 * @return The size or number of valus in the list.
-	 */
-	public int size() {
-		return values.size();
+		field.validate(value);
+		super.add(index, value);
 	}
 
 	/**
-	 * Returns an iterator over elements of type {@code T}.
-	 * @return an Iterator.
+	 * Compares this object with the specified object for order. Returns a negative integer, zero,
+	 * or a positive integer as this object is less than, equal to, or greater than the specified
+	 * object.
+	 * @param obj the object to be compared.
+	 * @return negative integer, zero, or a positive integer as this object is less than, equal to,
+	 * or greater than the specified object.
 	 */
 	@Override
-	public Iterator<Value> iterator() {
-		return values.iterator();
-	}
-
-	private void validate(Value value) {
-		if (value == null) {
-			throw new NullPointerException("Value can not be null");
+	public int compareTo(Object obj) {
+		if (obj == null) throw new NullPointerException();
+		if (!(obj instanceof ValueList)) throw new UnsupportedOperationException("Not comparable type: " + obj.getClass());
+		ValueList valueList = (ValueList) obj;
+		int size = Math.max(size(), valueList.size());
+		for (int i = 0; i < size; i++) {
+			if (i >= size()) return -1;
+			if (i >= valueList.size()) return 1;
+			int compare = get(i).compareTo(valueList.get(i));
+			if (compare != 0) return compare;
 		}
-		if (value.getType() != field.getType()) {
-			throw new IllegalArgumentException("Invalid value type " + value.getType());
-		}
+		return 0;
 	}
 }

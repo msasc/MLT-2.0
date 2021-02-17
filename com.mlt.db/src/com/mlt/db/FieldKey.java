@@ -23,7 +23,7 @@ import java.util.Objects;
  * A field key in an order or index. A field key packs a field and an ascending flag.
  * @author Miquel Sas
  */
-public class FieldKey implements Comparable<FieldKey> {
+public class FieldKey implements Comparable<Object> {
 
 	/**
 	 * The field.
@@ -60,15 +60,22 @@ public class FieldKey implements Comparable<FieldKey> {
 	}
 
 	/**
-	 * Compares this field key with the specified field for order. Returns a negative integer, zero,
-	 * or a positive integer as this field is less than, equal to, or greater than the specified
-	 * field.
-	 * @param key the key to be compared.
-	 * @return a negative integer, zero, or a positive integer as this key is less than, equal to,
-	 * or greater than the specified field.
+	 * Compares this object with the specified object for order. Returns a negative integer, zero,
+	 * or a positive integer as this object is less than, equal to, or greater than the specified
+	 * object.
+	 * @param obj the object to be compared.
+	 * @return negative integer, zero, or a positive integer as this object is less than, equal to,
+	 * or greater than the specified object.
 	 */
 	@Override
-	public int compareTo(FieldKey key) {
+	public int compareTo(Object obj) {
+		if (obj == null) {
+			throw new NullPointerException();
+		}
+		if (!(obj instanceof FieldKey)) {
+			throw new UnsupportedOperationException("Not comparable type: " + obj.getClass());
+		}
+		FieldKey key = (FieldKey) obj;
 		if (key == null) throw new NullPointerException();
 		int compare = field.compareTo(key.field);
 		if (compare != 0) return compare * (asc ? 1 : -1);

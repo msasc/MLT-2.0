@@ -18,7 +18,6 @@
 package com.mlt.desktop.control;
 
 import com.mlt.desktop.AWT;
-import com.mlt.common.lang.Numbers;
 
 import javax.swing.JComponent;
 import javax.swing.border.Border;

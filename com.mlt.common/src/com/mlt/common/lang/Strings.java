@@ -24,7 +24,6 @@ import java.util.StringTokenizer;
 
 /**
  * String utilities.
- *
  * @author Miquel Sas
  */
 public class Strings {
@@ -44,7 +43,6 @@ public class Strings {
 
 	/**
 	 * Capitalize the string.
-	 *
 	 * @param str The string to capitalize.
 	 * @return The capitalized string.
 	 */
@@ -64,18 +62,16 @@ public class Strings {
 	}
 	/**
 	 * Center pad.
-	 *
 	 * @param str    The string to pad.
 	 * @param size   The size.
 	 * @param padChr The pad character.
 	 * @return The padded string
 	 */
 	public static String centerPad(String str, int size, char padChr) {
-		return centerPad(str, size, valueOf(padChr));
+		return centerPad(str, size, String.valueOf(padChr));
 	}
 	/**
 	 * Center pad.
-	 *
 	 * @param str    The string to pad.
 	 * @param size   The size.
 	 * @param padStr The pad string.
@@ -95,7 +91,6 @@ public class Strings {
 	}
 	/**
 	 * Concatenate the strings.
-	 *
 	 * @param strs The list of string to concatenate to the source.
 	 * @return The concatenated string.
 	 */
@@ -108,7 +103,6 @@ public class Strings {
 	}
 	/**
 	 * Check whether the string contains the search char.
-	 *
 	 * @param source Source string.
 	 * @param search Search char.
 	 * @return A boolean.
@@ -118,7 +112,6 @@ public class Strings {
 	}
 	/**
 	 * Check whether the string contains the search string.
-	 *
 	 * @param source Source string.
 	 * @param search Search string.
 	 * @return A boolean.
@@ -128,7 +121,6 @@ public class Strings {
 	}
 	/**
 	 * Check whether the string containing only the valid chars.
-	 *
 	 * @param source     The source string.
 	 * @param validChars The list of valid chars.
 	 * @return A boolean.
@@ -143,7 +135,6 @@ public class Strings {
 	}
 	/**
 	 * Count the matches.
-	 *
 	 * @param source Source string.
 	 * @param search Search char.
 	 * @return The number of matches.
@@ -162,7 +153,6 @@ public class Strings {
 	}
 	/**
 	 * Count the matches.
-	 *
 	 * @param source Source string.
 	 * @param search Search string.
 	 * @return The number of matches.
@@ -181,7 +171,6 @@ public class Strings {
 	}
 	/**
 	 * Check for equality.
-	 *
 	 * @param a String a.
 	 * @param b String b.
 	 * @return A boolean.
@@ -191,7 +180,6 @@ public class Strings {
 	}
 	/**
 	 * Returns the first string not null, or an empty string.
-	 *
 	 * @param strings The list of strings.
 	 * @return The first string not null, or an empty string.
 	 */
@@ -207,7 +195,6 @@ public class Strings {
 	}
 	/**
 	 * Return all the stack trace of the throwable.
-	 *
 	 * @param e The throwable.
 	 * @return The stack trace.
 	 */
@@ -219,7 +206,6 @@ public class Strings {
 	}
 	/**
 	 * Check if the string is contained in the list of options.
-	 *
 	 * @param string  The source string.
 	 * @param strings The list of strings.
 	 * @return A boolean.
@@ -237,7 +223,6 @@ public class Strings {
 	}
 	/**
 	 * Returns the index of the search char.
-	 *
 	 * @param source Source string.
 	 * @param search Search char.
 	 * @return The search index.
@@ -247,7 +232,6 @@ public class Strings {
 	}
 	/**
 	 * Returns the index of the search char.
-	 *
 	 * @param source    Source string.
 	 * @param search    Search char.
 	 * @param fromIndex From index.
@@ -258,7 +242,6 @@ public class Strings {
 	}
 	/**
 	 * Returns the index of the search char.
-	 *
 	 * @param source Source string.
 	 * @param search Search string.
 	 * @return The search index.
@@ -268,7 +251,6 @@ public class Strings {
 	}
 	/**
 	 * Returns the index of the search string.
-	 *
 	 * @param source    Source string.
 	 * @param search    Search string.
 	 * @param fromIndex From index.
@@ -279,7 +261,6 @@ public class Strings {
 	}
 	/**
 	 * Check whether the string is empty. Null is empty.
-	 *
 	 * @param str The string.
 	 * @return A boolean.
 	 */
@@ -288,7 +269,6 @@ public class Strings {
 	}
 	/**
 	 * Check whether the string builder is empty. Null is empty.
-	 *
 	 * @param b The string builder.
 	 * @return A boolean.
 	 */
@@ -297,7 +277,6 @@ public class Strings {
 	}
 	/**
 	 * Left pad a number. Parent Apache does not work as expected.
-	 *
 	 * @param num  The number to pad out, can not be null.
 	 * @param size The size to pad to
 	 * @return The left padded string.
@@ -308,9 +287,8 @@ public class Strings {
 	}
 	/**
 	 * Left pad a number. Parent Apache does not work as expected.
-	 *
-	 * @param num  The number to pad out, can not be null.
-	 * @param size The size to pad to
+	 * @param num    The number to pad out, can not be null.
+	 * @param size   The size to pad to
 	 * @param padStr The string to pad with.
 	 * @return The left padded string.
 	 */
@@ -320,7 +298,6 @@ public class Strings {
 	}
 	/**
 	 * Left pad a string. Parent Apache does not work as expected.
-	 *
 	 * @param str  The string to pad out, may be null.
 	 * @param size The size to pad to
 	 * @return The left padded string.
@@ -330,18 +307,16 @@ public class Strings {
 	}
 	/**
 	 * Left pad a string. Parent Apache does not work as expected.
-	 *
 	 * @param str    The string to pad out, may be null.
 	 * @param size   The size to pad to
 	 * @param padChr The char to pad with.
 	 * @return The left padded string.
 	 */
 	public static String leftPad(String str, int size, char padChr) {
-		return leftPad(str, size, valueOf(padChr));
+		return leftPad(str, size, String.valueOf(padChr));
 	}
 	/**
 	 * Left pad a string. Parent Apache does not work as expected.
-	 *
 	 * @param str    The string to pad out, may be null.
 	 * @param size   The size to pad to
 	 * @param padStr The string to pad with, null or empty treated as single space.
@@ -361,7 +336,6 @@ public class Strings {
 	}
 	/**
 	 * Return the length of the string. Null is zero length.
-	 *
 	 * @param str The string.
 	 * @return The length of the string.
 	 */
@@ -370,7 +344,6 @@ public class Strings {
 	}
 	/**
 	 * Parse a string
-	 *
 	 * @param string    The string to parse.
 	 * @param separator The separator.
 	 * @return the array of tokens
@@ -385,7 +358,6 @@ public class Strings {
 	}
 	/**
 	 * Parse and capitalize.
-	 *
 	 * @param srcStr Source string.
 	 * @param srcSep Source separator.
 	 * @param dstSep Destination separator.
@@ -404,7 +376,6 @@ public class Strings {
 	}
 	/**
 	 * Remove all incidences.
-	 *
 	 * @param source The source string.
 	 * @param remove The char to remove.
 	 * @return The result string.
@@ -414,7 +385,6 @@ public class Strings {
 	}
 	/**
 	 * Remove all incidences of the list of characters.
-	 *
 	 * @param source The source string.
 	 * @param remove The characters to remove.
 	 * @return The result string.
@@ -428,7 +398,6 @@ public class Strings {
 	}
 	/**
 	 * Remove all incidences.
-	 *
 	 * @param source The source string.
 	 * @param remove The string to remove.
 	 * @return The result string.
@@ -438,7 +407,6 @@ public class Strings {
 	}
 	/**
 	 * Remove all incidences of the strings.
-	 *
 	 * @param source The source string.
 	 * @param remove The strings to remove.
 	 * @return The result string.
@@ -453,7 +421,6 @@ public class Strings {
 	/**
 	 * Returns a string whose value is the concatenation of the argument string
 	 * repeated count times.
-	 *
 	 * @param str   The string to repeat.
 	 * @param count The number times.
 	 * @return The repeated string.
@@ -465,7 +432,6 @@ public class Strings {
 	}
 	/**
 	 * Replaces all incidences.
-	 *
 	 * @param source  Source string.
 	 * @param search  Search char.
 	 * @param replace Replace char.
@@ -476,7 +442,6 @@ public class Strings {
 	}
 	/**
 	 * Replaces all incidences.
-	 *
 	 * @param source  Source string.
 	 * @param search  Search string.
 	 * @param replace Replace string.
@@ -487,7 +452,6 @@ public class Strings {
 	}
 	/**
 	 * Reverses a string.
-	 *
 	 * @param str the String to reverse, may be null
 	 * @return the reversed String, {@code null} if null String input
 	 */
@@ -499,7 +463,6 @@ public class Strings {
 	}
 	/**
 	 * Right pad a number. Parent Apache does not work as expected.
-	 *
 	 * @param num  The number to pad out, can not be null.
 	 * @param size The size to pad to
 	 * @return The right padded string.
@@ -510,7 +473,6 @@ public class Strings {
 	}
 	/**
 	 * Right pad a string. Parent Apache does not work as expected.
-	 *
 	 * @param str  The string to pad out, may be null.
 	 * @param size The size to pad to
 	 * @return The right padded string.
@@ -520,18 +482,16 @@ public class Strings {
 	}
 	/**
 	 * Right pad a string. Parent Apache does not work as expected.
-	 *
 	 * @param str    The string to pad out, may be null.
 	 * @param size   The size to pad to
 	 * @param padChr The char to pad with.
 	 * @return The right padded string.
 	 */
 	public static String rightPad(String str, int size, char padChr) {
-		return rightPad(str, size, valueOf(padChr));
+		return rightPad(str, size, String.valueOf(padChr));
 	}
 	/**
 	 * Right pad a string. Parent Apache does not work as expected.
-	 *
 	 * @param str    The string to pad out, may be null.
 	 * @param size   The size to pad to.
 	 * @param padStr The string to pad with, null or empty treated as single space.
@@ -551,7 +511,6 @@ public class Strings {
 	}
 	/**
 	 * Tests whether the argument string starts with the specified prefix.
-	 *
 	 * @param str    The string.
 	 * @param prefix The prefix.
 	 * @return A boolean.
@@ -561,7 +520,6 @@ public class Strings {
 	}
 	/**
 	 * Return the substring.
-	 *
 	 * @param str        The source string.
 	 * @param beginIndex Begin index.
 	 * @return The substring.
@@ -573,7 +531,6 @@ public class Strings {
 	}
 	/**
 	 * Return the substring.
-	 *
 	 * @param str        The source string.
 	 * @param beginIndex Begin index.
 	 * @param endIndex   End index.
@@ -587,7 +544,6 @@ public class Strings {
 	}
 	/**
 	 * Return the string representation of the vector.
-	 *
 	 * @param a The vector.
 	 * @return The string representation.
 	 */
@@ -603,7 +559,6 @@ public class Strings {
 	}
 	/**
 	 * Return the string representation of the vector.
-	 *
 	 * @param a The vector.
 	 * @return The string representation.
 	 */
@@ -619,7 +574,6 @@ public class Strings {
 	}
 	/**
 	 * Return the string representation of the vector.
-	 *
 	 * @param a The vector.
 	 * @return The string representation.
 	 */
@@ -633,13 +587,26 @@ public class Strings {
 		}
 		return b.toString();
 	}
+
 	/**
-	 * Return the string.
-	 *
-	 * @param c The char.
-	 * @return The string.
+	 * Return the boolean value as a string.
+	 * @param value    The boolean value.
+	 * @param strTrue  The string when value is true.
+	 * @param strFalse The string when value is false.
+	 * @return The boolean string for value.
 	 */
-	public static String valueOf(char c) {
-		return String.valueOf(c);
+	public static String toBooleanString(boolean value, String strTrue, String strFalse) {
+		return value ? strTrue : strFalse;
+	}
+	/**
+	 * Returns a Boolean if str in strTrue or strFalse, null otherwise.
+	 * @param str      The string to check.
+	 * @param strTrue  The string that represents the true value.
+	 * @param strFalse The string that represents the false value.
+	 * @return A Boolean or null.
+	 */
+	public static Boolean fromBooleanString(String str, String strTrue, String strFalse) {
+		if (!in(str, strTrue, strFalse)) return null;
+		return str.toLowerCase().equals(strTrue.toLowerCase());
 	}
 }

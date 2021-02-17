@@ -17,6 +17,9 @@
 
 package com.mlt.db;
 
+import com.mlt.common.lang.Strings;
+import com.mlt.db.json.JSONDocument;
+
 /**
  * An index definition.
  * @author Miquel Sas
@@ -72,5 +75,16 @@ public class Index extends Order {
 	 */
 	public void setUnique(boolean unique) {
 		this.unique = unique;
+	}
+	/**
+	 * Returns a JSON representation of this index.
+	 * @return A JSON representation of this index.
+	 */
+	public JSONDocument toJSONDocument() {
+		JSONDocument doc = new JSONDocument();
+		doc.setString("name", getName());
+		doc.setString("unique", Strings.toBooleanString(isUnique(), "yes", "no"));
+		doc.append(super.toJSONDocument());
+		return doc;
 	}
 }

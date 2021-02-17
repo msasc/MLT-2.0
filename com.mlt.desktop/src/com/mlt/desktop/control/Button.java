@@ -13,13 +13,10 @@
  */
 package com.mlt.desktop.control;
 
-import java.awt.Insets;
-import java.awt.event.ActionListener;
-
 import javax.swing.Icon;
 import javax.swing.JButton;
-
-import com.mlt.desktop.AWT;
+import java.awt.Insets;
+import java.awt.event.ActionListener;
 
 /**
  * Button.

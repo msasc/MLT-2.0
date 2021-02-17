@@ -39,7 +39,7 @@ public class Document {
 	 */
 	public Document(Schema schema) {
 		this.schema = schema;
-		this.values = new Value[schema.fieldCount()];
+		this.values = new Value[schema.fieldMap().size()];
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class Document {
 	 * @return The corresponding value.
 	 */
 	public Value getValue(String key) {
-		int index = schema.getValueIndex(key);
+		int index = schema.fieldMap().getIndex(key);
 		if (index < 0) throw new IllegalArgumentException("Invalid field key: " + key);
 		return values[index];
 	}
@@ -83,8 +83,8 @@ public class Document {
 	 * @param validate A boolean to force value validation.
 	 */
 	public void setValue(String key, Value value, boolean validate) {
-		if (validate) schema.getField(key).validate(value);
-		int index = schema.getValueIndex(key);
+		if (validate) schema.fieldMap().getField(key).validate(value);
+		int index = schema.fieldMap().getIndex(key);
 		values[index] = value;
 	}
 }

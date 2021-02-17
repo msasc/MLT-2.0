@@ -516,18 +516,22 @@ public class Value implements Comparable<Object> {
 	}
 
 	/**
-	 * Return a negative integer, zero, or a positive integer as the first argument is less than,
-	 * equal to, or greater than the second.
-	 * @param b1 the first object to be compared.
-	 * @param b2 the second object to be compared.
-	 * @return a negative integer, zero, or a positive integer as the first argument is less than,
-	 * equal to, or greater than the second.
+	 * Compares this object with the specified object for order. Returns a negative integer, zero,
+	 * or a positive integer as this object is less than, equal to, or greater than the specified
+	 * object.
+	 * @param obj the object to be compared.
+	 * @return negative integer, zero, or a positive integer as this object is less than, equal to,
+	 * or greater than the specified object.
 	 */
 	@Override
-	public int compareTo(Object o) {
-		if (o == null) throw new NullPointerException();
-		if (!(o instanceof Value)) throw new UnsupportedOperationException("Not comparable type: " + o.getClass().getName());
-		Value v = (Value) o;
+	public int compareTo(Object obj) {
+		if (obj == null) {
+			throw new NullPointerException();
+		}
+		if (!(obj instanceof Value)) {
+			throw new UnsupportedOperationException("Not comparable type: " + obj.getClass());
+		}
+		Value v = (Value) obj;
 
 		/* Null types. */
 		if (isNull() && v.isNull()) return 0;
@@ -545,7 +549,7 @@ public class Value implements Comparable<Object> {
 		if (isDocument() && !v.isDocument()) comparable = false;
 		if (isList() && !v.isList()) comparable = false;
 		if (!comparable) {
-			throw new UnsupportedOperationException("Not comparable type: " + o.getClass().getName());
+			throw new UnsupportedOperationException("Not comparable type: " + obj.getClass().getName());
 		}
 
 		if (isBoolean()) return Boolean.compare(getBoolean(), v.getBoolean());
@@ -555,6 +559,7 @@ public class Value implements Comparable<Object> {
 		if (isTime()) return getTime().compareTo(v.getTime());
 		if (isTimestamp()) return getTimestamp().compareTo(v.getTimestamp());
 		if (isBinary()) return Comparators.compare(getBinary(), v.getBinary());
+		if (isList()) return getList().compareTo(v.getList());
 
 		return 0;
 	}

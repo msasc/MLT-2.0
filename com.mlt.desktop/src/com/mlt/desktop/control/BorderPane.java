@@ -13,13 +13,13 @@
  */
 package com.mlt.desktop.control;
 
-import java.awt.BorderLayout;
-import java.awt.Insets;
-
 import com.mlt.desktop.layout.Anchor;
 import com.mlt.desktop.layout.Constraints;
 import com.mlt.desktop.layout.Fill;
 import com.mlt.desktop.layout.Position;
+
+import java.awt.BorderLayout;
+import java.awt.Insets;
 
 /**
  * A border pane with top, left, bottom, right and center controls.

@@ -19,7 +19,6 @@ package com.mlt.desktop.control;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.Component;
 import java.awt.LayoutManager;
 
 /**

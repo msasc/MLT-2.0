@@ -32,7 +32,7 @@ import java.util.List;
  * Metadata definition of a field.
  * @author Miquel Sas
  */
-public class Field implements Comparable<Field> {
+public class Field implements Comparable<Object> {
 
 	/**
 	 * The name or key used to access the field within a document or row.
@@ -511,16 +511,22 @@ public class Field implements Comparable<Field> {
 	}
 
 	/**
-	 * Compares this field with the specified field for order. Returns a negative integer, zero,
-	 * or a positive integer as this field is less than, equal to, or greater than the specified
-	 * field.
-	 * @param field the field to be compared.
-	 * @return a negative integer, zero, or a positive integer as this field is less than, equal
-	 * to, or greater than the specified field.
+	 * Compares this object with the specified object for order. Returns a negative integer, zero,
+	 * or a positive integer as this object is less than, equal to, or greater than the specified
+	 * object.
+	 * @param obj the object to be compared.
+	 * @return negative integer, zero, or a positive integer as this object is less than, equal to,
+	 * or greater than the specified object.
 	 */
 	@Override
-	public int compareTo(Field field) {
-		if (field == null) throw new NullPointerException();
+	public int compareTo(Object obj) {
+		if (obj == null) {
+			throw new NullPointerException();
+		}
+		if (!(obj instanceof Field)) {
+			throw new UnsupportedOperationException("Not comparable type: " + obj.getClass());
+		}
+		Field field = (Field) obj;
 		int compare = getName().compareTo(field.getName());
 		if (compare != 0) return compare;
 		compare = getAlias().compareTo(field.getAlias());
@@ -582,7 +588,7 @@ public class Field implements Comparable<Field> {
 	 * Returns a JSON representation of this field.
 	 * @return A JSON representation of this field.
 	 */
-	public JSONDocument toJSON() {
+	public JSONDocument toJSONDocument() {
 		JSONDocument doc = new JSONDocument();
 		doc.setString("name", getName());
 		if (!getAlias().equals(getName())) {

@@ -21,7 +21,6 @@ import java.util.AbstractCollection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.function.Predicate;
 
 /**
  * A queue of sequentially linked entries.

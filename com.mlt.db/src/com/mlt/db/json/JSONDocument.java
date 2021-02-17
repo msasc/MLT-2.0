@@ -56,6 +56,17 @@ public class JSONDocument {
 	}
 
 	/**
+	 * Append the argument document.
+	 * @param doc The JSONDocument to append.
+	 */
+	public void append(JSONDocument doc) {
+		for (String key : doc.keys()) {
+			Object value = doc.jsonObject.get(key);
+			jsonObject.put(key, value);
+		}
+	}
+
+	/**
 	 * Check whether this JSONDocument contains the key.
 	 * @param key The key to check.
 	 * @return A boolean indicating whether the key is contained.
