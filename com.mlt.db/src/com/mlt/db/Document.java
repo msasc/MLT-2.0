@@ -17,6 +17,10 @@
 
 package com.mlt.db;
 
+import com.mlt.db.json_backup.JSONDocument;
+
+import java.util.Collection;
+
 /**
  * A Document handles a row in a relational or column database such as PostgreSQL or Hadoop, and a
  * document in a document database such as MongoDB.
@@ -39,7 +43,7 @@ public class Document {
 	 */
 	public Document(Schema schema) {
 		this.schema = schema;
-		this.values = new Value[schema.fieldMap().size()];
+		this.values = new Value[schema.fields().size()];
 	}
 
 	/**
@@ -64,7 +68,7 @@ public class Document {
 	 * @return The corresponding value.
 	 */
 	public Value getValue(String key) {
-		int index = schema.fieldMap().getIndex(key);
+		int index = schema.fields().getIndex(key);
 		if (index < 0) throw new IllegalArgumentException("Invalid field key: " + key);
 		return values[index];
 	}
@@ -83,8 +87,31 @@ public class Document {
 	 * @param validate A boolean to force value validation.
 	 */
 	public void setValue(String key, Value value, boolean validate) {
-		if (validate) schema.fieldMap().getField(key).validate(value);
-		int index = schema.fieldMap().getIndex(key);
+		if (validate) schema.fields().getField(key).validate(value);
+		int index = schema.fields().getIndex(key);
 		values[index] = value;
+	}
+
+	/**
+	 * Returns an unmodifiable collection with the list of keys.
+	 * @return A collection with the list of keys.
+	 */
+	public Collection<String> keys() {
+		return schema.fields().keys();
+	}
+
+	/**
+	 * Returns a JSON representation of this document.
+	 * @return A JSON representation of this document.
+	 */
+	public JSONDocument toJSONDocument() {
+		JSONDocument doc = new JSONDocument();
+		Collection<String> keys = keys();
+		for (String key : keys) {
+			Field field = getSchema().fields().getField(key);
+			Value value = getValue(key);
+			doc.setValue(key, value);
+		}
+		return doc;
 	}
 }

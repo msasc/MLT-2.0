@@ -267,7 +267,7 @@ public class Value implements Comparable<Object> {
 			return (BigDecimal) null;
 		}
 		if (!isDecimal()) {
-			return BigDecimal.valueOf(((Number) value).doubleValue()).setScale(decimals, RoundingMode.HALF_UP);
+			return BigDecimal.valueOf(((Number) value).doubleValue());
 		}
 		return (BigDecimal) value;
 	}
@@ -595,6 +595,7 @@ public class Value implements Comparable<Object> {
 		if (value == null) return "null";
 		return value.toString();
 	}
+
 	/**
 	 * Set any value except numeric values.
 	 * @param value The value.

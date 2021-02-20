@@ -22,8 +22,8 @@ import org.json.JSONArray;
 public class TestJSONArray {
 	public static void main(String[] args) {
 		JSONArray jarr = new JSONArray();
-		jarr.put(2, "Hello");
-		jarr.put(4, 10);
+		jarr.put(jarr.length(), "Hello");
+		jarr.put(jarr.length(), 10);
 		System.out.println(jarr);
 	}
 }

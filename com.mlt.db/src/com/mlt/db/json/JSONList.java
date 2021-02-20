@@ -17,348 +17,378 @@
 
 package com.mlt.db.json;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.mlt.db.Type;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * JSONArray wrapper to conform with a more strict typing.
+ * A list (array) of values.
  * @author Miquel Sas
  */
 public class JSONList {
 
 	/**
-	 * Internal JSONArray.
+	 * Internal list.
 	 */
-	JSONArray jsonArray;
+	private List<Entry> list = new ArrayList<>();
 
 	/**
-	 * Construct an empty JSONList.
+	 * Add a boolean value.
+	 * @param value The value.
 	 */
-	public JSONList() {
-		jsonArray = new JSONArray();
+	public void addBoolean(Boolean value) {
+		list.add(new Entry(Type.BOOLEAN, value));
 	}
 	/**
-	 * Copy constructor.
-	 * @param list The list to copy values.
+	 * Add a boolean value.
+	 * @param index The index.
+	 * @param value The value.
 	 */
-	public JSONList(JSONList list) {
-		jsonArray = new JSONArray(list.jsonArray);
-	}
-	/**
-	 * Constructor used by {@link JSONDocument}
-	 * @param array The internal JSONArray.
-	 */
-	JSONList(JSONArray array) {
-		this.jsonArray = array;
+	public void addBoolean(int index, Boolean value) {
+		list.add(index, new Entry(Type.BOOLEAN, value));
 	}
 
 	/**
-	 * @param value A boolean value.
-	 */
-	public void addBoolean(boolean value) {
-		jsonArray.put(value);
-	}
-	/**
-	 * @param index The element index.
-	 * @param value A boolean value.
-	 */
-	public void addBoolean(int index, boolean value) {
-		jsonArray.put(index, value);
-	}
-
-	/**
-	 * @param value A decimal value.
+	 * Add a decimal value.
+	 * @param value The value.
 	 */
 	public void addDecimal(BigDecimal value) {
-		jsonArray.put(value);
+		list.add(new Entry(Type.DECIMAL, value));
 	}
 	/**
-	 * @param index The element index.
-	 * @param value A decimal value.
+	 * Add a decimal value.
+	 * @param index The index.
+	 * @param value The value.
 	 */
 	public void addDecimal(int index, BigDecimal value) {
-		jsonArray.put(index, value);
+		list.add(index, new Entry(Type.DECIMAL, value));
 	}
 	/**
-	 * @param value A double value.
+	 * Add a double value.
+	 * @param value The value.
 	 */
 	public void addDouble(Double value) {
-		jsonArray.put(value);
+		list.add(new Entry(Type.DOUBLE, value));
 	}
 	/**
-	 * @param index The element index.
-	 * @param value A double value.
+	 * Add a double value.
+	 * @param index The index.
+	 * @param value The value.
 	 */
 	public void addDouble(int index, Double value) {
-		jsonArray.put(index, value);
+		list.add(index, new Entry(Type.DOUBLE, value));
 	}
 	/**
-	 * @param value An integer value.
+	 * Add an integer value.
+	 * @param value The value.
 	 */
 	public void addInteger(Integer value) {
-		jsonArray.put(value);
+		list.add(new Entry(Type.INTEGER, value));
 	}
 	/**
-	 * @param index The element index.
-	 * @param value An integer value.
+	 * Add an integer value.
+	 * @param index The index.
+	 * @param value The value.
 	 */
 	public void addInteger(int index, Integer value) {
-		jsonArray.put(index, value);
+		list.add(index, new Entry(Type.INTEGER, value));
 	}
 	/**
-	 * @param value A long value.
+	 * Add a long value.
+	 * @param value The value.
 	 */
 	public void addLong(Long value) {
-		jsonArray.put(value);
+		list.add(new Entry(Type.LONG, value));
 	}
 	/**
-	 * @param index The element index.
-	 * @param value A long value.
+	 * Add a long value.
+	 * @param index The index.
+	 * @param value The value.
 	 */
 	public void addLong(int index, Long value) {
-		jsonArray.put(index, value);
+		list.add(index, new Entry(Type.LONG, value));
 	}
 
 	/**
-	 * @param value A date value.
+	 * Add a date value.
+	 * @param value The value.
 	 */
 	public void addDate(LocalDate value) {
-		jsonArray.put(value);
+		list.add(new Entry(Type.DATE, value));
 	}
 	/**
-	 * @param index The element index.
-	 * @param value A date value.
+	 * Add a date value.
+	 * @param index The index.
+	 * @param value The value.
 	 */
 	public void addDate(int index, LocalDate value) {
-		jsonArray.put(index, value);
+		list.add(index, new Entry(Type.DATE, value));
 	}
 	/**
-	 * @param value A time value.
+	 * Add a time value.
+	 * @param value The value.
 	 */
 	public void addTime(LocalTime value) {
-		jsonArray.put(value);
+		list.add(new Entry(Type.TIME, value));
 	}
 	/**
-	 * @param index The element index.
-	 * @param value A time value.
+	 * Add a time value.
+	 * @param index The index.
+	 * @param value The value.
 	 */
 	public void addTime(int index, LocalTime value) {
-		jsonArray.put(index, value);
+		list.add(index, new Entry(Type.TIME, value));
 	}
 	/**
-	 * @param value A timestamp value.
+	 * Add a timestamp value.
+	 * @param value The value.
 	 */
 	public void addTimestamp(LocalDateTime value) {
-		jsonArray.put(value);
+		list.add(new Entry(Type.TIMESTAMP, value));
 	}
 	/**
-	 * @param index The element index.
-	 * @param value A timestamp value.
+	 * Add a timestamp value.
+	 * @param index The index.
+	 * @param value The value.
 	 */
 	public void addTimestamp(int index, LocalDateTime value) {
-		jsonArray.put(index, value);
+		list.add(index, new Entry(Type.TIMESTAMP, value));
 	}
 
 	/**
-	 * @param value A string value.
+	 * Add a string value.
+	 * @param value The value.
 	 */
 	public void addString(String value) {
-		jsonArray.put(value);
+		list.add(new Entry(Type.STRING, value));
 	}
 	/**
-	 * @param index The element index.
-	 * @param value A string value.
+	 * Add a string value.
+	 * @param index The index.
+	 * @param value The value.
 	 */
 	public void addString(int index, String value) {
-		jsonArray.put(index, value);
+		list.add(index, new Entry(Type.STRING, value));
 	}
 
 	/**
-	 * @param value A binary (byte[]) value.
+	 * Add a binary value.
+	 * @param value The value.
 	 */
 	public void addBinary(byte[] value) {
-		jsonArray.put(value);
+		list.add(new Entry(Type.BINARY, value));
 	}
 	/**
-	 * @param index The element index.
-	 * @param value A binary (byte[]) value.
+	 * Add a binary value.
+	 * @param index The index.
+	 * @param value The value.
 	 */
 	public void addBinary(int index, byte[] value) {
-		jsonArray.put(index, value);
+		list.add(index, new Entry(Type.BINARY, value));
 	}
 
 	/**
-	 * @param value A JSONDocument value.
+	 * Add a document value.
+	 * @param value The value.
 	 */
 	public void addDocument(JSONDocument value) {
-		jsonArray.put(value.jsonObject);
+		list.add(new Entry(Type.DOCUMENT, value));
 	}
 	/**
-	 * @param index The element index.
-	 * @param value A JSONDocument value.
+	 * Add a document value.
+	 * @param index The index.
+	 * @param value The value.
 	 */
 	public void addDocument(int index, JSONDocument value) {
-		jsonArray.put(index, value.jsonObject);
+		list.add(index, new Entry(Type.DOCUMENT, value));
 	}
 	/**
-	 * @param value A JSONList value.
+	 * Add a list value.
+	 * @param value The value.
 	 */
 	public void addList(JSONList value) {
-		jsonArray.put(value.jsonArray);
+		list.add(new Entry(Type.LIST, value));
 	}
 	/**
-	 * @param index The element index.
-	 * @param value A JSONList value.
+	 * Add a list value.
+	 * @param index The index.
+	 * @param value The value.
 	 */
 	public void addList(int index, JSONList value) {
-		jsonArray.put(index, value.jsonArray);
+		list.add(index, new Entry(Type.LIST, value));
 	}
 
 	/**
-	 * @param index The element index.
+	 * Returns a boolean value.
+	 * @param index The index.
 	 * @return A boolean value.
-	 * @throws JSONException If the field is not a boolean.
 	 */
-	public Boolean getBoolean(int index) throws JSONException {
-		return jsonArray.getBoolean(index);
+	public Boolean getBoolean(int index) {
+		Entry entry = list.get(index);
+		if (entry.type != Type.BOOLEAN) throw new IllegalStateException("Invalid entry type");
+		return (Boolean) entry.value;
 	}
 
 	/**
-	 * @param index The element index.
+	 * Returns a decimal value.
+	 * @param index The index.
 	 * @return A decimal value.
-	 * @throws JSONException If the field is not a double.
 	 */
-	public BigDecimal getDecimal(int index) throws JSONException {
-		return BigDecimal.valueOf(getDouble(index));
+	public BigDecimal getDecimal(int index) {
+		Entry entry = list.get(index);
+		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
+		if (entry.value == null) return null;
+		if (entry.type == Type.DECIMAL) return (BigDecimal) entry.value;
+		if (entry.type == Type.DOUBLE) return BigDecimal.valueOf((Double) entry.value);
+		if (entry.type == Type.INTEGER) return BigDecimal.valueOf((Integer) entry.value);
+		if (entry.type == Type.LONG) return BigDecimal.valueOf((Long) entry.value);
+		return null;
 	}
 	/**
-	 * @param index The element index.
-	 * @param decimals The number of decimal places.
-	 * @return A decimal value.
-	 * @throws JSONException If the field is not a double.
-	 */
-	public BigDecimal getDecimal(int index, int decimals) throws JSONException {
-		return getDecimal(index).setScale(decimals, RoundingMode.HALF_UP);
-	}
-	/**
-	 * @param index The element index.
+	 * Returns a double value.
+	 * @param index The index.
 	 * @return A double value.
-	 * @throws JSONException If the field is not a double.
 	 */
-	public Double getDouble(int index) throws JSONException {
-		return jsonArray.getDouble(index);
+	public Double getDouble(int index) {
+		Entry entry = list.get(index);
+		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
+		if (entry.value == null) return null;
+		if (entry.type == Type.DECIMAL) return ((BigDecimal) entry.value).doubleValue();
+		if (entry.type == Type.DOUBLE) return ((Double) entry.value).doubleValue();
+		if (entry.type == Type.INTEGER) return ((Integer) entry.value).doubleValue();
+		if (entry.type == Type.LONG) return ((Long) entry.value).doubleValue();
+		return null;
 	}
 	/**
-	 * @param index The element index.
+	 * Returns an integer value.
+	 * @param index The index.
 	 * @return An integer value.
-	 * @throws JSONException If the field is not an integer.
 	 */
-	public Integer getInteger(int index) throws JSONException {
-		return jsonArray.getInt(index);
+	public Integer getInteger(int index) {
+		Entry entry = list.get(index);
+		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
+		if (entry.value == null) return null;
+		if (entry.type == Type.DECIMAL) return ((BigDecimal) entry.value).intValue();
+		if (entry.type == Type.DOUBLE) return ((Double) entry.value).intValue();
+		if (entry.type == Type.INTEGER) return ((Integer) entry.value).intValue();
+		if (entry.type == Type.LONG) return ((Long) entry.value).intValue();
+		return null;
 	}
 	/**
-	 * @param index The element index.
+	 * Returns a long value.
+	 * @param index The index.
 	 * @return A long value.
-	 * @throws JSONException If the field is not a long.
 	 */
-	public Long getLong(int index) throws JSONException {
-		return jsonArray.getLong(index);
+	public Long getLong(int index) {
+		Entry entry = list.get(index);
+		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
+		if (entry.value == null) return null;
+		if (entry.type == Type.DECIMAL) return ((BigDecimal) entry.value).longValue();
+		if (entry.type == Type.DOUBLE) return ((Double) entry.value).longValue();
+		if (entry.type == Type.INTEGER) return ((Integer) entry.value).longValue();
+		if (entry.type == Type.LONG) return ((Long) entry.value).longValue();
+		return null;
 	}
 
 	/**
-	 * @param index The element index.
-	 * @return The local date.
-	 * @throws JSONException If the field is not a date.
+	 * Returns a date value.
+	 * @param index The index.
+	 * @return A date value.
 	 */
-	public LocalDate getDate(int index) throws JSONException {
-		try {
-			return LocalDate.parse(jsonArray.getString(index));
-		} catch (DateTimeException exc) {
-			throw new JSONException(exc);
-		}
+	public LocalDate getDate(int index) {
+		Entry entry = list.get(index);
+		if (entry.type != Type.DATE) throw new IllegalStateException("Invalid entry type");
+		return (LocalDate) entry.value;
 	}
 	/**
-	 * @param index The element index.
-	 * @return The local time.
-	 * @throws JSONException If the field is not a time.
+	 * Returns a time value.
+	 * @param index The index.
+	 * @return A time value.
 	 */
-	public LocalTime getTime(int index) throws JSONException {
-		try {
-			return LocalTime.parse(jsonArray.getString(index));
-		} catch (DateTimeException exc) {
-			throw new JSONException(exc);
-		}
+	public LocalTime getTime(int index) {
+		Entry entry = list.get(index);
+		if (entry.type != Type.TIME) throw new IllegalStateException("Invalid entry type");
+		return (LocalTime) entry.value;
 	}
 	/**
-	 * @param index The element index.
-	 * @return The local timestamp.
-	 * @throws JSONException If the field is not a timestamp.
+	 * Returns a timestamp value.
+	 * @param index The index.
+	 * @return A timestamp value.
 	 */
-	public LocalDateTime getTimestamp(int index) throws JSONException {
-		try {
-			return LocalDateTime.parse(jsonArray.getString(index));
-		} catch (DateTimeException exc) {
-			throw new JSONException(exc);
-		}
+	public LocalDateTime getTimstamp(int index) {
+		Entry entry = list.get(index);
+		if (entry.type != Type.TIMESTAMP) throw new IllegalStateException("Invalid entry type");
+		return (LocalDateTime) entry.value;
 	}
 
 	/**
-	 * @param index The element index.
-	 * @return The string.
-	 * @throws JSONException If the field is not a string.
+	 * Returns a string value.
+	 * @param index The index.
+	 * @return A string value.
 	 */
-	public String getString(int index) throws JSONException {
-		return jsonArray.getString(index);
+	public String getString(int index) {
+		Entry entry = list.get(index);
+		if (entry.type != Type.STRING) throw new IllegalStateException("Invalid entry type");
+		return (String) entry.value;
 	}
 
 	/**
-	 * @param index The element index.
-	 * @return The byte array.
-	 * @throws JSONException If the field is not a byte array.
+	 * Returns a binary value.
+	 * @param index The index.
+	 * @return A binary value.
 	 */
-	public byte[] getBinary(int index) throws JSONException {
-		return (byte[]) jsonArray.get(index);
+	public byte[] getBinary(int index) {
+		Entry entry = list.get(index);
+		if (entry.type != Type.BINARY) throw new IllegalStateException("Invalid entry type");
+		return (byte[]) entry.value;
 	}
 
 	/**
-	 * @param index The element index.
-	 * @return The document.
-	 * @throws JSONException If the field is not a document.
+	 * Returns a document value.
+	 * @param index The index.
+	 * @return A document value.
 	 */
-	public JSONDocument getDocument(int index) throws JSONException {
-		JSONObject o = (JSONObject) jsonArray.get(index);
-		return new JSONDocument(o);
+	public JSONDocument getDocument(int index) {
+		Entry entry = list.get(index);
+		if (entry.type != Type.DOCUMENT) throw new IllegalStateException("Invalid entry type");
+		return (JSONDocument) entry.value;
 	}
 	/**
-	 * @param index The element index.
-	 * @return The list.
-	 * @throws JSONException If the field is not a list.
+	 * Returns a list value.
+	 * @param index The index.
+	 * @return A list value.
 	 */
 	public JSONList getList(int index) {
-		JSONArray a = (JSONArray) jsonArray.get(index);
-		return new JSONList(a);
+		Entry entry = list.get(index);
+		if (entry.type != Type.LIST) throw new IllegalStateException("Invalid entry type");
+		return (JSONList) entry.value;
 	}
 
 	/**
-	 * @param index The index to remove.
+	 * Remove the entry at index.
+	 * @param index The index.
 	 */
 	public void remove(int index) {
-		jsonArray.remove(index);
+		list.remove(index);
 	}
 
 	/**
-	 * @return A string representation.
+	 * Returns a boolean indicating whether the list is empty.
+	 * @return A boolean indicating whether the list is empty.
 	 */
-	@Override
-	public String toString() {
-		return jsonArray.toString();
+	public boolean isEmpty() {
+		return list.isEmpty();
+	}
+	/**
+	 * Returns the size or number of elements.
+	 * @return The size or number of elements.
+	 */
+	public int size() {
+		return list.size();
 	}
 }

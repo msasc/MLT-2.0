@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020. Miquel Sas
+ * Copyright (c) 2021. Miquel Sas
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,21 +15,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package test;
+package com.mlt.db.json;
 
-import com.mlt.db.json_backup.JSONDocument;
+import com.mlt.db.Type;
 
-import java.math.BigDecimal;
-
-public class TestJSON {
-	public static void main(String[] args) {
-		JSONDocument c = new JSONDocument();
-		c.setString("name", "Bitch \"of Ass\"");
-		c.setDouble("bias", 12.98);
-		c.setBoolean("is_valid", true);
-		c.setDecimal("decimal", new BigDecimal("3.4500"));
-
-		System.out.println(c.toString());
-		System.out.println(c.getString("name"));
+/**
+ * An entry of a document or list. Packs the value and the type.
+ * @author Miquel Sas
+ */
+class Entry {
+	Type type;
+	Object value;
+	Entry(Type type, Object value) {
+		this.type = type;
+		this.value = value;
 	}
 }

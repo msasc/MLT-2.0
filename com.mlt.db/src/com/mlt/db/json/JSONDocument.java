@@ -17,295 +17,391 @@
 
 package com.mlt.db.json;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.mlt.common.lang.Strings;
+import com.mlt.db.Type;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * JSONObject wrapper to conform with a more strict typing.
+ * A JSON object is an ordered collection of name/value pairs, externally represented as a string
+ * formatted following the ECMA-404 specification.
  * @author Miquel Sas
  */
 public class JSONDocument {
 
 	/**
-	 * Internal JSONObject.
+	 * Map ordered by insertion.
 	 */
-	JSONObject jsonObject;
+	private Map<String, Entry> map = new LinkedHashMap<>();
 
 	/**
-	 * Construct an empty JSONDocument.
+	 * Return the boolean value or null if not exists or is not a boolean.
+	 * @param key The key.
+	 * @return The boolean value.
 	 */
-	public JSONDocument() {
-		jsonObject = new JSONObject();
-	}
-	/**
-	 * Package private constructor assigning the internal {@link JSONObject}
-	 * @param jsonObject The internal JSONObject.
-	 */
-	JSONDocument(JSONObject jsonObject) {
-		this.jsonObject = jsonObject;
-	}
-
-	/**
-	 * Append the argument document.
-	 * @param doc The JSONDocument to append.
-	 */
-	public void append(JSONDocument doc) {
-		for (String key : doc.keys()) {
-			Object value = doc.jsonObject.get(key);
-			jsonObject.put(key, value);
-		}
+	public Boolean getBoolean(String key) {
+		Entry entry = get(key);
+		if (entry == null) return null;
+		if (entry.type != Type.BOOLEAN) throw new IllegalStateException("Invalid entry type");
+		return (Boolean) entry.value;
 	}
 
 	/**
-	 * Check whether this JSONDocument contains the key.
-	 * @param key The key to check.
-	 * @return A boolean indicating whether the key is contained.
+	 * Return the decimal value or null if not exists or is not a number.
+	 * @param key The key.
+	 * @return The decimal value.
 	 */
-	public boolean containsKey(String key) {
-		return jsonObject.has(key);
+	public BigDecimal getDecimal(String key) {
+		Entry entry = get(key);
+		if (entry == null) return null;
+		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
+		if (entry.value == null) return null;
+		if (entry.type == Type.DECIMAL) return (BigDecimal) entry.value;
+		if (entry.type == Type.DOUBLE) return BigDecimal.valueOf((Double) entry.value);
+		if (entry.type == Type.INTEGER) return BigDecimal.valueOf((Integer) entry.value);
+		if (entry.type == Type.LONG) return BigDecimal.valueOf((Long) entry.value);
+		return null;
 	}
 	/**
-	 * Returns an unmodifiable collection with this object keys.
-	 * @return A collection with the keys.
+	 * Return the double value or null if not exists or is not a number.
+	 * @param key The key.
+	 * @return The double value.
 	 */
-	public Collection<String> keys() {
-		return Collections.unmodifiableCollection(jsonObject.keySet());
-	}
-
-	/**
-	 * @param key The key or field name.
-	 * @return A boolean value.
-	 * @throws JSONException If the field is not a boolean.
-	 */
-	public Boolean getBoolean(String key) throws JSONException {
-		return jsonObject.getBoolean(key);
-	}
-
-	/**
-	 * @param key The key or field name.
-	 * @return A decimal value.
-	 * @throws JSONException If the field is not a double.
-	 */
-	public BigDecimal getDecimal(String key) throws JSONException {
-		return BigDecimal.valueOf(getDouble(key));
+	public Double getDouble(String key) {
+		Entry entry = get(key);
+		if (entry == null) return null;
+		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
+		if (entry.value == null) return null;
+		if (entry.type == Type.DECIMAL) return ((BigDecimal) entry.value).doubleValue();
+		if (entry.type == Type.DOUBLE) return ((Double) entry.value).doubleValue();
+		if (entry.type == Type.INTEGER) return ((Integer) entry.value).doubleValue();
+		if (entry.type == Type.LONG) return ((Long) entry.value).doubleValue();
+		return null;
 	}
 	/**
-	 * @param key      The key or field name.
-	 * @param decimals The number of decimal places.
-	 * @return A decimal value.
-	 * @throws JSONException If the field is not a double.
+	 * Return the integer value or null if not exists or is not a number.
+	 * @param key The key.
+	 * @return The integer value.
 	 */
-	public BigDecimal getDecimal(String key, int decimals) throws JSONException {
-		return getDecimal(key).setScale(decimals, RoundingMode.HALF_UP);
+	public Integer getInteger(String key) {
+		Entry entry = get(key);
+		if (entry == null) return null;
+		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
+		if (entry.value == null) return null;
+		if (entry.type == Type.DECIMAL) return ((BigDecimal) entry.value).intValue();
+		if (entry.type == Type.DOUBLE) return ((Double) entry.value).intValue();
+		if (entry.type == Type.INTEGER) return ((Integer) entry.value).intValue();
+		if (entry.type == Type.LONG) return ((Long) entry.value).intValue();
+		return null;
 	}
 	/**
-	 * @param key The key or field name.
-	 * @return A double value.
-	 * @throws JSONException If the field is not a double.
+	 * Return the long value or null if not exists or is not a number.
+	 * @param key The key.
+	 * @return The long value.
 	 */
-	public Double getDouble(String key) throws JSONException {
-		return jsonObject.getDouble(key);
-	}
-	/**
-	 * @param key The key or field name.
-	 * @return An integer value.
-	 * @throws JSONException If the field is not an integer.
-	 */
-	public Integer getInteger(String key) throws JSONException {
-		return jsonObject.getInt(key);
-	}
-	/**
-	 * @param key The key or field name.
-	 * @return A long value.
-	 * @throws JSONException If the field is not a long.
-	 */
-	public Long getLong(String key) throws JSONException {
-		return jsonObject.getLong(key);
+	public Long getLong(String key) {
+		Entry entry = get(key);
+		if (entry == null) return null;
+		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
+		if (entry.value == null) return null;
+		if (entry.type == Type.DECIMAL) return ((BigDecimal) entry.value).longValue();
+		if (entry.type == Type.DOUBLE) return ((Double) entry.value).longValue();
+		if (entry.type == Type.INTEGER) return ((Integer) entry.value).longValue();
+		if (entry.type == Type.LONG) return ((Long) entry.value).longValue();
+		return null;
 	}
 
 	/**
-	 * @param key The key or field name.
-	 * @return The local date.
-	 * @throws JSONException If the field is not a date.
+	 * Return the date value or null if not exists or is not a boolean.
+	 * @param key The key.
+	 * @return The date value.
 	 */
-	public LocalDate getDate(String key) throws JSONException {
-		try {
-			return LocalDate.parse(jsonObject.getString(key));
-		} catch (DateTimeException exc) {
-			throw new JSONException(exc);
-		}
+	public LocalDate getDate(String key) {
+		Entry entry = get(key);
+		if (entry == null) return null;
+		if (entry.type != Type.DATE) throw new IllegalStateException("Invalid entry type");
+		return (LocalDate) entry.value;
 	}
 	/**
-	 * @param key The key or field name.
-	 * @return The local time.
-	 * @throws JSONException If the field is not a time.
+	 * Return the time value or null if not exists or is not a boolean.
+	 * @param key The key.
+	 * @return The time value.
 	 */
-	public LocalTime getTime(String key) throws JSONException {
-		try {
-			return LocalTime.parse(jsonObject.getString(key));
-		} catch (DateTimeException exc) {
-			throw new JSONException(exc);
-		}
+	public LocalTime getTime(String key) {
+		Entry entry = get(key);
+		if (entry == null) return null;
+		if (entry.type != Type.TIME) throw new IllegalStateException("Invalid entry type");
+		return (LocalTime) entry.value;
 	}
 	/**
-	 * @param key The key or field name.
-	 * @return The local timestamp.
-	 * @throws JSONException If the field is not a timestamp.
+	 * Return the timestamp value or null if not exists or is not a boolean.
+	 * @param key The key.
+	 * @return The timestamp value.
 	 */
-	public LocalDateTime getTimestamp(String key) throws JSONException {
-		try {
-			return LocalDateTime.parse(jsonObject.getString(key));
-		} catch (DateTimeException exc) {
-			throw new JSONException(exc);
-		}
+	public LocalDateTime getTimestamp(String key) {
+		Entry entry = get(key);
+		if (entry == null) return null;
+		if (entry.type != Type.TIMESTAMP) throw new IllegalStateException("Invalid entry type");
+		return (LocalDateTime) entry.value;
 	}
 
 	/**
-	 * @param key The key or field name.
-	 * @return The string.
-	 * @throws JSONException If the field is not a string.
+	 * Return the string value or null if not exists or is not a boolean.
+	 * @param key The key.
+	 * @return The string value.
 	 */
-	public String getString(String key) throws JSONException {
-		return jsonObject.getString(key);
+	public String getString(String key) {
+		Entry entry = get(key);
+		if (entry == null) return null;
+		if (entry.type != Type.STRING) throw new IllegalStateException("Invalid entry type");
+		return (String) entry.value;
 	}
 
 	/**
-	 * @param key The key or field name.
-	 * @return The byte array.
-	 * @throws JSONException If the field is not a byte array.
+	 * Return the binary value or null if not exists or is not a boolean.
+	 * @param key The key.
+	 * @return The binary value.
 	 */
-	public byte[] getBinary(String key) throws JSONException {
-		return (byte[]) jsonObject.get(key);
+	public byte[] getBinary(String key) {
+		Entry entry = get(key);
+		if (entry == null) return null;
+		if (entry.type != Type.BINARY) throw new IllegalStateException("Invalid entry type");
+		return (byte[]) entry.value;
 	}
 
 	/**
-	 * @param key The key or field name.
-	 * @return The document.
-	 * @throws JSONException If the field is not a document.
+	 * Return the document value or null if not exists or is not a boolean.
+	 * @param key The key.
+	 * @return The document value.
 	 */
-	public JSONDocument getDocument(String key) throws JSONException {
-		JSONObject o = (JSONObject) jsonObject.get(key);
-		return new JSONDocument(o);
+	public JSONDocument getDocument(String key) {
+		Entry entry = get(key);
+		if (entry == null) return null;
+		if (entry.type != Type.DOCUMENT) throw new IllegalStateException("Invalid entry type");
+		return (JSONDocument) entry.value;
 	}
 	/**
-	 * @param key The key or field name.
-	 * @return The list.
-	 * @throws JSONException If the field is not a list.
+	 * Return the list value or null if not exists or is not a boolean.
+	 * @param key The key.
+	 * @return The list value.
 	 */
 	public JSONList getList(String key) {
-		JSONArray a = (JSONArray) jsonObject.get(key);
-		return new JSONList(a);
+		Entry entry = get(key);
+		if (entry == null) return null;
+		if (entry.type != Type.LIST) throw new IllegalStateException("Invalid entry type");
+		return (JSONList) entry.value;
 	}
 
 	/**
-	 * @param key   The key or field name.
-	 * @param value A boolean value.
+	 * Set a boolean value.
+	 * @param key   The key.
+	 * @param value The value.
 	 */
-	public void setBoolean(String key, boolean value) {
-		jsonObject.put(key, value);
+	public void setBoolean(String key, Boolean value) {
+		set(key, Type.BOOLEAN, value);
 	}
 
 	/**
-	 * @param key   The key or field name.
-	 * @param value A decimal value.
+	 * Set a decimal value.
+	 * @param key   The key.
+	 * @param value The value.
 	 */
 	public void setDecimal(String key, BigDecimal value) {
-		jsonObject.put(key, value);
+		set(key, Type.DECIMAL, value);
 	}
 	/**
-	 * @param key   The key or field name.
-	 * @param value A double value.
+	 * Set a double value.
+	 * @param key   The key.
+	 * @param value The value.
 	 */
 	public void setDouble(String key, Double value) {
-		jsonObject.put(key, value);
+		set(key, Type.DOUBLE, value);
 	}
 	/**
-	 * @param key   The key or field name.
-	 * @param value An integer value.
+	 * Set an integer value.
+	 * @param key   The key.
+	 * @param value The value.
 	 */
 	public void setInteger(String key, Integer value) {
-		jsonObject.put(key, value);
+		set(key, Type.INTEGER, value);
 	}
 	/**
-	 * @param key   The key or field name.
-	 * @param value A long value.
+	 * Set a long value.
+	 * @param key   The key.
+	 * @param value The value.
 	 */
 	public void setLong(String key, Long value) {
-		jsonObject.put(key, value);
+		set(key, Type.LONG, value);
 	}
 
 	/**
-	 * @param key   The key or field name.
-	 * @param value A date value.
+	 * Set a date value.
+	 * @param key   The key.
+	 * @param value The value.
 	 */
 	public void setDate(String key, LocalDate value) {
-		jsonObject.put(key, value);
+		set(key, Type.DATE, value);
 	}
 	/**
-	 * @param key   The key or field name.
-	 * @param value A time value.
+	 * Set a time value.
+	 * @param key   The key.
+	 * @param value The value.
 	 */
 	public void setTime(String key, LocalTime value) {
-		jsonObject.put(key, value);
+		set(key, Type.TIME, value);
 	}
 	/**
-	 * @param key   The key or field name.
-	 * @param value A timestamp value.
+	 * Set a timestamp value.
+	 * @param key   The key.
+	 * @param value The value.
 	 */
 	public void setTimestamp(String key, LocalDateTime value) {
-		jsonObject.put(key, value);
+		set(key, Type.TIMESTAMP, value);
 	}
 
 	/**
-	 * @param key   The key or field name.
-	 * @param value A string value.
+	 * Set a string value.
+	 * @param key   The key.
+	 * @param value The value.
 	 */
 	public void setString(String key, String value) {
-		jsonObject.put(key, value);
+		set(key, Type.STRING, value);
 	}
 
 	/**
-	 * @param key   The key or field name.
-	 * @param value A binary (byte[]) value.
+	 * Set a binary value.
+	 * @param key   The key.
+	 * @param value The value.
 	 */
 	public void setBinary(String key, byte[] value) {
-		jsonObject.put(key, value);
+		set(key, Type.BINARY, value);
 	}
 
 	/**
-	 * @param key   The key or field name.
-	 * @param value A JSONDocument value.
+	 * Set an object or document value.
+	 * @param key   The key.
+	 * @param value The value.
 	 */
 	public void setDocument(String key, JSONDocument value) {
-		jsonObject.put(key, value.jsonObject);
+		set(key, Type.DOCUMENT, value);
 	}
 	/**
-	 * @param key   The key or field name.
-	 * @param value A JSONList value.
+	 * Set an list value.
+	 * @param key   The key.
+	 * @param value The value.
 	 */
 	public void setList(String key, JSONList value) {
-		jsonObject.put(key, value.jsonArray);
+		set(key, Type.LIST, value);
 	}
 
 	/**
-	 * @return A string representation.
+	 * Returns the collection of keys.
+	 * @return The collection of keys.
 	 */
-	@Override
-	public String toString() {
-		return jsonObject.toString();
+	public Set<String> keys() {
+		return map.keySet();
 	}
 
-	public String toString(int indentFactor) throws JSONException {
-		return jsonObject.toString(indentFactor);
+	public String toString() {
+		try {
+			StringWriter w = new StringWriter();
+			write(w);
+			return w.toString();
+		} catch (IOException exc) {
+			exc.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * Write this JSONDocument.
+	 * @param w The writer.
+	 * @throws IOException If any IO error occurs.
+	 */
+	public void write(Writer w) throws IOException {
+		w.write("{");
+		Iterator<String> i = keys().iterator();
+		while(i.hasNext()) {
+			String key = i.next();
+			w.write("\"" + key + "\":");
+			Entry entry = map.get(key);
+			if (entry.value == null) {
+				w.write("null");
+			} else {
+				switch (entry.type) {
+				case BOOLEAN:
+				case DECIMAL:
+				case DOUBLE:
+				case INTEGER:
+				case LONG:
+					w.write(entry.value.toString());
+					break;
+				case DATE:
+				case TIME:
+				case TIMESTAMP:
+				case STRING:
+					w.write("\"" + entry.value.toString() + "\"");
+					break;
+				case DOCUMENT:
+					JSONDocument doc = (JSONDocument) entry.value;
+					doc.write(w);
+					break;
+				}
+			}
+			if (i.hasNext()) w.write(",");
+		}
+		w.write("}");
+	}
+
+	/**
+	 * Return the entry with the given key.
+	 * @param key The key.
+	 * @return The entry.
+	 */
+	private Entry get(String key) {
+		validateKey(key);
+		return map.get(key);
+	}
+	/**
+	 * Set the value.
+	 * @param key   The key or field key.
+	 * @param type  The type of the value.
+	 * @param value The value itself.
+	 */
+	private void set(String key, Type type, Object value) {
+		validateKey(key);
+		map.put(key, new Entry(type, value));
+	}
+
+	/**
+	 * Validates that the argument is not null and does not contain any forbidden escape character.
+	 * @param key The key to validate.
+	 */
+	private void validateKey(String key) {
+		if (key == null) throw new NullPointerException();
+		for (int i = 0; i < key.length(); i++) {
+			char c = key.charAt(i);
+			switch (c) {
+			case '\"':
+			case '\\':
+			case '/':
+			case '\b':
+			case '\f':
+			case '\n':
+			case '\r':
+			case '\t':
+				throw new IllegalArgumentException("Key contains escape character " + Strings.toUnicode(c));
+			}
+		}
 	}
 }

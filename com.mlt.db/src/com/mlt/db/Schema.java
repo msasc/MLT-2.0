@@ -17,8 +17,8 @@
 
 package com.mlt.db;
 
-import com.mlt.db.json.JSONDocument;
-import com.mlt.db.json.JSONList;
+import com.mlt.db.json_backup.JSONDocument;
+import com.mlt.db.json_backup.JSONList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,31 +92,15 @@ public class Schema {
 	 * Returns the map of fields.
 	 * @return The map of fields.
 	 */
-	public FieldMap fieldMap() {
+	public FieldMap fields() {
 		return fieldMap;
 	}
-
 	/**
-	 * Adds an index to the list of indexes.
-	 * @param index The index to add.
+	 * Returns the list of indexes.
+	 * @return The list of indexes.
 	 */
-	public void addIndex(Index index) {
-		indexes.add(index);
-	}
-	/**
-	 * Returns the index at the argument position.
-	 * @param pos The index position.
-	 * @return The index at the argument position.
-	 */
-	public Index getIndex(int pos) {
-		return indexes.get(pos);
-	}
-	/**
-	 * Returns the number of indexes.
-	 * @return The number of indexes.
-	 */
-	public int indexCount() {
-		return indexes.size();
+	public List<Index> indexes() {
+		return indexes;
 	}
 
 	/**
@@ -168,5 +152,4 @@ public class Schema {
 		}
 		return doc;
 	}
-
 }

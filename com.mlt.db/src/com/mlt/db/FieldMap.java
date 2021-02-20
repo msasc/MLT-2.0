@@ -99,6 +99,13 @@ public class FieldMap {
 	}
 
 	/**
+	 * Returns an unmodifiable collection with the list of keys.
+	 * @return A collection with the list of keys.
+	 */
+	public Collection<String> keys() {
+		return Collections.unmodifiableCollection(fields.keySet());
+	}
+	/**
 	 * Returns an unmodifiable collection with the list of fields.
 	 * @return A collection with the list of fields.
 	 */

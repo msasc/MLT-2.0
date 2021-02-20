@@ -17,7 +17,7 @@
 
 package com.mlt.db;
 
-import com.mlt.db.json.JSONDocument;
+import com.mlt.db.json_backup.JSONDocument;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -406,7 +406,7 @@ public class Field implements Comparable<Object> {
 	 * @param initialValue The initial value.
 	 */
 	public void setInitialValue(Value initialValue) {
-		this.initialValue = initialValue;
+		this.initialValue = getValue(initialValue);
 	}
 	/**
 	 * Return the maximum value or null.
@@ -420,7 +420,7 @@ public class Field implements Comparable<Object> {
 	 * @param maximumValue The maximum value.
 	 */
 	public void setMaximumValue(Value maximumValue) {
-		this.maximumValue = maximumValue;
+		this.maximumValue = getValue(maximumValue);
 	}
 	/**
 	 * Return the minimum value or null.
@@ -434,7 +434,7 @@ public class Field implements Comparable<Object> {
 	 * @param minimumValue The minimum value.
 	 */
 	public void setMinimumValue(Value minimumValue) {
-		this.minimumValue = minimumValue;
+		this.minimumValue = getValue(minimumValue);
 	}
 
 	/**
@@ -442,9 +442,8 @@ public class Field implements Comparable<Object> {
 	 * @param value The value to add to the list of possible values.
 	 */
 	public void addPossibleValue(Value value) {
-		validateType(value);
-		validateMaximumValue(value);
-		validateMinimumValue(value);
+		if (value == null) return;
+		value = getValue(value);
 		if (possibleValues == null) possibleValues = new ArrayList<>();
 		if (!possibleValues.contains(value)) possibleValues.add(value);
 	}
@@ -455,6 +454,31 @@ public class Field implements Comparable<Object> {
 	public List<Value> getPossibleValues() {
 		if (possibleValues == null) return Collections.emptyList();
 		return Collections.unmodifiableList(possibleValues);
+	}
+
+	/**
+	 * Returns an appropriate value adapted when it is numeric. Validates the value type.
+	 * @param value The value to check adapt.
+	 * @return The proper value.
+	 */
+	public Value getValue(Value value) {
+		if (value == null) return value;
+		if (value.isNumber()) {
+			if (isDecimal()) {
+				return new Value(value.getDecimal().setScale(decimals, RoundingMode.HALF_UP));
+			}
+			if (isDouble()) {
+				return new Value(value.getDouble());
+			}
+			if (isInteger()) {
+				return new Value(value.getInteger());
+			}
+			if (isLong()) {
+				return new Value(value.getLong());
+			}
+		}
+		validateType(value);
+		return value;
 	}
 
 	/**
@@ -603,6 +627,15 @@ public class Field implements Comparable<Object> {
 		}
 		if (isRequired()) {
 			doc.setBoolean("required", isRequired());
+		}
+		if (getMaximumValue() != null) {
+			doc.setValue("max-value", getMaximumValue());
+		}
+		if (getMinimumValue() != null) {
+			doc.setValue("min-value", getMinimumValue());
+		}
+		if (!getPossibleValues().isEmpty()) {
+
 		}
 		if (getDescription() != null) {
 			doc.setString("description", getDescription());

@@ -609,4 +609,13 @@ public class Strings {
 		if (!in(str, strTrue, strFalse)) return null;
 		return str.toLowerCase().equals(strTrue.toLowerCase());
 	}
+
+	/**
+	 * Convert the character to the escaped unicode string of the form "\u0032".
+	 * @param c The unicode character to convert.
+	 * @return The unicode escaped string.
+	 */
+	public static String toUnicode(char c) {
+		return "\\u" + leftPad(Integer.toHexString(c), 4, "0");
+	}
 }

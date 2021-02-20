@@ -18,7 +18,7 @@
 package com.mlt.db;
 
 import com.mlt.common.lang.Strings;
-import com.mlt.db.json.JSONDocument;
+import com.mlt.db.json_backup.JSONDocument;
 
 /**
  * An index definition.
