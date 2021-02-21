@@ -15,19 +15,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.mlt.db.json;
+package test;
 
-import com.mlt.db.Type;
-
-/**
- * An entry of a document or list. Packs the value and the type.
- * @author Miquel Sas
- */
-class Entry {
-	Type type;
-	Object value;
-	Entry(Type type, Object value) {
-		this.type = type;
-		this.value = value;
+public class TestEscape {
+	public static void main(String[] args) {
+		char[] escs = new char[]{
+			'\"', '\\', '/'
+		};
+		for (char esc : escs) {
+			System.out.println(esc);
+		}
+		int c = '{';
+		System.out.println(c);
 	}
 }

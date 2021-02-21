@@ -15,15 +15,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.mlt.db.json;
-
-import com.mlt.db.Type;
+package com.mlt.common.json;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -196,7 +195,7 @@ public class JSONList {
 	 * Add a document value.
 	 * @param value The value.
 	 */
-	public void addDocument(JSONDocument value) {
+	public void addDocument(JSONDoc value) {
 		list.add(new Entry(Type.DOCUMENT, value));
 	}
 	/**
@@ -204,7 +203,7 @@ public class JSONList {
 	 * @param index The index.
 	 * @param value The value.
 	 */
-	public void addDocument(int index, JSONDocument value) {
+	public void addDocument(int index, JSONDoc value) {
 		list.add(index, new Entry(Type.DOCUMENT, value));
 	}
 	/**
@@ -353,10 +352,10 @@ public class JSONList {
 	 * @param index The index.
 	 * @return A document value.
 	 */
-	public JSONDocument getDocument(int index) {
+	public JSONDoc getDocument(int index) {
 		Entry entry = list.get(index);
 		if (entry.type != Type.DOCUMENT) throw new IllegalStateException("Invalid entry type");
-		return (JSONDocument) entry.value;
+		return (JSONDoc) entry.value;
 	}
 	/**
 	 * Returns a list value.
@@ -378,6 +377,108 @@ public class JSONList {
 	}
 
 	/**
+	 * Set a boolean value.
+	 * @param index The index.
+	 * @param value The value.
+	 */
+	public void setBoolean(int index, Boolean value) {
+		list.set(index, new Entry(Type.BOOLEAN, value));
+	}
+
+	/**
+	 * Set a decimal value.
+	 * @param index The index.
+	 * @param value The value.
+	 */
+	public void setDecimal(int index, BigDecimal value) {
+		list.set(index, new Entry(Type.DECIMAL, value));
+	}
+	/**
+	 * Set a double value.
+	 * @param index The index.
+	 * @param value The value.
+	 */
+	public void setDouble(int index, Double value) {
+		list.set(index, new Entry(Type.DOUBLE, value));
+	}
+	/**
+	 * Set an integer value.
+	 * @param index The index.
+	 * @param value The value.
+	 */
+	public void setInteger(int index, Integer value) {
+		list.set(index, new Entry(Type.INTEGER, value));
+	}
+	/**
+	 * Set a long value.
+	 * @param index The index.
+	 * @param value The value.
+	 */
+	public void setLong(int index, Long value) {
+		list.set(index, new Entry(Type.LONG, value));
+	}
+
+	/**
+	 * Set a date value.
+	 * @param index The index.
+	 * @param value The value.
+	 */
+	public void setDate(int index, LocalDate value) {
+		list.set(index, new Entry(Type.DATE, value));
+	}
+	/**
+	 * Set a time value.
+	 * @param index The index.
+	 * @param value The value.
+	 */
+	public void setTime(int index, LocalTime value) {
+		list.set(index, new Entry(Type.TIME, value));
+	}
+	/**
+	 * Set a timestamp value.
+	 * @param index The index.
+	 * @param value The value.
+	 */
+	public void setTimestamp(int index, LocalDateTime value) {
+		list.set(index, new Entry(Type.TIMESTAMP, value));
+	}
+
+	/**
+	 * Set a string value.
+	 * @param index The index.
+	 * @param value The value.
+	 */
+	public void setString(int index, String value) {
+		list.set(index, new Entry(Type.STRING, value));
+	}
+
+	/**
+	 * Set a binary value.
+	 * @param index The index.
+	 * @param value The value.
+	 */
+	public void setBinary(int index, byte[] value) {
+		list.set(index, new Entry(Type.BINARY, value));
+	}
+
+	/**
+	 * Set a document value.
+	 * @param index The index.
+	 * @param value The value.
+	 */
+	public void setDocument(int index, JSONDoc value) {
+		list.set(index, new Entry(Type.DOCUMENT, value));
+	}
+	/**
+	 * Set a list value.
+	 * @param index The index.
+	 * @param value The value.
+	 */
+	public void setList(int index, JSONList value) {
+		list.set(index, new Entry(Type.LIST, value));
+	}
+
+	/**
 	 * Returns a boolean indicating whether the list is empty.
 	 * @return A boolean indicating whether the list is empty.
 	 */
@@ -390,5 +491,12 @@ public class JSONList {
 	 */
 	public int size() {
 		return list.size();
+	}
+	/**
+	 * Returns an iterator on the entris of this list.
+	 * @return The iterator.
+	 */
+	public Iterator<Entry> entries() {
+		return list.iterator();
 	}
 }

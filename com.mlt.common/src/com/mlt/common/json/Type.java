@@ -15,12 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.mlt.db;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+package com.mlt.common.json;
 
 /**
  * Data types.
@@ -31,63 +26,75 @@ public enum Type {
 	 * Boolean, can be backed to the underlying database either as a boolean (true/false) or as a
 	 * string (Y/N or Yes/No). Additionally, the field definition specifies how it is displayed.
 	 */
-	BOOLEAN,
+	BOOLEAN("bool"),
 
 	/**
 	 * Decimal, a number of any length with a pre-defined number of decimal places.
 	 */
-	DECIMAL,
+	DECIMAL("dec"),
 	/**
 	 * Double, floating point 64 bit number.
 	 */
-	DOUBLE,
+	DOUBLE("double"),
 	/**
 	 * Integer, 32 bit integer number.
 	 */
-	INTEGER,
+	INTEGER("int"),
 	/**
 	 * Long, 64 bit integer number.
 	 */
-	LONG,
+	LONG("long"),
 
 	/**
 	 * Date, with a normalized 'YYYY-MM-DD' format.
 	 */
-	DATE,
+	DATE("date"),
 	/**
 	 * Time, with a normalized 'hh:mm:ss.nnnnnnnnn' format. The field definition can specify
 	 * whether nanos are included and to what level of detail.
 	 */
-	TIME,
+	TIME("time"),
 	/**
 	 * Date-time, with the normalyzed format 'YYYY-MM-DDThh:mm:ss.nnnnnnnnn'.
 	 */
-	TIMESTAMP,
+	TIMESTAMP("tmst"),
 
 	/**
 	 * String, whether it will be backed in the database by a simple VARCHAR or a CLOB will depend
 	 * on the database, the supported maximum length for varying chars and the required length of
 	 * the field.
 	 */
-	STRING,
+	STRING("str"),
 
 	/**
 	 * Binary, as with the string class, whether it will be backed in the database by a simple
 	 * VARBINARY or a BLOB will depend on the database, the supporting maximum length for varying
 	 * binaries and the required length of the field.
 	 */
-	BINARY,
+	BINARY("bin"),
 
 	/**
 	 * Document, backed in the database by a CLOB or a document, depending on whether it is a
 	 * relational or document database.
 	 */
-	DOCUMENT,
+	DOCUMENT("doc"),
 	/**
 	 * List, backed in the database by a CLOB or a list, depending on whether it is a relational or
 	 * document database.
 	 */
-	LIST;
+	LIST("list");
+
+	/**
+	 * Key used for extended JSON types.
+	 */
+	private String key;
+	/**
+	 * Constructor assigning the key.
+	 * @param key The key used for extended JSON types.
+	 */
+	private Type(String key) {
+		this.key = key;
+	}
 
 	/**
 	 * Return a boolean indicating whether this type is one of the list.

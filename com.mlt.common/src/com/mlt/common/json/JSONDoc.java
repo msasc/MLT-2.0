@@ -15,10 +15,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.mlt.db.json;
+package com.mlt.common.json;
 
 import com.mlt.common.lang.Strings;
-import com.mlt.db.Type;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -37,12 +36,20 @@ import java.util.Set;
  * formatted following the ECMA-404 specification.
  * @author Miquel Sas
  */
-public class JSONDocument {
+public class JSONDoc {
 
 	/**
 	 * Map ordered by insertion.
 	 */
 	private Map<String, Entry> map = new LinkedHashMap<>();
+
+	/**
+	 * Append the argument document.
+	 * @param doc The document to append.
+	 */
+	public void append(JSONDoc doc) {
+		map.putAll(doc.map);
+	}
 
 	/**
 	 * Return the boolean value or null if not exists or is not a boolean.
@@ -184,11 +191,11 @@ public class JSONDocument {
 	 * @param key The key.
 	 * @return The document value.
 	 */
-	public JSONDocument getDocument(String key) {
+	public JSONDoc getDocument(String key) {
 		Entry entry = get(key);
 		if (entry == null) return null;
 		if (entry.type != Type.DOCUMENT) throw new IllegalStateException("Invalid entry type");
-		return (JSONDocument) entry.value;
+		return (JSONDoc) entry.value;
 	}
 	/**
 	 * Return the list value or null if not exists or is not a boolean.
@@ -292,7 +299,7 @@ public class JSONDocument {
 	 * @param key   The key.
 	 * @param value The value.
 	 */
-	public void setDocument(String key, JSONDocument value) {
+	public void setDocument(String key, JSONDoc value) {
 		set(key, Type.DOCUMENT, value);
 	}
 	/**
@@ -302,6 +309,13 @@ public class JSONDocument {
 	 */
 	public void setList(String key, JSONList value) {
 		set(key, Type.LIST, value);
+	}
+
+	/**
+	 * Clear the document.
+	 */
+	public void clear() {
+		map.clear();
 	}
 
 	/**
@@ -331,36 +345,64 @@ public class JSONDocument {
 	public void write(Writer w) throws IOException {
 		w.write("{");
 		Iterator<String> i = keys().iterator();
-		while(i.hasNext()) {
+		while (i.hasNext()) {
 			String key = i.next();
 			w.write("\"" + key + "\":");
 			Entry entry = map.get(key);
-			if (entry.value == null) {
-				w.write("null");
-			} else {
-				switch (entry.type) {
-				case BOOLEAN:
-				case DECIMAL:
-				case DOUBLE:
-				case INTEGER:
-				case LONG:
-					w.write(entry.value.toString());
-					break;
-				case DATE:
-				case TIME:
-				case TIMESTAMP:
-				case STRING:
-					w.write("\"" + entry.value.toString() + "\"");
-					break;
-				case DOCUMENT:
-					JSONDocument doc = (JSONDocument) entry.value;
-					doc.write(w);
-					break;
-				}
-			}
+			writeEntry(w, entry);
 			if (i.hasNext()) w.write(",");
 		}
 		w.write("}");
+	}
+	/**
+	 * Write an antry value.
+	 * @param w     The writer.
+	 * @param entry The entry.
+	 * @throws IOException If an IO error occurs.
+	 */
+	private void writeEntry(Writer w, Entry entry) throws IOException {
+		if (entry.value == null) {
+			w.write("null");
+		} else {
+			switch (entry.type) {
+			case BOOLEAN:
+			case DECIMAL:
+			case DOUBLE:
+			case INTEGER:
+			case LONG:
+				w.write(entry.value.toString());
+				break;
+			case DATE:
+			case TIME:
+			case TIMESTAMP:
+			case STRING:
+				w.write("\"" + entry.value.toString() + "\"");
+				break;
+			case BINARY:
+				w.write("{");
+				w.write("\"bin\":\"");
+				byte[] bytes = (byte[]) entry.value;
+				for (byte b : bytes) {
+					w.write(Strings.leftPad(Integer.toHexString(b), 2, "0"));
+				}
+				w.write("\"}");
+				break;
+			case DOCUMENT:
+				JSONDoc doc = (JSONDoc) entry.value;
+				doc.write(w);
+				break;
+			case LIST:
+				JSONList list = (JSONList) entry.value;
+				w.write("[");
+				Iterator<Entry> i = list.entries();
+				while (i.hasNext()) {
+					writeEntry(w, i.next());
+					if (i.hasNext()) w.write(",");
+				}
+				w.write("]");
+				break;
+			}
+		}
 	}
 
 	/**
