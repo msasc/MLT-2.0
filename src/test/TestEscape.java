@@ -27,5 +27,7 @@ public class TestEscape {
 		}
 		int c = '{';
 		System.out.println(c);
+		System.out.println("0123456789abcdefABCDEF".indexOf(-1));
+		System.out.println(Integer.parseInt("00aB", 16));
 	}
 }

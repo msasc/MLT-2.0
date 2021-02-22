@@ -17,7 +17,7 @@
 
 package com.mlt.common.json;
 
-import com.mlt.common.lang.Numbers;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -37,12 +37,6 @@ public class JSONParser {
 	 * Document to fill with parsed data.
 	 */
 	private JSONDoc document;
-	/**
-	 * List of invalid key chars, '\"' is not included because it ends the key.
-	 */
-	private int[] invalidKeyChars = new int[]{
-		' ', '[', '{', ']', '}', ':', ',', '\\', '/', '\b', '\f', '\n', '\r', '\t'
-	};
 
 	/**
 	 * Constructor.
@@ -102,8 +96,20 @@ public class JSONParser {
 			// Read the key/value separator ':' as the next neat char.
 			int c = next(true);
 			if (c != ':') throw new IOException("Format error");
+			// Read next value as an entry.
+			Entry entry = readEntry();
+			// Put data.
+			doc.put(key, entry);
 		}
 		return doc;
+	}
+	/**
+	 * Parse the started list and return it.
+	 * @return The read list.
+	 * @throws IOException If an error occurs.
+	 */
+	private JSONList parseList() throws IOException {
+		return null;
 	}
 	/**
 	 * Read the next key, may be empty if the document ends.
@@ -115,25 +121,96 @@ public class JSONParser {
 		// Next neat char must be '\"' if the key starts, or '}' if the document ends,
 		// otherwise if is a format error.
 		int c = next(true);
-		if (c < 0 || (c != '\"' && c != '}')) throw new IOException("Format error");
+		if (c <= 32 || (c != '\"' && c != '}')) throw new IOException("Format error");
 		if (c == '}') return b.toString();
 		// The char is '\"', continue reading chars until the next '\"' or an invalid char
 		// or the end of the stream is reached.
 		while (true) {
 			c = next(false);
-			checkValidKeyChar(c);
+			if (c <= 31) throw new IOException("Format error");
 			if (c == '\"') break;
 			b.append((char) c);
 		}
 		return b.toString();
 	}
 	/**
-	 * Check that the argument char is valid for a key, must be GT 32 and none of the escape chars.
-	 * @param c The char to check valid for a key.
-	 * @throws IOException If a format error occurs.
+	 * Read the next string, may be empty.
+	 * @return The read string.
+	 * @throws IOException If an error occurs.
 	 */
-	private void checkValidKeyChar(int c) throws IOException {
-		if (c <= 32 || Numbers.in(c, invalidKeyChars)) throw new IOException("Format error");
+	private String readString() throws IOException {
+		StringBuilder b = new StringBuilder();
+		while (true) {
+			int c = next(false);
+			// -1, reached end of stream before the string is closed, it is a format error.
+			// Can not be 0 to 31, these must be unicode escaped.
+			if (c <= 31) throw new IOException("Format error");
+			// '"' The end of the string has been reached.
+			if (c == '\"') break;
+			// '\' escape indicator, read the next char to see whether it is a two-character
+			// escape sequence or the start (u) of a potential unicode escape.
+			if (c == '\\') {
+				int n = next(false);
+				if (n < 0) throw new IOException("Format error");
+				// Two-character escape sequences.
+				switch (n) {
+				case '\"':
+				case '\\':
+				case '\b':
+				case '\f':
+				case '\n':
+				case '\r':
+				case '\t':
+					b.append((char) c);
+					continue;
+				}
+				// Potential unicode escape. Read 4 more chars, that must be digits or letters
+				// a to f, or A to F. Any other char is a format error.
+				if (n == 'u') {
+					String hex = "0123456789abcdefABCDEF";
+					StringBuilder u = new StringBuilder();
+					for (int i = 0; i < 4; i++) {
+						int m = next(false);
+						if (hex.indexOf(m) >= 0) u.append((char) m);
+						else throw new IOException("Format error");
+					}
+					b.append((char) Integer.parseInt(u.toString(), 16));
+					continue;
+				}
+				throw new IOException("Format error");
+			}
+			// Valid non escaped char, just accept.
+			b.append((char) c);
+		}
+		return b.toString();
+	}
+	/**
+	 * Read a value as an entry.
+	 * @return The value as an entry.
+	 * @throws IOException If an error occurs.
+	 */
+	private Entry readEntry() throws IOException {
+		// Next neat char will determine the type of entry that should be read.
+		// '{' -> the entry is a nested document that must be parsed.
+		// '[' -> the entry is an rray/list that must be parsed.
+		// '"' -> the entry is a string, date, time or timestamp field.
+		// A digit (0123456789) or the letters 't', 'f' or 'n', that denote a number
+		// if properly formatted, or the start of the tokens true, false or null.
+		// Any other char is a format error.
+		int c = next(true);
+		// Document, parse it.
+		if (c == '{') {
+			return new Entry(Type.DOCUMENT, parseDoc());
+		}
+		// List, parse it.
+		if (c == '[') {
+			return new Entry(Type.LIST, parseList());
+		}
+		// String, first read it and then check whether it could be a date, time or timestamp.
+		if (c == '\"') {
+			String str = readString();
+		}
+		return null;
 	}
 	/**
 	 * Returns the next char, or -1 if the end of the stream is reached.

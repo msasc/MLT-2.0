@@ -422,7 +422,15 @@ public class JSONDoc {
 	 */
 	private void set(String key, Type type, Object value) {
 		validateKey(key);
-		map.put(key, new Entry(type, value));
+		put(key, new Entry(type, value));
+	}
+	/**
+	 * Put the entry into the map. Also used by the JSONParser.
+	 * @param key   The key.
+	 * @param entry The entry.
+	 */
+	void put(String key, Entry entry) {
+		map.put(key, entry);
 	}
 
 	/**
