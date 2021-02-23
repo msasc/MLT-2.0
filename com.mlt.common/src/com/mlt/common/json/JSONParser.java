@@ -17,10 +17,14 @@
 
 package com.mlt.common.json;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.io.Reader;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.LinkedList;
 
 /**
  * JSON parser. Admits standard JSON values (number, string, true, false, null, object and array),
@@ -30,13 +34,38 @@ import java.io.Reader;
 public class JSONParser {
 
 	/**
-	 * Reader.
+	 * Tokens retrived by the parser.
 	 */
+	private static class Token {
+		/**
+		 * The type: struct, boolean, number, date, time, timestamp, string or null.
+		 */
+		private String type;
+		/**
+		 * The value as a string.
+		 */
+		private String value;
+		/**
+		 * Constructor.
+		 * @param type  The type.
+		 * @param value The value.
+		 */
+		private Token(String type, String value) {
+			this.type = type;
+			this.value = value;
+		}
+		@Override
+		public String toString() {
+			return type + "=\"" + value + "\"";
+		}
+	}
+
+	/** Reader. */
 	private Reader reader;
-	/**
-	 * Document to fill with parsed data.
-	 */
+	/** Document to fill with parsed data. */
 	private JSONDoc document;
+	/** List of tokens. */
+	private LinkedList<Token> tokens;
 
 	/**
 	 * Constructor.
@@ -50,10 +79,7 @@ public class JSONParser {
 	 * @throws IOException If an IO or format error occurs.
 	 */
 	public JSONDoc parse(Reader reader) throws IOException {
-		this.reader = reader;
-		this.document = new JSONDoc();
-		parse();
-		return document;
+		return parse(reader, new JSONDoc());
 	}
 	/**
 	 * Parse the source reader and fill the argument document with the result.
@@ -65,6 +91,7 @@ public class JSONParser {
 	public JSONDoc parse(Reader reader, JSONDoc document) throws IOException {
 		this.reader = reader;
 		this.document = document;
+		this.tokens = new LinkedList<>();
 		parse();
 		return document;
 	}
@@ -73,65 +100,121 @@ public class JSONParser {
 	 * @throws IOException If an error occurs.
 	 */
 	private void parse() throws IOException {
-		// Get the first neat char. Can be be -1 indicating that the source is empty, or '{'
-		// indicating that the document has started.
-		int c = next(true);
-		if (c < 0) return;
-		if (c != '{') return;
-		// Parse the started document and append it to the document to fill.
-		document.append(parseDoc());
+		while (readToken()) {}
+		System.out.println(tokens);
 	}
 	/**
-	 * Parse the started document and return it.
-	 * @return The read document.
+	 * Read the next token.
+	 * @return The next token.
 	 * @throws IOException If an error occurs.
 	 */
-	private JSONDoc parseDoc() throws IOException {
-		JSONDoc doc = new JSONDoc();
-		// Read key/value pairs and put them to the document.
-		while (true) {
-			// Read the key.
-			String key = readKey();
-			if (key.isEmpty()) break;
-			// Read the key/value separator ':' as the next neat char.
-			int c = next(true);
-			if (c != ':') throw new IOException("Format error");
-			// Read next value as an entry.
-			Entry entry = readEntry();
-			// Put data.
-			doc.put(key, entry);
+	private boolean readToken() throws IOException {
+
+		// Read the next neat char.
+		int c = next(true);
+
+		// -1, end of stream
+		if (c < 0) {
+			return false;
 		}
-		return doc;
-	}
-	/**
-	 * Parse the started list and return it.
-	 * @return The read list.
-	 * @throws IOException If an error occurs.
-	 */
-	private JSONList parseList() throws IOException {
-		return null;
-	}
-	/**
-	 * Read the next key, may be empty if the document ends.
-	 * @return The next key.
-	 * @throws IOException If an IO or format error occurs.
-	 */
-	private String readKey() throws IOException {
-		StringBuilder b = new StringBuilder();
-		// Next neat char must be '\"' if the key starts, or '}' if the document ends,
-		// otherwise if is a format error.
-		int c = next(true);
-		if (c <= 32 || (c != '\"' && c != '}')) throw new IOException("Format error");
-		if (c == '}') return b.toString();
-		// The char is '\"', continue reading chars until the next '\"' or an invalid char
-		// or the end of the stream is reached.
-		while (true) {
-			c = next(false);
-			if (c <= 31) throw new IOException("Format error");
-			if (c == '\"') break;
+
+		// Structural char.
+		if ("[]{}:,".indexOf(c) >= 0) {
+			tokens.add(new Token("struct", String.valueOf((char) c)));
+			return true;
+		}
+
+		// '"', start of a string or key. Read chars up to the end of the string and then check
+		// if could be a date, time, timestamp or a string.
+		if (c == '\"') {
+			String str = readString();
+			// Check whether it is a date, time or timestamp.
+			String chk = str.replace(' ', 'T');
+			try {
+				LocalDateTime timestamp = LocalDateTime.parse(chk);
+				tokens.add(new Token("timestamp", str));
+				return true;
+			} catch (DateTimeParseException exc) {}
+			try {
+				LocalTime time = LocalTime.parse(chk);
+				tokens.add(new Token("time", str));
+				return true;
+			} catch (DateTimeParseException exc) {}
+			try {
+				LocalDate date = LocalDate.parse(chk);
+				tokens.add(new Token("date", str));
+				return true;
+			} catch (DateTimeParseException exc) {}
+			tokens.add(new Token("string", str));
+			return true;
+		}
+
+		// 't' possible start of the token true.
+		if (c == 't') {
+			StringBuilder b = new StringBuilder();
 			b.append((char) c);
+			for (int i = 0; i < 3; i++) {
+				b.append((char) next(false));
+			}
+			if (b.toString().equals("true")) {
+				tokens.add(new Token("boolean", b.toString()));
+				return true;
+			}
+			throw new IOException("Format error");
 		}
-		return b.toString();
+
+		// 'f' possible start of the token false.
+		if (c == 'f') {
+			StringBuilder b = new StringBuilder();
+			b.append((char) c);
+			for (int i = 0; i < 4; i++) {
+				b.append((char) next(false));
+			}
+			if (b.toString().equals("false")) {
+				tokens.add(new Token("boolean", b.toString()));
+				return true;
+			}
+			throw new IOException("Format error");
+		}
+
+		// 'n' possible start of the token null.
+		if (c == 'n') {
+			StringBuilder b = new StringBuilder();
+			b.append((char) c);
+			for (int i = 0; i < 3; i++) {
+				b.append((char) next(false));
+			}
+			if (b.toString().equals("null")) {
+				tokens.add(new Token("null", b.toString()));
+				return true;
+			}
+			throw new IOException("Format error");
+		}
+
+		// Next token must be a number.
+		if ("-0123456789".indexOf(c) >= 0) {
+			StringBuilder b = new StringBuilder();
+			b.append((char) c);
+			while (true) {
+				c = next(false);
+				if (c <= 32) {
+					throw new IOException("Format error");
+				}
+				if ("+-.0123456789eE".indexOf(c) >= 0) {
+					b.append((char) c);
+					continue;
+				}
+				if (":,]}".indexOf(c) >= 0) {
+					try {
+						BigDecimal dec = new BigDecimal(b.toString());
+						tokens.add(new Token("number", b.toString()));
+						tokens.add(new Token("struct", String.valueOf((char) c)));
+						return true;
+					} catch (NumberFormatException exc) { throw new IOException("Format error"); }
+				}
+			}
+		}
+		throw new IOException("Format error");
 	}
 	/**
 	 * Read the next string, may be empty.
@@ -142,16 +225,20 @@ public class JSONParser {
 		StringBuilder b = new StringBuilder();
 		while (true) {
 			int c = next(false);
+
 			// -1, reached end of stream before the string is closed, it is a format error.
 			// Can not be 0 to 31, these must be unicode escaped.
 			if (c <= 31) throw new IOException("Format error");
+
 			// '"' The end of the string has been reached.
 			if (c == '\"') break;
+
 			// '\' escape indicator, read the next char to see whether it is a two-character
 			// escape sequence or the start (u) of a potential unicode escape.
 			if (c == '\\') {
 				int n = next(false);
 				if (n < 0) throw new IOException("Format error");
+
 				// Two-character escape sequences.
 				switch (n) {
 				case '\"':
@@ -164,14 +251,14 @@ public class JSONParser {
 					b.append((char) c);
 					continue;
 				}
+
 				// Potential unicode escape. Read 4 more chars, that must be digits or letters
 				// a to f, or A to F. Any other char is a format error.
 				if (n == 'u') {
-					String hex = "0123456789abcdefABCDEF";
 					StringBuilder u = new StringBuilder();
 					for (int i = 0; i < 4; i++) {
 						int m = next(false);
-						if (hex.indexOf(m) >= 0) u.append((char) m);
+						if ("0123456789abcdefABCDEF".indexOf(m) >= 0) u.append((char) m);
 						else throw new IOException("Format error");
 					}
 					b.append((char) Integer.parseInt(u.toString(), 16));
@@ -179,43 +266,18 @@ public class JSONParser {
 				}
 				throw new IOException("Format error");
 			}
+
 			// Valid non escaped char, just accept.
 			b.append((char) c);
 		}
 		return b.toString();
 	}
 	/**
-	 * Read a value as an entry.
-	 * @return The value as an entry.
+	 * Returns the next char. If the argument neat is set to true, then the next char GT 32 will be
+	 * returned. Returns -1 if the end of the stream is reached.
+	 * @param neat A boolean that indicates whether next char should be neat, that is, GT 32.
+	 * @return The next char, whether neat or not, -1 if the end of the stream is reached.
 	 * @throws IOException If an error occurs.
-	 */
-	private Entry readEntry() throws IOException {
-		// Next neat char will determine the type of entry that should be read.
-		// '{' -> the entry is a nested document that must be parsed.
-		// '[' -> the entry is an rray/list that must be parsed.
-		// '"' -> the entry is a string, date, time or timestamp field.
-		// A digit (0123456789) or the letters 't', 'f' or 'n', that denote a number
-		// if properly formatted, or the start of the tokens true, false or null.
-		// Any other char is a format error.
-		int c = next(true);
-		// Document, parse it.
-		if (c == '{') {
-			return new Entry(Type.DOCUMENT, parseDoc());
-		}
-		// List, parse it.
-		if (c == '[') {
-			return new Entry(Type.LIST, parseList());
-		}
-		// String, first read it and then check whether it could be a date, time or timestamp.
-		if (c == '\"') {
-			String str = readString();
-		}
-		return null;
-	}
-	/**
-	 * Returns the next char, or -1 if the end of the stream is reached.
-	 * @return The next chare, or -1 if the end of the stream is reached.
-	 * @throws IOException If an IO error occurs.
 	 */
 	private int next(boolean neat) throws IOException {
 		while (true) {
@@ -225,3 +287,4 @@ public class JSONParser {
 		}
 	}
 }
+
