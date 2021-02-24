@@ -73,11 +73,7 @@ public class JSONDoc {
 		if (entry == null) return null;
 		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
 		if (entry.value == null) return null;
-		if (entry.type == Type.DECIMAL) return (BigDecimal) entry.value;
-		if (entry.type == Type.DOUBLE) return BigDecimal.valueOf((Double) entry.value);
-		if (entry.type == Type.INTEGER) return BigDecimal.valueOf((Integer) entry.value);
-		if (entry.type == Type.LONG) return BigDecimal.valueOf((Long) entry.value);
-		return null;
+		return (BigDecimal) entry.value;
 	}
 	/**
 	 * Return the double value or null if not exists or is not a number.
@@ -89,11 +85,7 @@ public class JSONDoc {
 		if (entry == null) return null;
 		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
 		if (entry.value == null) return null;
-		if (entry.type == Type.DECIMAL) return ((BigDecimal) entry.value).doubleValue();
-		if (entry.type == Type.DOUBLE) return ((Double) entry.value).doubleValue();
-		if (entry.type == Type.INTEGER) return ((Integer) entry.value).doubleValue();
-		if (entry.type == Type.LONG) return ((Long) entry.value).doubleValue();
-		return null;
+		return ((Double) entry.value).doubleValue();
 	}
 	/**
 	 * Return the integer value or null if not exists or is not a number.
@@ -105,11 +97,7 @@ public class JSONDoc {
 		if (entry == null) return null;
 		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
 		if (entry.value == null) return null;
-		if (entry.type == Type.DECIMAL) return ((BigDecimal) entry.value).intValue();
-		if (entry.type == Type.DOUBLE) return ((Double) entry.value).intValue();
-		if (entry.type == Type.INTEGER) return ((Integer) entry.value).intValue();
-		if (entry.type == Type.LONG) return ((Long) entry.value).intValue();
-		return null;
+		return ((Integer) entry.value).intValue();
 	}
 	/**
 	 * Return the long value or null if not exists or is not a number.
@@ -121,11 +109,7 @@ public class JSONDoc {
 		if (entry == null) return null;
 		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
 		if (entry.value == null) return null;
-		if (entry.type == Type.DECIMAL) return ((BigDecimal) entry.value).longValue();
-		if (entry.type == Type.DOUBLE) return ((Double) entry.value).longValue();
-		if (entry.type == Type.INTEGER) return ((Integer) entry.value).longValue();
-		if (entry.type == Type.LONG) return ((Long) entry.value).longValue();
-		return null;
+		return ((Long) entry.value).longValue();
 	}
 
 	/**
@@ -224,7 +208,7 @@ public class JSONDoc {
 	 * @param value The value.
 	 */
 	public void setDecimal(String key, BigDecimal value) {
-		set(key, Type.DECIMAL, value);
+		set(key, Type.NUMBER, value);
 	}
 	/**
 	 * Set a double value.
@@ -232,7 +216,7 @@ public class JSONDoc {
 	 * @param value The value.
 	 */
 	public void setDouble(String key, Double value) {
-		set(key, Type.DOUBLE, value);
+		set(key, Type.NUMBER, BigDecimal.valueOf(value));
 	}
 	/**
 	 * Set an integer value.
@@ -240,7 +224,7 @@ public class JSONDoc {
 	 * @param value The value.
 	 */
 	public void setInteger(String key, Integer value) {
-		set(key, Type.INTEGER, value);
+		set(key, Type.NUMBER, BigDecimal.valueOf(value));
 	}
 	/**
 	 * Set a long value.
@@ -248,7 +232,7 @@ public class JSONDoc {
 	 * @param value The value.
 	 */
 	public void setLong(String key, Long value) {
-		set(key, Type.LONG, value);
+		set(key, Type.NUMBER, BigDecimal.valueOf(value));
 	}
 
 	/**
@@ -366,10 +350,7 @@ public class JSONDoc {
 		} else {
 			switch (entry.type) {
 			case BOOLEAN:
-			case DECIMAL:
-			case DOUBLE:
-			case INTEGER:
-			case LONG:
+			case NUMBER:
 				w.write(entry.value.toString());
 				break;
 			case DATE:

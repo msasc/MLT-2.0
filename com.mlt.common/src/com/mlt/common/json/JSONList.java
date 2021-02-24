@@ -57,7 +57,7 @@ public class JSONList {
 	 * @param value The value.
 	 */
 	public void addDecimal(BigDecimal value) {
-		list.add(new Entry(Type.DECIMAL, value));
+		list.add(new Entry(Type.NUMBER, value));
 	}
 	/**
 	 * Add a decimal value.
@@ -65,14 +65,14 @@ public class JSONList {
 	 * @param value The value.
 	 */
 	public void addDecimal(int index, BigDecimal value) {
-		list.add(index, new Entry(Type.DECIMAL, value));
+		list.add(index, new Entry(Type.NUMBER, value));
 	}
 	/**
 	 * Add a double value.
 	 * @param value The value.
 	 */
 	public void addDouble(Double value) {
-		list.add(new Entry(Type.DOUBLE, value));
+		list.add(new Entry(Type.NUMBER, BigDecimal.valueOf(value)));
 	}
 	/**
 	 * Add a double value.
@@ -80,14 +80,14 @@ public class JSONList {
 	 * @param value The value.
 	 */
 	public void addDouble(int index, Double value) {
-		list.add(index, new Entry(Type.DOUBLE, value));
+		list.add(index, new Entry(Type.NUMBER, BigDecimal.valueOf(value)));
 	}
 	/**
 	 * Add an integer value.
 	 * @param value The value.
 	 */
 	public void addInteger(Integer value) {
-		list.add(new Entry(Type.INTEGER, value));
+		list.add(new Entry(Type.NUMBER, BigDecimal.valueOf(value)));
 	}
 	/**
 	 * Add an integer value.
@@ -95,14 +95,14 @@ public class JSONList {
 	 * @param value The value.
 	 */
 	public void addInteger(int index, Integer value) {
-		list.add(index, new Entry(Type.INTEGER, value));
+		list.add(index, new Entry(Type.NUMBER, BigDecimal.valueOf(value)));
 	}
 	/**
 	 * Add a long value.
 	 * @param value The value.
 	 */
 	public void addLong(Long value) {
-		list.add(new Entry(Type.LONG, value));
+		list.add(new Entry(Type.NUMBER, BigDecimal.valueOf(value)));
 	}
 	/**
 	 * Add a long value.
@@ -110,7 +110,7 @@ public class JSONList {
 	 * @param value The value.
 	 */
 	public void addLong(int index, Long value) {
-		list.add(index, new Entry(Type.LONG, value));
+		list.add(index, new Entry(Type.NUMBER, BigDecimal.valueOf(value)));
 	}
 
 	/**
@@ -242,11 +242,7 @@ public class JSONList {
 		Entry entry = list.get(index);
 		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
 		if (entry.value == null) return null;
-		if (entry.type == Type.DECIMAL) return (BigDecimal) entry.value;
-		if (entry.type == Type.DOUBLE) return BigDecimal.valueOf((Double) entry.value);
-		if (entry.type == Type.INTEGER) return BigDecimal.valueOf((Integer) entry.value);
-		if (entry.type == Type.LONG) return BigDecimal.valueOf((Long) entry.value);
-		return null;
+		return (BigDecimal) entry.value;
 	}
 	/**
 	 * Returns a double value.
@@ -257,11 +253,7 @@ public class JSONList {
 		Entry entry = list.get(index);
 		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
 		if (entry.value == null) return null;
-		if (entry.type == Type.DECIMAL) return ((BigDecimal) entry.value).doubleValue();
-		if (entry.type == Type.DOUBLE) return ((Double) entry.value).doubleValue();
-		if (entry.type == Type.INTEGER) return ((Integer) entry.value).doubleValue();
-		if (entry.type == Type.LONG) return ((Long) entry.value).doubleValue();
-		return null;
+		return ((BigDecimal) entry.value).doubleValue();
 	}
 	/**
 	 * Returns an integer value.
@@ -272,11 +264,7 @@ public class JSONList {
 		Entry entry = list.get(index);
 		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
 		if (entry.value == null) return null;
-		if (entry.type == Type.DECIMAL) return ((BigDecimal) entry.value).intValue();
-		if (entry.type == Type.DOUBLE) return ((Double) entry.value).intValue();
-		if (entry.type == Type.INTEGER) return ((Integer) entry.value).intValue();
-		if (entry.type == Type.LONG) return ((Long) entry.value).intValue();
-		return null;
+		return ((Double) entry.value).intValue();
 	}
 	/**
 	 * Returns a long value.
@@ -287,11 +275,7 @@ public class JSONList {
 		Entry entry = list.get(index);
 		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
 		if (entry.value == null) return null;
-		if (entry.type == Type.DECIMAL) return ((BigDecimal) entry.value).longValue();
-		if (entry.type == Type.DOUBLE) return ((Double) entry.value).longValue();
-		if (entry.type == Type.INTEGER) return ((Integer) entry.value).longValue();
-		if (entry.type == Type.LONG) return ((Long) entry.value).longValue();
-		return null;
+		return ((Long) entry.value).longValue();
 	}
 
 	/**
@@ -391,7 +375,7 @@ public class JSONList {
 	 * @param value The value.
 	 */
 	public void setDecimal(int index, BigDecimal value) {
-		list.set(index, new Entry(Type.DECIMAL, value));
+		list.set(index, new Entry(Type.NUMBER, value));
 	}
 	/**
 	 * Set a double value.
@@ -399,7 +383,7 @@ public class JSONList {
 	 * @param value The value.
 	 */
 	public void setDouble(int index, Double value) {
-		list.set(index, new Entry(Type.DOUBLE, value));
+		list.set(index, new Entry(Type.NUMBER, BigDecimal.valueOf(value)));
 	}
 	/**
 	 * Set an integer value.
@@ -407,7 +391,7 @@ public class JSONList {
 	 * @param value The value.
 	 */
 	public void setInteger(int index, Integer value) {
-		list.set(index, new Entry(Type.INTEGER, value));
+		list.set(index, new Entry(Type.NUMBER, BigDecimal.valueOf(value)));
 	}
 	/**
 	 * Set a long value.
@@ -415,7 +399,7 @@ public class JSONList {
 	 * @param value The value.
 	 */
 	public void setLong(int index, Long value) {
-		list.set(index, new Entry(Type.LONG, value));
+		list.set(index, new Entry(Type.NUMBER, BigDecimal.valueOf(value)));
 	}
 
 	/**

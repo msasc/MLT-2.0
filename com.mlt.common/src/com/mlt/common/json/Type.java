@@ -23,27 +23,19 @@ package com.mlt.common.json;
  */
 public enum Type {
 	/**
+	 * Null or unknown type.
+	 */
+	NULL("null"),
+	/**
 	 * Boolean, can be backed to the underlying database either as a boolean (true/false) or as a
 	 * string (Y/N or Yes/No). Additionally, the field definition specifies how it is displayed.
 	 */
 	BOOLEAN("bool"),
 
 	/**
-	 * Decimal, a number of any length with a pre-defined number of decimal places.
+	 * Number type.
 	 */
-	DECIMAL("dec"),
-	/**
-	 * Double, floating point 64 bit number.
-	 */
-	DOUBLE("double"),
-	/**
-	 * Integer, 32 bit integer number.
-	 */
-	INTEGER("int"),
-	/**
-	 * Long, 64 bit integer number.
-	 */
-	LONG("long"),
+	NUMBER("num"),
 
 	/**
 	 * Date, with a normalized 'YYYY-MM-DD' format.
@@ -118,39 +110,11 @@ public enum Type {
 	}
 
 	/**
-	 * Return a boolean indicating whether the type is DECIMAL.
-	 * @return A boolean to confirm the type.
-	 */
-	public boolean isDecimal() {
-		return this == Type.DECIMAL;
-	}
-	/**
-	 * Return a boolean indicating whether the type is DOUBLE.
-	 * @return A boolean to confirm the type.
-	 */
-	public boolean isDouble() {
-		return this == Type.DOUBLE;
-	}
-	/**
-	 * Return a boolean indicating whether the type is INTEGER.
-	 * @return A boolean to confirm the type.
-	 */
-	public boolean isInteger() {
-		return this == Type.INTEGER;
-	}
-	/**
-	 * Return a boolean indicating whether the type is LONG.
-	 * @return A boolean to confirm the type.
-	 */
-	public boolean isLong() {
-		return this == Type.LONG;
-	}
-	/**
-	 * Return a boolean indicating whether the type is a number type.
+	 * Return a boolean indicating whether the type is NUMBER.
 	 * @return A boolean to confirm the type.
 	 */
 	public boolean isNumber() {
-		return isDecimal() || isDouble() || isInteger() || isLong();
+		return this == Type.NUMBER;
 	}
 
 	/**

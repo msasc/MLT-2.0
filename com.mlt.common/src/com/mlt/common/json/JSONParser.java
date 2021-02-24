@@ -20,11 +20,6 @@ package com.mlt.common.json;
 import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
-import java.util.LinkedList;
 
 /**
  * JSON parser. Admits standard JSON values (number, string, true, false, null, object and array),
@@ -34,29 +29,57 @@ import java.util.LinkedList;
 public class JSONParser {
 
 	/**
+	 * Enum the kind of token.
+	 */
+	private enum Kind {
+		/** End of file/stream. */
+		EOF,
+		/** Structural char. */
+		STRUCT,
+		/** Key. */
+		KEY,
+		/** Value. */
+		VALUE,
+		/** Unknown. */
+		UNKNOWN
+	}
+
+	/**
 	 * Tokens retrived by the parser.
 	 */
 	private static class Token {
-		/**
-		 * The type: struct, boolean, number, date, time, timestamp, string or null.
-		 */
-		private String type;
-		/**
-		 * The value as a string.
-		 */
-		private String value;
+
+		/** Kind of token. */
+		private Kind kind;
+		/** Type of the value. */
+		private Type type;
+		/** Value. */
+		private Object value;
+
 		/**
 		 * Constructor.
-		 * @param type  The type.
-		 * @param value The value.
+		 * @param kind  Kind of token.
+		 * @param type  Type of the value.
+		 * @param value Value.
 		 */
-		private Token(String type, String value) {
+		public Token(Kind kind, Type type, Object value) {
+			this.kind = kind;
 			this.type = type;
 			this.value = value;
 		}
+		/**
+		 * Return a string representation.
+		 * @return The string representation.
+		 */
 		@Override
 		public String toString() {
-			return type + "=\"" + value + "\"";
+			StringBuilder b = new StringBuilder();
+			b.append(kind);
+			b.append(", ");
+			b.append(type);
+			b.append(", ");
+			b.append(value);
+			return b.toString();
 		}
 	}
 
@@ -64,8 +87,8 @@ public class JSONParser {
 	private Reader reader;
 	/** Document to fill with parsed data. */
 	private JSONDoc document;
-	/** List of tokens. */
-	private LinkedList<Token> tokens;
+	/** Next token cached (used only when reading a number). */
+	private Token nextToken;
 
 	/**
 	 * Constructor.
@@ -91,7 +114,7 @@ public class JSONParser {
 	public JSONDoc parse(Reader reader, JSONDoc document) throws IOException {
 		this.reader = reader;
 		this.document = document;
-		this.tokens = new LinkedList<>();
+		this.nextToken = null;
 		parse();
 		return document;
 	}
@@ -100,65 +123,58 @@ public class JSONParser {
 	 * @throws IOException If an error occurs.
 	 */
 	private void parse() throws IOException {
-		while (readToken()) {}
-		System.out.println(tokens);
+		while (true) {
+			Token token = nextToken();
+			System.out.println(token);
+			if (token.kind == Kind.EOF) break;
+		}
 	}
 	/**
-	 * Read the next token.
+	 * If required reads tokens from the stream and return the next token.
 	 * @return The next token.
 	 * @throws IOException If an error occurs.
 	 */
-	private boolean readToken() throws IOException {
+	private Token nextToken() throws IOException {
+
+		// If the queue of tokens is not empty, return the first one.
+		if (nextToken != null) {
+			Token token = nextToken;
+			nextToken = null;
+			return token;
+		}
 
 		// Read the next neat char.
-		int c = next(true);
+		int c = nextChar(true);
 
 		// -1, end of stream
 		if (c < 0) {
-			return false;
+			return new Token(Kind.EOF, null, null);
 		}
 
 		// Structural char.
 		if ("[]{}:,".indexOf(c) >= 0) {
-			tokens.add(new Token("struct", String.valueOf((char) c)));
-			return true;
+			return new Token(Kind.STRUCT, Type.STRING, String.valueOf((char) c));
 		}
 
 		// '"', start of a string or key. Read chars up to the end of the string and then check
 		// if could be a date, time, timestamp or a string.
 		if (c == '\"') {
 			String str = readString();
-			// Check whether it is a date, time or timestamp.
-			String chk = str.replace(' ', 'T');
-			try {
-				LocalDateTime timestamp = LocalDateTime.parse(chk);
-				tokens.add(new Token("timestamp", str));
-				return true;
-			} catch (DateTimeParseException exc) {}
-			try {
-				LocalTime time = LocalTime.parse(chk);
-				tokens.add(new Token("time", str));
-				return true;
-			} catch (DateTimeParseException exc) {}
-			try {
-				LocalDate date = LocalDate.parse(chk);
-				tokens.add(new Token("date", str));
-				return true;
-			} catch (DateTimeParseException exc) {}
-			tokens.add(new Token("string", str));
-			return true;
+			return new Token(Kind.UNKNOWN, Type.STRING, str);
 		}
+
+		// Analyze true, false, null or number. Although at this point we do not know if the
+		// token is a KEY or a VALUE, we may infer it is a VALUE if it is not a format error.
 
 		// 't' possible start of the token true.
 		if (c == 't') {
 			StringBuilder b = new StringBuilder();
 			b.append((char) c);
 			for (int i = 0; i < 3; i++) {
-				b.append((char) next(false));
+				b.append((char) nextChar(false));
 			}
 			if (b.toString().equals("true")) {
-				tokens.add(new Token("boolean", b.toString()));
-				return true;
+				return new Token(Kind.VALUE, Type.BOOLEAN, true);
 			}
 			throw new IOException("Format error");
 		}
@@ -168,11 +184,10 @@ public class JSONParser {
 			StringBuilder b = new StringBuilder();
 			b.append((char) c);
 			for (int i = 0; i < 4; i++) {
-				b.append((char) next(false));
+				b.append((char) nextChar(false));
 			}
 			if (b.toString().equals("false")) {
-				tokens.add(new Token("boolean", b.toString()));
-				return true;
+				return new Token(Kind.VALUE, Type.BOOLEAN, false);
 			}
 			throw new IOException("Format error");
 		}
@@ -182,11 +197,10 @@ public class JSONParser {
 			StringBuilder b = new StringBuilder();
 			b.append((char) c);
 			for (int i = 0; i < 3; i++) {
-				b.append((char) next(false));
+				b.append((char) nextChar(false));
 			}
 			if (b.toString().equals("null")) {
-				tokens.add(new Token("null", b.toString()));
-				return true;
+				return new Token(Kind.VALUE, Type.NULL, null);
 			}
 			throw new IOException("Format error");
 		}
@@ -196,7 +210,7 @@ public class JSONParser {
 			StringBuilder b = new StringBuilder();
 			b.append((char) c);
 			while (true) {
-				c = next(false);
+				c = nextChar(false);
 				if (c <= 32) {
 					throw new IOException("Format error");
 				}
@@ -207,9 +221,8 @@ public class JSONParser {
 				if (":,]}".indexOf(c) >= 0) {
 					try {
 						BigDecimal dec = new BigDecimal(b.toString());
-						tokens.add(new Token("number", b.toString()));
-						tokens.add(new Token("struct", String.valueOf((char) c)));
-						return true;
+						nextToken = new Token(Kind.STRUCT, Type.STRING, String.valueOf((char) c));
+						return new Token(Kind.VALUE, Type.NUMBER, dec);
 					} catch (NumberFormatException exc) { throw new IOException("Format error"); }
 				}
 			}
@@ -224,7 +237,7 @@ public class JSONParser {
 	private String readString() throws IOException {
 		StringBuilder b = new StringBuilder();
 		while (true) {
-			int c = next(false);
+			int c = nextChar(false);
 
 			// -1, reached end of stream before the string is closed, it is a format error.
 			// Can not be 0 to 31, these must be unicode escaped.
@@ -236,7 +249,7 @@ public class JSONParser {
 			// '\' escape indicator, read the next char to see whether it is a two-character
 			// escape sequence or the start (u) of a potential unicode escape.
 			if (c == '\\') {
-				int n = next(false);
+				int n = nextChar(false);
 				if (n < 0) throw new IOException("Format error");
 
 				// Two-character escape sequences.
@@ -257,7 +270,7 @@ public class JSONParser {
 				if (n == 'u') {
 					StringBuilder u = new StringBuilder();
 					for (int i = 0; i < 4; i++) {
-						int m = next(false);
+						int m = nextChar(false);
 						if ("0123456789abcdefABCDEF".indexOf(m) >= 0) u.append((char) m);
 						else throw new IOException("Format error");
 					}
@@ -279,7 +292,7 @@ public class JSONParser {
 	 * @return The next char, whether neat or not, -1 if the end of the stream is reached.
 	 * @throws IOException If an error occurs.
 	 */
-	private int next(boolean neat) throws IOException {
+	private int nextChar(boolean neat) throws IOException {
 		while (true) {
 			int c = reader.read();
 			if (!neat) return c;

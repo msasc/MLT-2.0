@@ -22,12 +22,15 @@ import java.math.RoundingMode;
 
 public class TestBigDecimal {
 	public static void main(String[] args) {
-		BigDecimal b = new BigDecimal("2.0234856");
-		System.out.println(b);
-		BigDecimal c = b.divide(new BigDecimal("10453.3575308"), 100, RoundingMode.HALF_UP);
-		System.out.println(c);
-		BigDecimal d = c.multiply(new BigDecimal("10000000000000000000000000000000000000000000000000"));
-		System.out.println(d);
-		System.out.println(BigDecimal.valueOf(2.345).scale());
+		BigDecimal b;
+		b = new BigDecimal("2.0234856");
+		System.out.println(b.toPlainString() + ", dec=" + b.scale());
+		b = b.divide(new BigDecimal("10000000"));
+		System.out.println(b.toPlainString() + ", dec=" + b.scale());
+//		BigDecimal c = b.divide(new BigDecimal("10453.3575308"), 100, RoundingMode.HALF_UP);
+//		System.out.println(c);
+//		BigDecimal d = c.multiply(new BigDecimal("10000000000000000000000000000000000000000000000000"));
+//		System.out.println(d);
+//		System.out.println(BigDecimal.valueOf(2.345).scale());
 	}
 }
