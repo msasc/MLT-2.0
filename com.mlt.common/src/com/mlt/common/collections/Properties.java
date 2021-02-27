@@ -17,20 +17,13 @@
 
 package com.mlt.common.collections;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -70,8 +63,6 @@ public class Properties {
 		valid |= value instanceof LocalDateTime;
 		valid |= value instanceof LocalTime;
 		valid |= value instanceof String;
-		valid |= value instanceof JSONArray;
-		valid |= value instanceof JSONObject;
 		if (!valid) throw new IllegalArgumentException("Invalid value type");
 
 		map.put(key, value);
@@ -173,22 +164,6 @@ public class Properties {
 	public String getString(String key) {
 		return (String) map.get(key);
 	}
-	/**
-	 * @param key The string key.
-	 * @return A {@link JSONArray} value.
-	 * @throws ClassCastException If the underlying value is not a {@link JSONArray}.
-	 */
-	public JSONArray getJSONArray(String key) {
-		return (JSONArray) map.get(key);
-	}
-	/**
-	 * @param key The string key.
-	 * @return A {@link JSONObject} value.
-	 * @throws ClassCastException If the underlying value is not a {@link JSONObject}.
-	 */
-	public JSONObject getJSONObject(String key) {
-		return (JSONObject) map.get(key);
-	}
 
 	/**
 	 * @param key   String key.
@@ -262,20 +237,6 @@ public class Properties {
 	}
 	/**
 	 * @param key   String key.
-	 * @param value A JSON array.
-	 */
-	public void putJSONArray(String key, JSONArray value) {
-		put(key, value);
-	}
-	/**
-	 * @param key   String key.
-	 * @param value A JSON object.
-	 */
-	public void putJSONObject(String key, JSONObject value) {
-		put(key, value);
-	}
-	/**
-	 * @param key   String key.
 	 * @param value A double vector.
 	 */
 	public void putDoubleVector(String key, double[] value) {
@@ -289,41 +250,6 @@ public class Properties {
 		put(key, value);
 	}
 
-	/**
-	 * @param property The {@link JSONObject} container property.
-	 * @param key      The key.
-	 * @return The {@link Integer} value.
-	 */
-	private Integer getInteger(JSONObject property, String key) {
-		Integer value = null;
-		try {
-			value = property.getInt(key);
-		} catch (JSONException ignore) {}
-		return value;
-	}
-	/**
-	 * @param property The {@link JSONObject} container property.
-	 * @param key      The key.
-	 * @return The {@link String} value.
-	 */
-	private String getString(JSONObject property, String key) {
-		String value = null;
-		try {
-			value = property.getString(key);
-		} catch (JSONException ignore) {}
-		return value;
-	}
-	/**
-	 * @param property The {@link JSONObject} container property.
-	 * @return The {@link Object} value.
-	 */
-	private Object getObject(JSONObject property) {
-		Object object = null;
-		try {
-			object = property.get("value");
-		} catch (JSONException ignore) {}
-		return object;
-	}
 	/**
 	 * @param s The source string.
 	 * @return The {@link LocalDate}
@@ -358,255 +284,4 @@ public class Properties {
 		return value;
 	}
 
-	/**
-	 * @param src The source JSONObject from which the properties will be read. Only entries that
-	 *            conform with the format used to save this properties will be considered.
-	 */
-	public void fromJSON(JSONObject src) {
-
-		List<String> types = new ArrayList<>();
-		types.add("Boolean");
-		types.add("BigDecimal");
-		types.add("BigInteger");
-		types.add("Double");
-		types.add("Integer");
-		types.add("Long");
-		types.add("LocalDate");
-		types.add("LocalDateTime");
-		types.add("LocalTime");
-		types.add("String");
-		types.add("JSONArray");
-		types.add("JSONObject");
-		types.add("double[]");
-		types.add("double[][]");
-
-		for (String key : src.keySet()) {
-			Object entry = src.get(key);
-			if (!(entry instanceof JSONObject)) continue;
-			JSONObject property = (JSONObject) entry;
-
-			String type = getString(property, "type");
-			if (type == null) continue;
-			if (!types.contains(type)) continue;
-
-			Object object = getObject(property);
-			if (object == null) continue;
-
-			if (type.equals("Boolean")) {
-				if (!(object instanceof Boolean)) continue;
-				Boolean value = (Boolean) object;
-				putBoolean(key, value);
-				continue;
-			}
-			if (type.equals("BigDecimal")) {
-				if (!(object instanceof BigDecimal)) continue;
-				Integer scale = getInteger(property, "scale");
-				if (scale == null) continue;
-				BigDecimal value = ((BigDecimal) object).setScale(scale, RoundingMode.HALF_UP);
-				putBigDecimal(key, value);
-				continue;
-			}
-			if (type.equals("BigInteger")) {
-				if (!(object instanceof BigInteger)) continue;
-				BigInteger value = (BigInteger) object;
-				putBigInteger(key, value);
-				continue;
-			}
-			if (type.equals("Double")) {
-				if (!(object instanceof Double)) continue;
-				Double value = (Double) object;
-				putDouble(key, value);
-				continue;
-			}
-			if (type.equals("Integer")) {
-				if (!(object instanceof Integer)) continue;
-				Integer value = (Integer) object;
-				putInteger(key, value);
-				continue;
-			}
-			if (type.equals("Long")) {
-				if (!(object instanceof Long)) continue;
-				Long value = (Long) object;
-				putLong(key, value);
-				continue;
-			}
-			if (type.equals("LocalDate")) {
-				if (!(object instanceof String)) continue;
-				LocalDate value = parseLocalDate((String) object);
-				if (value == null) continue;
-				putLocalDate(key, value);
-				continue;
-			}
-			if (type.equals("LocalDateTime")) {
-				if (!(object instanceof String)) continue;
-				LocalDateTime value = parseLocalDateTime((String) object);
-				if (value == null) continue;
-				putLocalDateTime(key, value);
-				continue;
-			}
-			if (type.equals("LocalTime")) {
-				if (!(object instanceof String)) continue;
-				LocalTime value = parseLocalTime((String) object);
-				if (value == null) continue;
-				putLocalTime(key, value);
-				continue;
-			}
-			if (type.equals("String")) {
-				if (!(object instanceof String)) continue;
-				String value = (String) object;
-				if (value == null) continue;
-				if (value == null) continue;
-				putString(key, value);
-				continue;
-			}
-			if (type.equals("JSONArray")) {
-				if (!(object instanceof JSONArray)) continue;
-				JSONArray value = (JSONArray) object;
-				putJSONArray(key, value);
-				continue;
-			}
-			if (type.equals("JSONObject")) {
-				if (!(object instanceof JSONObject)) continue;
-				JSONObject value = (JSONObject) object;
-				putJSONObject(key, value);
-				continue;
-			}
-			if (type.equals("double[]")) {
-				if (!(object instanceof double[])) continue;
-				double[] value = (double[]) object;
-				putDoubleVector(key, value);
-				continue;
-			}
-			if (type.equals("double[][]")) {
-				if (!(object instanceof double[][])) continue;
-				double[][] value = (double[][]) object;
-				putDoubleMatrix(key, value);
-				continue;
-			}
-		}
-	}
-	/**
-	 * @return The properties as a JSONObject.
-	 */
-	public JSONObject toJSON() {
-		JSONObject properties = new JSONObject();
-		for (String key : map.keySet()) {
-			Object object = map.get(key);
-			if (object instanceof Boolean) {
-				Boolean value = (Boolean) object;
-				JSONObject property = new JSONObject();
-				property.put("type", "Boolean");
-				property.put("value", value);
-				properties.put(key, property);
-				continue;
-			}
-			if (object instanceof BigDecimal) {
-				BigDecimal value = (BigDecimal) object;
-				JSONObject property = new JSONObject();
-				property.put("type", "BigDecimal");
-				property.put("scale", value.scale());
-				property.put("value", value);
-				properties.put(key, property);
-				continue;
-			}
-			if (object instanceof BigInteger) {
-				BigInteger value = (BigInteger) object;
-				JSONObject property = new JSONObject();
-				property.put("type", "BigInteger");
-				property.put("value", value);
-				properties.put(key, property);
-				continue;
-			}
-			if (object instanceof Double) {
-				Double value = (Double) object;
-				JSONObject property = new JSONObject();
-				property.put("type", "Double");
-				property.put("value", value);
-				properties.put(key, property);
-				continue;
-			}
-			if (object instanceof Integer) {
-				Integer value = (Integer) object;
-				JSONObject property = new JSONObject();
-				property.put("type", "Integer");
-				property.put("value", value);
-				properties.put(key, property);
-				continue;
-			}
-			if (object instanceof Long) {
-				Long value = (Long) object;
-				JSONObject property = new JSONObject();
-				property.put("type", "Long");
-				property.put("value", value);
-				properties.put(key, property);
-				continue;
-			}
-			if (object instanceof LocalDate) {
-				LocalDate value = (LocalDate) object;
-				JSONObject property = new JSONObject();
-				property.put("type", "LocalDate");
-				property.put("value", value.toString());
-				properties.put(key, property);
-				continue;
-			}
-			if (object instanceof LocalDateTime) {
-				LocalDateTime value = (LocalDateTime) object;
-				JSONObject property = new JSONObject();
-				property.put("type", "LocalDateTime");
-				property.put("value", value.toString());
-				properties.put(key, property);
-				continue;
-			}
-			if (object instanceof LocalTime) {
-				LocalTime value = (LocalTime) object;
-				JSONObject property = new JSONObject();
-				property.put("type", "LocalTime");
-				property.put("value", value.toString());
-				properties.put(key, property);
-				continue;
-			}
-			if (object instanceof String) {
-				String value = (String) object;
-				JSONObject property = new JSONObject();
-				property.put("type", "String");
-				property.put("value", value.toString());
-				properties.put(key, property);
-				continue;
-			}
-			if (object instanceof double[]) {
-				double[] value = (double[]) object;
-				JSONObject property = new JSONObject();
-				property.put("type", "double[]");
-				property.put("value", value);
-				properties.put(key, property);
-				continue;
-			}
-			if (object instanceof double[][]) {
-				double[][] value = (double[][]) object;
-				JSONObject property = new JSONObject();
-				property.put("type", "double[][]");
-				property.put("value", value);
-				properties.put(key, property);
-				continue;
-			}
-			if (object instanceof JSONArray) {
-				JSONArray jsa = (JSONArray) object;
-				JSONObject property = new JSONObject();
-				property.put("type", "JSONArray");
-				property.put("value", jsa);
-				properties.put(key, property);
-				continue;
-			}
-			if (object instanceof JSONObject) {
-				JSONObject jso = (JSONObject) object;
-				JSONObject property = new JSONObject();
-				property.put("type", "JSONObject");
-				property.put("value", jso);
-				properties.put(key, property);
-				continue;
-			}
-			throw new IllegalStateException("Invalid value type for key : " + key);
-		}
-		return properties;
-	}
 }

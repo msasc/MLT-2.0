@@ -17,11 +17,6 @@
 
 package com.mlt.db;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-
 /**
  * Data types.
  * @author Miquel Sas

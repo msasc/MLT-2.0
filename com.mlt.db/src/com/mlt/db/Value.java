@@ -17,6 +17,8 @@
 
 package com.mlt.db;
 
+import com.mlt.common.json.JSONDoc;
+import com.mlt.common.json.JSONList;
 import com.mlt.common.lang.Comparators;
 
 import java.math.BigDecimal;
@@ -31,6 +33,97 @@ import java.util.Objects;
  * @author Miquel Sas
  */
 public class Value implements Comparable<Object> {
+	/**
+	 * Add the value to the JSON list.
+	 * @param list  The destination list.
+	 * @param value The value to add.
+	 */
+	public static void addValue(JSONList list, Value value) {
+		switch (value.getType()) {
+		case BOOLEAN:
+			list.addBoolean(value.getBoolean());
+			break;
+		case DECIMAL:
+			list.addDecimal(value.getDecimal());
+			break;
+		case DOUBLE:
+			list.addDouble(value.getDouble());
+			break;
+		case INTEGER:
+			list.addInteger(value.getInteger());
+			break;
+		case LONG:
+			list.addLong(value.getLong());
+			break;
+		case DATE:
+			list.addDate(value.getDate());
+			break;
+		case TIME:
+			list.addTime(value.getTime());
+			break;
+		case TIMESTAMP:
+			list.addTimestamp(value.getTimestamp());
+			break;
+		case STRING:
+			list.addString(value.getString());
+			break;
+		case BINARY:
+			list.addBinary(value.getBinary());
+			break;
+		case DOCUMENT:
+			list.addDocument(value.getDocument().toJSONDoc());
+			break;
+		case LIST:
+			list.addList(value.getList().toJSONList());
+			break;
+		}
+	}
+	/**
+	 * Set a value to a documen t.
+	 * @param doc   The JSON document.
+	 * @param key   The key.
+	 * @param value The value to set.
+	 */
+	public static void setValue(JSONDoc doc, String key, Value value) {
+		switch (value.getType()) {
+		case BOOLEAN:
+			doc.setBoolean(key, value.getBoolean());
+			break;
+		case DECIMAL:
+			doc.setDecimal(key, value.getDecimal());
+			break;
+		case DOUBLE:
+			doc.setDouble(key, value.getDouble());
+			break;
+		case INTEGER:
+			doc.setInteger(key, value.getInteger());
+			break;
+		case LONG:
+			doc.setLong(key, value.getLong());
+			break;
+		case DATE:
+			doc.setDate(key, value.getDate());
+			break;
+		case TIME:
+			doc.setTime(key, value.getTime());
+			break;
+		case TIMESTAMP:
+			doc.setTimestamp(key, value.getTimestamp());
+			break;
+		case STRING:
+			doc.setString(key, value.getString());
+			break;
+		case BINARY:
+			doc.setBinary(key, value.getBinary());
+			break;
+		case DOCUMENT:
+			doc.setDocument(key, value.getDocument().toJSONDoc());
+			break;
+		case LIST:
+			doc.setList(key, value.getList().toJSONList());
+			break;
+		}
+	}
 
 	/**
 	 * Internal value.

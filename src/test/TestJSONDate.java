@@ -17,7 +17,8 @@
 
 package test;
 
-import org.json.JSONObject;
+import com.mlt.common.json.JSONDoc;
+import com.mlt.common.json.JSONParser;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -27,21 +28,22 @@ import java.time.YearMonth;
 
 public class TestJSONDate {
 	public static void main(String[] args) {
-		JSONObject o = new JSONObject();
-		o.put("date", LocalDate.now());
-		o.put("time", LocalTime.of(12, 30));
-		o.put("date-time", LocalDateTime.now());
-		o.put("is-good", true);
-		o.put("decimal", BigDecimal.valueOf(0.345));
-		o.put("integer", Long.valueOf(1000000000000000L));
+		JSONDoc o = new JSONDoc();
+		o.setDate("date", LocalDate.now());
+		o.setTime("time", LocalTime.of(12, 30));
+		o.setTimestamp("date-time", LocalDateTime.now());
+		o.setBoolean("is-good", true);
+		o.setDecimal("decimal", BigDecimal.valueOf(0.345));
+		o.setLong("integer", Long.valueOf(1000000000000000L));
 		System.out.println(o);
-		JSONObject c = new JSONObject(o.toString());
-		System.out.println(c.get("date").getClass());
-		System.out.println(c.get("time").getClass());
-		System.out.println(c.get("date-time").getClass());
-		System.out.println(c.get("is-good").getClass());
-		System.out.println(c.get("decimal").getClass());
-		System.out.println(c.get("integer").getClass());
+		JSONDoc c = new JSONDoc();
+		JSONParser parser = new JSONParser();
+		System.out.println(c.getDate("date").getClass());
+		System.out.println(c.getTime("time").getClass());
+		System.out.println(c.getTimestamp("date-time").getClass());
+		System.out.println(c.getBoolean("is-good").getClass());
+		System.out.println(c.getDecimal("decimal").getClass());
+		System.out.println(c.getInteger("integer").getClass());
 		System.out.println(LocalDateTime.parse("2021-02-07 09:28".replace(" ", "T")));
 		System.out.println(YearMonth.now());
 	}

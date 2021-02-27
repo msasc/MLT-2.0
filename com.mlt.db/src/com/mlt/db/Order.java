@@ -13,9 +13,9 @@
  */
 package com.mlt.db;
 
+import com.mlt.common.json.JSONDoc;
+import com.mlt.common.json.JSONList;
 import com.mlt.common.lang.Strings;
-import com.mlt.db.json_backup.JSONDocument;
-import com.mlt.db.json_backup.JSONList;
 
 import java.util.ArrayList;
 
@@ -49,7 +49,7 @@ public class Order extends ArrayList<FieldKey> {
 	 * Returns a JSON representation of this order.
 	 * @return A JSON representation of this order.
 	 */
-	public JSONDocument toJSONDocument() {
+	public JSONDoc toJSONDoc() {
 		JSONList keys = new JSONList();
 		for (FieldKey fieldKey : this) {
 			JSONList key = new JSONList();
@@ -57,7 +57,7 @@ public class Order extends ArrayList<FieldKey> {
 			key.addString(Strings.toBooleanString(fieldKey.isAsc(), "asc", "desc"));
 			keys.addList(key);
 		}
-		JSONDocument doc = new JSONDocument();
+		JSONDoc doc = new JSONDoc();
 		doc.setList("keys", keys);
 		return doc;
 	}

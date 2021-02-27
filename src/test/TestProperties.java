@@ -49,20 +49,5 @@ public class TestProperties {
 		properties.putLocalDateTime("date-time", LocalDateTime.now());
 		properties.putLocalTime("time", LocalTime.now());
 
-		System.out.println();
-		System.out.println(properties.toJSON().toString());
-
-		Properties restore = new Properties();
-		restore.fromJSON(properties.toJSON());
-
-		System.out.println();
-		System.out.println(restore.toJSON().toString());
-
-		System.out.println();
-		System.out.println(restore.getBigDecimal("bigDecimal"));
-
-		System.out.println();
-		System.out.println(restore.getLocalDate("date"));
-		System.out.println(restore.getLocalDateTime("date-time"));
 	}
 }

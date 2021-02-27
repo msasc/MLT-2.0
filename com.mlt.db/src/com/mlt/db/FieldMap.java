@@ -23,7 +23,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * A map of fields and the corresponding value positions in a document.
+ * A map of fields backed by a {@link LinkedHashMap} and using the alias as key. It also maintains a
+ * list of corresponding indexes to map the values to an array in documents that conforms to a
+ * schema, thus avoiding the need of a map of values per document.
  * @author Miquel Sas
  */
 public class FieldMap {
@@ -95,7 +97,11 @@ public class FieldMap {
 	 */
 	public void remove(String key) {
 		fields.remove(key);
-		indexes.remove(key);
+		indexes.clear();
+		int i = 0;
+		for (String k : fields.keySet()) {
+			indexes.put(k, i++);
+		}
 	}
 
 	/**

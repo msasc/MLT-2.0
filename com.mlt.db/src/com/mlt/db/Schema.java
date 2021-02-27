@@ -17,8 +17,8 @@
 
 package com.mlt.db;
 
-import com.mlt.db.json_backup.JSONDocument;
-import com.mlt.db.json_backup.JSONList;
+import com.mlt.common.json.JSONDoc;
+import com.mlt.common.json.JSONList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -128,8 +128,8 @@ public class Schema {
 	 * Returns a JSON representation of this schema.
 	 * @return A JSON representation of this schema.
 	 */
-	public JSONDocument toJSONDocument() {
-		JSONDocument doc = new JSONDocument();
+	public JSONDoc toJSONDoc() {
+		JSONDoc doc = new JSONDoc();
 		if (getName() != null) {
 			doc.setString("name", getName());
 		}
@@ -137,7 +137,7 @@ public class Schema {
 			doc.setString("description", getDescription());
 		}
 		if (!fieldMap.isEmpty()) {
-			JSONDocument fields_doc = new JSONDocument();
+			JSONDoc fields_doc = new JSONDoc();
 			for (Field entry : fieldMap.fields()) {
 				fields_doc.setDocument(entry.getAlias(), entry.toJSONDocument());
 			}
@@ -146,7 +146,7 @@ public class Schema {
 		if (!indexes.isEmpty()) {
 			JSONList index_list = new JSONList();
 			for (Index index : indexes) {
-				index_list.addDocument(index.toJSONDocument());
+				index_list.addDocument(index.toJSONDoc());
 			}
 			doc.setList("indexes", index_list);
 		}

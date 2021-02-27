@@ -17,8 +17,8 @@
 
 package com.mlt.db;
 
+import com.mlt.common.json.JSONDoc;
 import com.mlt.common.lang.Strings;
-import com.mlt.db.json_backup.JSONDocument;
 
 /**
  * An index definition.
@@ -80,11 +80,11 @@ public class Index extends Order {
 	 * Returns a JSON representation of this index.
 	 * @return A JSON representation of this index.
 	 */
-	public JSONDocument toJSONDocument() {
-		JSONDocument doc = new JSONDocument();
+	public JSONDoc toJSONDoc() {
+		JSONDoc doc = new JSONDoc();
 		doc.setString("name", getName());
 		doc.setString("unique", Strings.toBooleanString(isUnique(), "yes", "no"));
-		doc.append(super.toJSONDocument());
+		doc.append(super.toJSONDoc());
 		return doc;
 	}
 }

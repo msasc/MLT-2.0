@@ -17,8 +17,8 @@
 
 package com.mlt.db;
 
-import com.mlt.db.json_backup.JSONDocument;
-import com.mlt.db.json_backup.JSONList;
+import com.mlt.common.json.JSONDoc;
+import com.mlt.common.json.JSONList;
 
 import java.util.ArrayList;
 
@@ -89,8 +89,8 @@ public class ValueList extends ArrayList<Value> implements Comparable<Object> {
 	 * Returns a JSON representation of this value list.
 	 * @return A JSON representation of this value list.
 	 */
-	public JSONDocument toJSONDocument() {
-		JSONDocument doc = new JSONDocument();
+	public JSONDoc toJSONDoc() {
+		JSONDoc doc = new JSONDoc();
 		doc.setList("values", toJSONList());
 		return doc;
 	}
@@ -100,7 +100,7 @@ public class ValueList extends ArrayList<Value> implements Comparable<Object> {
 	 */
 	public JSONList toJSONList() {
 		JSONList list = new JSONList();
-		forEach(value -> list.addValue(value));
+		forEach(value -> Value.addValue(list, value));
 		return list;
 	}
 }

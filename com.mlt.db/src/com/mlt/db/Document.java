@@ -17,13 +17,20 @@
 
 package com.mlt.db;
 
-import com.mlt.db.json_backup.JSONDocument;
+import com.mlt.common.json.JSONDoc;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 
 /**
- * A Document handles a row in a relational or column database such as PostgreSQL or Hadoop, and a
- * document in a document database such as MongoDB.
+ * A document that conforms to a schema or not.
+ * <p>
+ * When a document conforms to a schema, values are handled by an array and an unique reference to
+ * the schema and field map is hold by all documents in a collection.
+ * <p>
+ * When a document does not conform to a schema, values are handles by a map, and a different map is
+ * handled by each document in a collection.
  * @author Miquel Sas
  */
 public class Document {
@@ -33,21 +40,29 @@ public class Document {
 	 */
 	private Schema schema;
 	/**
-	 * Array of values.
+	 * Map or array of values.
 	 */
-	private Value[] values;
+	private Object values;
 
 	/**
-	 * Constructor assigning the schema.
+	 * Constructor of a document that does not conform to a schema. The value will be handles by a
+	 * different map for each document.
+	 */
+	public Document() {
+		this.schema = null;
+		this.values = new HashMap<String, Value>();
+	}
+	/**
+	 * Constructor of a document that conforms to a schema.
 	 * @param schema The schema that describes the structure.
 	 */
 	public Document(Schema schema) {
 		this.schema = schema;
 		this.values = new Value[schema.fields().size()];
 	}
-
 	/**
-	 * Constructor assigning the schema and a list of values that must match the schema structure.
+	 * Constructor of a document that conforms to a schema, assigning a list of values that must
+	 * match the schema structure.
 	 * @param schema The schema that describes the structure.
 	 * @param values The list of values that must match the schema structure.
 	 */
@@ -61,35 +76,46 @@ public class Document {
 	/**
 	 * @return The schema that describes the structure.
 	 */
-	public Schema getSchema() { return schema; }
+	public Schema getSchema() {
+		return schema;
+	}
 
 	/**
 	 * @param key The field key, name or alias.
 	 * @return The corresponding value.
 	 */
 	public Value getValue(String key) {
-		int index = schema.fields().getIndex(key);
-		if (index < 0) throw new IllegalArgumentException("Invalid field key: " + key);
-		return values[index];
+		if (schema != null) {
+			int index = schema.fields().getIndex(key);
+			if (index < 0) throw new IllegalArgumentException("Invalid field key: " + key);
+			return ((Value[]) values)[index];
+		} else {
+			return ((HashMap<String, Value>) values).get(key);
+		}
 	}
 	/**
-	 * Set the value for the given key.
-	 * @param key The key.
+	 * Set the value for the given key. No validation is made on the value.
+	 * @param key   The key.
 	 * @param value The value.
 	 */
 	public void setValue(String key, Value value) {
-		setValue(key, value, true);
+		setValue(key, value, false);
 	}
 	/**
 	 * Set the value for the given key.
-	 * @param key The key.
-	 * @param value The value.
-	 * @param validate A boolean to force value validation.
+	 * @param key      The key.
+	 * @param value    The value.
+	 * @param validate A boolean to force value validation agains the field in a document that
+	 *                 conforms with a schema.
 	 */
 	public void setValue(String key, Value value, boolean validate) {
-		if (validate) schema.fields().getField(key).validate(value);
-		int index = schema.fields().getIndex(key);
-		values[index] = value;
+		if (schema != null) {
+			if (validate) schema.fields().getField(key).validate(value);
+			int index = schema.fields().getIndex(key);
+			((Value[]) values)[index] = value;
+		} else {
+			((HashMap<String, Value>) values).put(key, value);
+		}
 	}
 
 	/**
@@ -97,20 +123,22 @@ public class Document {
 	 * @return A collection with the list of keys.
 	 */
 	public Collection<String> keys() {
-		return schema.fields().keys();
+		if (schema != null) {
+			return schema.fields().keys();
+		} else {
+			return Collections.unmodifiableCollection(((HashMap<String, Value>) values).keySet());
+		}
 	}
 
 	/**
 	 * Returns a JSON representation of this document.
 	 * @return A JSON representation of this document.
 	 */
-	public JSONDocument toJSONDocument() {
-		JSONDocument doc = new JSONDocument();
+	public JSONDoc toJSONDoc() {
+		JSONDoc doc = new JSONDoc();
 		Collection<String> keys = keys();
 		for (String key : keys) {
-			Field field = getSchema().fields().getField(key);
-			Value value = getValue(key);
-			doc.setValue(key, value);
+			Value.setValue(doc, key, getValue(key));
 		}
 		return doc;
 	}

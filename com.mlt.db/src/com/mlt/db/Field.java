@@ -17,7 +17,7 @@
 
 package com.mlt.db;
 
-import com.mlt.db.json_backup.JSONDocument;
+import com.mlt.common.json.JSONDoc;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -612,8 +612,8 @@ public class Field implements Comparable<Object> {
 	 * Returns a JSON representation of this field.
 	 * @return A JSON representation of this field.
 	 */
-	public JSONDocument toJSONDocument() {
-		JSONDocument doc = new JSONDocument();
+	public JSONDoc toJSONDocument() {
+		JSONDoc doc = new JSONDoc();
 		doc.setString("name", getName());
 		if (!getAlias().equals(getName())) {
 			doc.setString("alias", getAlias());
@@ -629,10 +629,10 @@ public class Field implements Comparable<Object> {
 			doc.setBoolean("required", isRequired());
 		}
 		if (getMaximumValue() != null) {
-			doc.setValue("max-value", getMaximumValue());
+			Value.setValue(doc,"max-value", getMaximumValue());
 		}
 		if (getMinimumValue() != null) {
-			doc.setValue("min-value", getMinimumValue());
+			Value.setValue(doc,"min-value", getMinimumValue());
 		}
 		if (!getPossibleValues().isEmpty()) {
 

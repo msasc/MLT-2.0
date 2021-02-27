@@ -36,12 +36,8 @@ public class JSONParser {
 		EOF,
 		/** Structural char. */
 		STRUCT,
-		/** Key. */
-		KEY,
-		/** Value. */
-		VALUE,
-		/** Unknown. */
-		UNKNOWN
+		/** Value (boolean, string...). */
+		VALUE
 	}
 
 	/**
@@ -86,48 +82,116 @@ public class JSONParser {
 	/** Reader. */
 	private Reader reader;
 	/** Document to fill with parsed data. */
-	private JSONDoc document;
-	/** Next token cached (used only when reading a number). */
 	private Token nextToken;
+	/** Format error message. */
+	private String fmtErr = "Format error";
 
-	/**
-	 * Constructor.
-	 */
+	/** Constructor. */
 	public JSONParser() {}
 
 	/**
 	 * Parse the source reader and return the result document.
-	 * @param reader The source reader.
+	 * @param r The source reader.
 	 * @return The parsed document.
 	 * @throws IOException If an IO or format error occurs.
 	 */
-	public JSONDoc parse(Reader reader) throws IOException {
-		return parse(reader, new JSONDoc());
+	public JSONDoc parse(Reader r) throws IOException {
+		reader = r;
+		nextToken = null;
+
+		// Read the first token, it must be the doc start structural char.
+		Token token = nextToken();
+		if (token.kind == Kind.EOF) return new JSONDoc();
+		if (token.kind != Kind.STRUCT) throw new IOException(fmtErr);
+		if (!token.value.equals("{")) throw new IOException(fmtErr);
+
+		// Parse and return the document.
+		return parseDoc();
 	}
 	/**
-	 * Parse the source reader and fill the argument document with the result.
-	 * @param reader   The source reader.
-	 * @param document The document to fill.
-	 * @return The filled document.
-	 * @throws IOException If an IO or format error occurs.
-	 */
-	public JSONDoc parse(Reader reader, JSONDoc document) throws IOException {
-		this.reader = reader;
-		this.document = document;
-		this.nextToken = null;
-		parse();
-		return document;
-	}
-	/**
-	 * Parse the source and fill the document.
+	 * Parse and return the incoming document.
+	 * @return The parsed document.
 	 * @throws IOException If an error occurs.
 	 */
-	private void parse() throws IOException {
+	private JSONDoc parseDoc() throws IOException {
+		JSONDoc doc = new JSONDoc();
+		Token token;
+
 		while (true) {
-			Token token = nextToken();
-			System.out.println(token);
-			if (token.kind == Kind.EOF) break;
+
+			// Read the key. Must be VALUE and STRING.
+			token = nextToken();
+			if (token.kind != Kind.VALUE) throw new IOException(fmtErr);
+			if (token.type != Type.STRING) throw new IOException(fmtErr);
+			String key = token.value.toString();
+
+			// Read the structural char ':'. Any other is an error.
+			token = nextToken();
+			if (token.kind != Kind.STRUCT) throw new IOException(fmtErr);
+			if (!token.value.equals(":")) throw new IOException(fmtErr);
+
+			// Read next token and analyze. Accepted tokens are values or
+			// the structural chars '{' or '['
+			token = nextToken();
+			if (token.kind == Kind.EOF) throw new IOException(fmtErr);
+
+			// A value, put it into the document.
+			if (token.kind == Kind.VALUE) {
+				doc.put(key, new Entry(token.type, token.value));
+			} else if (token.kind == Kind.STRUCT) {
+				// Start of a document.
+				if (token.value.equals("{")) {
+					doc.setDocument(key, parseDoc());
+				}
+				// Start of a list.
+				if (token.value.equals("[")) {
+					doc.setList(key, parseList());
+				}
+			}
+
+			// Read next token.
+			token = nextToken();
+			if (token.kind == Kind.EOF) throw new IOException(fmtErr);
+			if (token.value.equals(",")) continue;
+			if (token.value.equals("}")) break;
 		}
+		return doc;
+	}
+	/**
+	 * Parse the incoming list.
+	 * @return The list.
+	 * @throws IOException If an error occurs.
+	 */
+	private JSONList parseList() throws IOException {
+		JSONList list = new JSONList();
+		Token token;
+
+		while (true) {
+
+			// Read the next token. Must be STRUCT or value.
+			token = nextToken();
+			if (token.kind == Kind.EOF) throw new IOException(fmtErr);
+
+			if (token.kind == Kind.VALUE) {
+				list.addEntry(new Entry(token.type, token.value));
+			} else if (token.kind == Kind.STRUCT) {
+				// Start of a document.
+				if (token.value.equals("{")) {
+					list.addDocument(parseDoc());
+				}
+				// Start of a list.
+				if (token.value.equals("]")) {
+					list.addList(parseList());
+				}
+			}
+
+			// Read next token.
+			token = nextToken();
+			if (token.kind == Kind.EOF) throw new IOException(fmtErr);
+			if (token.value.equals(",")) continue;
+			if (token.value.equals("]")) break;
+		}
+		return list;
 	}
 	/**
 	 * If required reads tokens from the stream and return the next token.
@@ -160,7 +224,7 @@ public class JSONParser {
 		// if could be a date, time, timestamp or a string.
 		if (c == '\"') {
 			String str = readString();
-			return new Token(Kind.UNKNOWN, Type.STRING, str);
+			return new Token(Kind.VALUE, Type.STRING, str);
 		}
 
 		// Analyze true, false, null or number. Although at this point we do not know if the
@@ -176,7 +240,7 @@ public class JSONParser {
 			if (b.toString().equals("true")) {
 				return new Token(Kind.VALUE, Type.BOOLEAN, true);
 			}
-			throw new IOException("Format error");
+			throw new IOException(fmtErr);
 		}
 
 		// 'f' possible start of the token false.
@@ -189,7 +253,7 @@ public class JSONParser {
 			if (b.toString().equals("false")) {
 				return new Token(Kind.VALUE, Type.BOOLEAN, false);
 			}
-			throw new IOException("Format error");
+			throw new IOException(fmtErr);
 		}
 
 		// 'n' possible start of the token null.
@@ -202,7 +266,7 @@ public class JSONParser {
 			if (b.toString().equals("null")) {
 				return new Token(Kind.VALUE, Type.NULL, null);
 			}
-			throw new IOException("Format error");
+			throw new IOException(fmtErr);
 		}
 
 		// Next token must be a number.
@@ -211,9 +275,7 @@ public class JSONParser {
 			b.append((char) c);
 			while (true) {
 				c = nextChar(false);
-				if (c <= 32) {
-					throw new IOException("Format error");
-				}
+				if (c <= 32) throw new IOException(fmtErr);
 				if ("+-.0123456789eE".indexOf(c) >= 0) {
 					b.append((char) c);
 					continue;
@@ -223,11 +285,11 @@ public class JSONParser {
 						BigDecimal dec = new BigDecimal(b.toString());
 						nextToken = new Token(Kind.STRUCT, Type.STRING, String.valueOf((char) c));
 						return new Token(Kind.VALUE, Type.NUMBER, dec);
-					} catch (NumberFormatException exc) { throw new IOException("Format error"); }
+					} catch (NumberFormatException exc) { throw new IOException(fmtErr); }
 				}
 			}
 		}
-		throw new IOException("Format error");
+		throw new IOException(fmtErr);
 	}
 	/**
 	 * Read the next string, may be empty.
@@ -241,7 +303,7 @@ public class JSONParser {
 
 			// -1, reached end of stream before the string is closed, it is a format error.
 			// Can not be 0 to 31, these must be unicode escaped.
-			if (c <= 31) throw new IOException("Format error");
+			if (c <= 31) throw new IOException(fmtErr);
 
 			// '"' The end of the string has been reached.
 			if (c == '\"') break;
@@ -250,7 +312,7 @@ public class JSONParser {
 			// escape sequence or the start (u) of a potential unicode escape.
 			if (c == '\\') {
 				int n = nextChar(false);
-				if (n < 0) throw new IOException("Format error");
+				if (n < 0) throw new IOException(fmtErr);
 
 				// Two-character escape sequences.
 				switch (n) {
@@ -272,12 +334,12 @@ public class JSONParser {
 					for (int i = 0; i < 4; i++) {
 						int m = nextChar(false);
 						if ("0123456789abcdefABCDEF".indexOf(m) >= 0) u.append((char) m);
-						else throw new IOException("Format error");
+						else throw new IOException(fmtErr);
 					}
 					b.append((char) Integer.parseInt(u.toString(), 16));
 					continue;
 				}
-				throw new IOException("Format error");
+				throw new IOException(fmtErr);
 			}
 
 			// Valid non escaped char, just accept.

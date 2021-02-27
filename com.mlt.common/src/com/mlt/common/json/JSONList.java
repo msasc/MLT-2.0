@@ -37,6 +37,14 @@ public class JSONList {
 	private List<Entry> list = new ArrayList<>();
 
 	/**
+	 * Add the entry, used by the parser.
+	 * @param entry The entry.
+	 */
+	void addEntry(Entry entry) {
+		list.add(entry);
+	}
+
+	/**
 	 * Add a boolean value.
 	 * @param value The value.
 	 */
@@ -229,6 +237,7 @@ public class JSONList {
 	 */
 	public Boolean getBoolean(int index) {
 		Entry entry = list.get(index);
+		validateType(entry, Type.BOOLEAN);
 		if (entry.type != Type.BOOLEAN) throw new IllegalStateException("Invalid entry type");
 		return (Boolean) entry.value;
 	}
@@ -240,8 +249,7 @@ public class JSONList {
 	 */
 	public BigDecimal getDecimal(int index) {
 		Entry entry = list.get(index);
-		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
-		if (entry.value == null) return null;
+		validateType(entry, Type.NUMBER);
 		return (BigDecimal) entry.value;
 	}
 	/**
@@ -250,10 +258,9 @@ public class JSONList {
 	 * @return A double value.
 	 */
 	public Double getDouble(int index) {
-		Entry entry = list.get(index);
-		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
-		if (entry.value == null) return null;
-		return ((BigDecimal) entry.value).doubleValue();
+		BigDecimal number = getDecimal(index);
+		if (number == null) return null;
+		return number.doubleValue();
 	}
 	/**
 	 * Returns an integer value.
@@ -261,10 +268,9 @@ public class JSONList {
 	 * @return An integer value.
 	 */
 	public Integer getInteger(int index) {
-		Entry entry = list.get(index);
-		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
-		if (entry.value == null) return null;
-		return ((Double) entry.value).intValue();
+		BigDecimal number = getDecimal(index);
+		if (number == null) return null;
+		return number.intValue();
 	}
 	/**
 	 * Returns a long value.
@@ -272,10 +278,9 @@ public class JSONList {
 	 * @return A long value.
 	 */
 	public Long getLong(int index) {
-		Entry entry = list.get(index);
-		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
-		if (entry.value == null) return null;
-		return ((Long) entry.value).longValue();
+		BigDecimal number = getDecimal(index);
+		if (number == null) return null;
+		return number.longValue();
 	}
 
 	/**
@@ -285,7 +290,7 @@ public class JSONList {
 	 */
 	public LocalDate getDate(int index) {
 		Entry entry = list.get(index);
-		if (entry.type != Type.DATE) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.DATE);
 		return (LocalDate) entry.value;
 	}
 	/**
@@ -295,7 +300,7 @@ public class JSONList {
 	 */
 	public LocalTime getTime(int index) {
 		Entry entry = list.get(index);
-		if (entry.type != Type.TIME) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.TIME);
 		return (LocalTime) entry.value;
 	}
 	/**
@@ -305,7 +310,7 @@ public class JSONList {
 	 */
 	public LocalDateTime getTimstamp(int index) {
 		Entry entry = list.get(index);
-		if (entry.type != Type.TIMESTAMP) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.TIMESTAMP);
 		return (LocalDateTime) entry.value;
 	}
 
@@ -316,7 +321,7 @@ public class JSONList {
 	 */
 	public String getString(int index) {
 		Entry entry = list.get(index);
-		if (entry.type != Type.STRING) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.STRING);
 		return (String) entry.value;
 	}
 
@@ -327,7 +332,7 @@ public class JSONList {
 	 */
 	public byte[] getBinary(int index) {
 		Entry entry = list.get(index);
-		if (entry.type != Type.BINARY) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.BINARY);
 		return (byte[]) entry.value;
 	}
 
@@ -338,7 +343,7 @@ public class JSONList {
 	 */
 	public JSONDoc getDocument(int index) {
 		Entry entry = list.get(index);
-		if (entry.type != Type.DOCUMENT) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.DOCUMENT);
 		return (JSONDoc) entry.value;
 	}
 	/**
@@ -348,7 +353,7 @@ public class JSONList {
 	 */
 	public JSONList getList(int index) {
 		Entry entry = list.get(index);
-		if (entry.type != Type.LIST) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.LIST);
 		return (JSONList) entry.value;
 	}
 
@@ -482,5 +487,14 @@ public class JSONList {
 	 */
 	public Iterator<Entry> entries() {
 		return list.iterator();
+	}
+	/**
+	 * Validates that the entry type is equal to the valid type or NULL.
+	 * @param entry The entry.
+	 * @param valid The valid type.
+	 */
+	private void validateType(Entry entry, Type type) {
+		if (entry.type == Type.NULL || entry.type == type) return;
+		throw new IllegalArgumentException("Invalid type " + entry.type);
 	}
 }

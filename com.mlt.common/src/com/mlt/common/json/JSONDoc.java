@@ -20,6 +20,8 @@ package com.mlt.common.json;
 import com.mlt.common.lang.Strings;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.math.BigDecimal;
@@ -37,6 +39,29 @@ import java.util.Set;
  * @author Miquel Sas
  */
 public class JSONDoc {
+	/**
+	 * Parse the string document.
+	 * @param doc The string JSON document to parse.
+	 * @return The parsed document.
+	 */
+	public static JSONDoc parse(String doc) {
+		try {
+			StringReader reader = new StringReader(doc);
+			return parse(reader);
+		} catch (IOException exc) {
+			throw new IllegalArgumentException("Invalid document string", exc);
+		}
+	}
+	/**
+	 * Parse the reader and return the document.
+	 * @param reader The reader.
+	 * @return The document.
+	 * @throws IOException If an error occurs.
+	 */
+	public static JSONDoc parse(Reader reader) throws IOException {
+		JSONParser parser = new JSONParser();
+		return parser.parse(reader);
+	}
 
 	/**
 	 * Map ordered by insertion.
@@ -59,7 +84,7 @@ public class JSONDoc {
 	public Boolean getBoolean(String key) {
 		Entry entry = get(key);
 		if (entry == null) return null;
-		if (entry.type != Type.BOOLEAN) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.BOOLEAN);
 		return (Boolean) entry.value;
 	}
 
@@ -71,8 +96,7 @@ public class JSONDoc {
 	public BigDecimal getDecimal(String key) {
 		Entry entry = get(key);
 		if (entry == null) return null;
-		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
-		if (entry.value == null) return null;
+		validateType(entry, Type.NUMBER);
 		return (BigDecimal) entry.value;
 	}
 	/**
@@ -81,11 +105,9 @@ public class JSONDoc {
 	 * @return The double value.
 	 */
 	public Double getDouble(String key) {
-		Entry entry = get(key);
-		if (entry == null) return null;
-		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
-		if (entry.value == null) return null;
-		return ((Double) entry.value).doubleValue();
+		Number number = getDecimal(key);
+		if (number == null) return null;
+		return (number).doubleValue();
 	}
 	/**
 	 * Return the integer value or null if not exists or is not a number.
@@ -93,11 +115,9 @@ public class JSONDoc {
 	 * @return The integer value.
 	 */
 	public Integer getInteger(String key) {
-		Entry entry = get(key);
-		if (entry == null) return null;
-		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
-		if (entry.value == null) return null;
-		return ((Integer) entry.value).intValue();
+		Number number = getDecimal(key);
+		if (number == null) return null;
+		return (number).intValue();
 	}
 	/**
 	 * Return the long value or null if not exists or is not a number.
@@ -105,11 +125,9 @@ public class JSONDoc {
 	 * @return The long value.
 	 */
 	public Long getLong(String key) {
-		Entry entry = get(key);
-		if (entry == null) return null;
-		if (!entry.type.isNumber()) throw new IllegalStateException("Invalid entry type");
-		if (entry.value == null) return null;
-		return ((Long) entry.value).longValue();
+		Number number = getDecimal(key);
+		if (number == null) return null;
+		return (number).longValue();
 	}
 
 	/**
@@ -120,7 +138,7 @@ public class JSONDoc {
 	public LocalDate getDate(String key) {
 		Entry entry = get(key);
 		if (entry == null) return null;
-		if (entry.type != Type.DATE) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.DATE);
 		return (LocalDate) entry.value;
 	}
 	/**
@@ -131,7 +149,7 @@ public class JSONDoc {
 	public LocalTime getTime(String key) {
 		Entry entry = get(key);
 		if (entry == null) return null;
-		if (entry.type != Type.TIME) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.TIME);
 		return (LocalTime) entry.value;
 	}
 	/**
@@ -142,7 +160,7 @@ public class JSONDoc {
 	public LocalDateTime getTimestamp(String key) {
 		Entry entry = get(key);
 		if (entry == null) return null;
-		if (entry.type != Type.TIMESTAMP) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.TIMESTAMP);
 		return (LocalDateTime) entry.value;
 	}
 
@@ -154,7 +172,7 @@ public class JSONDoc {
 	public String getString(String key) {
 		Entry entry = get(key);
 		if (entry == null) return null;
-		if (entry.type != Type.STRING) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.STRING);
 		return (String) entry.value;
 	}
 
@@ -166,7 +184,7 @@ public class JSONDoc {
 	public byte[] getBinary(String key) {
 		Entry entry = get(key);
 		if (entry == null) return null;
-		if (entry.type != Type.BINARY) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.BINARY);
 		return (byte[]) entry.value;
 	}
 
@@ -178,7 +196,7 @@ public class JSONDoc {
 	public JSONDoc getDocument(String key) {
 		Entry entry = get(key);
 		if (entry == null) return null;
-		if (entry.type != Type.DOCUMENT) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.DOCUMENT);
 		return (JSONDoc) entry.value;
 	}
 	/**
@@ -189,7 +207,7 @@ public class JSONDoc {
 	public JSONList getList(String key) {
 		Entry entry = get(key);
 		if (entry == null) return null;
-		if (entry.type != Type.LIST) throw new IllegalStateException("Invalid entry type");
+		validateType(entry, Type.LIST);
 		return (JSONList) entry.value;
 	}
 
@@ -425,7 +443,6 @@ public class JSONDoc {
 			switch (c) {
 			case '\"':
 			case '\\':
-			case '/':
 			case '\b':
 			case '\f':
 			case '\n':
@@ -434,5 +451,14 @@ public class JSONDoc {
 				throw new IllegalArgumentException("Key contains escape character " + Strings.toUnicode(c));
 			}
 		}
+	}
+	/**
+	 * Validates that the entry type is equal to the valid type or NULL.
+	 * @param entry The entry.
+	 * @param valid The valid type.
+	 */
+	private void validateType(Entry entry, Type type) {
+		if (entry.type == Type.NULL || entry.type == type) return;
+		throw new IllegalArgumentException("Invalid type " + entry.type);
 	}
 }
